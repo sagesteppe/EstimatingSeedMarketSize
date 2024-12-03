@@ -76,8 +76,12 @@ write.csv(fire_perim, file.path('..', 'data', 'processed', 'FireSizes.csv'), row
 
 rm(p2dat, fire_perim, firesYear)
 
-
 firesYear <- read.csv(file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))
+
+
+
+
+
 
 # note that if a place is missing fire in a year, we need to impute that as an explicit '0'. 
 ggplot(data = firesYear, aes(x = NoFire)) + 
@@ -108,91 +112,172 @@ ggplot(data = firesYear, aes(x = FIRE_YEAR, y = log(TotalArea_Acre))) +
   facet_wrap(~REG_NAME, scales = 'free') 
 
 
+listicle <- split(firesYear, f = firesYear$REG_NAME)
+
+#' Develop estimates for total burned area in each DOI region by last data year
+#' 
+#' @description This function performs four tasks. First it fits a simple linear model to the log
+#' transformed input data where FIRE_YEAR predicts TotalArea_Acre. It then develops 
+#' a confidence interval for this model, as well as three sets of prediction intervals
+#' (0.95, 0.9, 0.8, or 1 in 20, 1 in 10, and 1 in 5 odds). It then plots all of these data. 
+#' Finally it returns estimates of the prediction intervals in both the most recent time period, 
+#' and time period + 1, via extrapolation. 
+#' 
+#' @param x a list of fire summary data by DOI region. 
+#' @dir a directory to save the plots, and estimates. 
+RegionalEstimates <- function(x, dir){
+  
+  mod <- lm(log(TotalArea_Acre) ~ FIRE_YEAR, data = x)
+  
+ # return(mod)
+  obs <- GrowthWriter(mod)
+ # return(obs)
+  
+  ntrvls <- PredInts(x = x, y = mod)
+  BurnedAreaPlots(x = x, z = ntrvls, mod = mod)
+
+  # now we transform the prediction intervals back onto their original scale
+  
+}
+
+lapply(listicle, RegionalEstimates)
+
+#' Create a simple scatter plot showing estimate total burned areas by year 
+#' 
+#' @description A quick base r plot indicating burned areas. 
+#' @param x the initial data input to `RegionalEstimates` 
+#' @param z the ouput of `PredInts`  
+#' @param mod the fit model object 
+BurnedAreaPlots <- function(x, z, mod){
+  
+  pval <- anova(mod); pval <- pval$`Pr(>F)`[1]
+  status <- paste(
+    'There is',
+    SupportWriter(mod),
+    'evidence that the total burned area is increasing.\n', 
+    'Linear model (p = ', round(pval, 5), ', RMSE = ', round(rmse(mod), 3), ')'  
+  )
+  
+  p <- file.path('..', 'results', 'Plots', 'AnnualSummaries', 
+                 paste0(gsub(' ', '_', x$REG_NAME[1]), '.png'))
+  png(p)
+  
+  
+  # Add some color to the scatter points . 
+  nColor <- 10
+  colors = paletteer::paletteer_c("viridis::inferno", n=nColor, direction = -1)
+  rank <- as.factor(as.numeric(cut(log(x$TotalArea_Acre), nColor)))
+  
+  plot(
+    x = x$FIRE_YEAR,
+    y = log(x$TotalArea_Acre), 
+    xlim = c(min(z$mod_ci$FIRE_YEAR), max(z$mod_ci$FIRE_YEAR)), 
+    ylim = c(min(z$mod_pred95$lwr), max(z$mod_pred95$upr)), 
+    
+    cex = 1.5,
+    pch=21,
+    bg = colors[ rank ], # color each point by fire size. 
+    
+    las = 1, # turn x axis text horizontal 
+    xlab = 'Year', 
+    ylab = 'log(Area Burned (Acres))',
+    main = paste0('Total Annual Area Burned by Wildfires\n', x$REG_NAME[1]),
+    sub  = status,
+    col.sub = "grey20",
+    xaxs = 'i', 
+    yaxs = 'i'
+  )
+  
+  polygon(
+    x = c(
+      max(x$FIRE_YEAR)+1, max(x$FIRE_YEAR)+1,  max(x$FIRE_YEAR),  max(x$FIRE_YEAR)),
+    y = c(
+      min(z$mod_pred95$lwr), max(z$mod_pred95$upr), max(z$mod_pred95$upr), min(z$mod_pred95$lwr)), 
+    col = adjustcolor("orange", 0.3), border = 'orange'
+  )
+  
+  lines(z$mod_ci$FIRE_YEAR, z$mod_pred95$fit)
+  
+  ## CI 
+  lines(z$mod_ci$FIRE_YEAR, z$mod_ci$lwr, lty = 5)
+  lines(z$mod_ci$FIRE_YEAR, z$mod_ci$upr, lty = 5)
+  
+  ## prediction intervals 
+  lines(z$mod_ci$FIRE_YEAR, z$mod_pred95$lwr, lty = 3, col = 'grey60')
+  lines(z$mod_ci$FIRE_YEAR, z$mod_pred95$upr, lty = 3, col = 'grey60')
+  
+  lines(z$mod_ci$FIRE_YEAR, z$mod_pred90$lwr, lty = 3, col = 'grey40')
+  lines(z$mod_ci$FIRE_YEAR, z$mod_pred90$upr, lty = 3, col = 'grey40')
+  
+  lines(z$mod_ci$FIRE_YEAR, z$mod_pred80$lwr, lty = 3, col = 'grey20')
+  lines(z$mod_ci$FIRE_YEAR, z$mod_pred80$upr, lty = 3, col = 'grey20')
+  
+  legend(
+    x = "topleft", 
+    legend = c("Fit", "95% CI", '80% PI', '90% PI', '95% PI'),
+    lty = c(1, 5, 3, 3, 3),  
+    col = c('black', 'black', 'grey20',  'grey40', 'grey60'),
+    lwd = 2, 
+    bg = adjustcolor("white", 0.4)
+  )  
+  
+  dev.off()
+}
+
+
+rmse <- function(x){sqrt(mean(x$residuals^2))} # for calculating mse
 
 
 
-mse <- function(x){mean(x$residuals^2)}
-
-mb <- filter(firesYear, REG_NAME == 'Columbia-Pacific Northwest') 
-
-
-mod <- lm(log(TotalArea_Acre) ~ FIRE_YEAR, data = mb)
-summary(mod)
-mse(mod)
-
-gr <- data.frame(FIRE_YEAR =  seq(min(mb$FIRE_YEAR), max(mb$FIRE_YEAR)+2))
-mod_pred95 <- data.frame(
-  FIRE_YEAR = gr, 
-    predict.lm(
-  mod, gr, SE=TRUE, interval = 'prediction', level = 0.95)
-)
-
-mod_pred90 <- data.frame(
-  FIRE_YEAR = gr, 
-  predict.lm(
-    mod, gr, SE=TRUE, interval = 'prediction', level = 0.90)
-)
-
-mod_pred80 <- data.frame(
-  FIRE_YEAR = gr, 
-  predict.lm(
-    mod, gr, SE=TRUE, interval = 'prediction', level = 0.80)
-)
-
-mod_ci <-  data.frame(
-  FIRE_YEAR = gr, 
-  predict.lm(
-    mod, gr, SE=TRUE, interval = 'confidence', level = 0.95)
-)
-
-plot(
-  mb$FIRE_YEAR,
-  log(mb$TotalArea_Acre), 
-  xlab = 'Year', 
-  ylab = 'Area Burned (log)',
-  xlim = c(min(gr$FIRE_YEAR), max(gr$FIRE_YEAR)), 
-  ylim = c(min(mod_pred95$lwr), max(mod_pred95$upr)), 
-  main = 'Observed and Predicted', 
-  xaxs = 'i', 
-  yaxs = 'i'
-)
-
-
-polygon(
-  x = c(
-    max(mb$FIRE_YEAR)+1, max(mb$FIRE_YEAR)+1,  max(gr$FIRE_YEAR),  max(gr$FIRE_YEAR)),
-  y = c(
-    min(mod_pred95$lwr), max(mod_pred95$upr), max(mod_pred95$upr), min(mod_pred95$lwr)), 
-  col = adjustcolor("orange", 0.3), border = 'orange'
-)
-
-lines(gr$FIRE_YEAR, mod_pred95$fit)
-
-## CI 
-lines(gr$FIRE_YEAR, mod_ci$lwr, lty = 5)
-lines(gr$FIRE_YEAR, mod_ci$upr, lty = 5)
-
-## prediction intervals 
-lines(gr$FIRE_YEAR, mod_pred95$lwr, lty = 3, col = 'grey60')
-lines(gr$FIRE_YEAR, mod_pred95$upr, lty = 3, col = 'grey60')
-
-lines(gr$FIRE_YEAR, mod_pred90$lwr, lty = 3, col = 'grey40')
-lines(gr$FIRE_YEAR, mod_pred90$upr, lty = 3, col = 'grey40')
-
-lines(gr$FIRE_YEAR, mod_pred80$lwr, lty = 3, col = 'grey20')
-lines(gr$FIRE_YEAR, mod_pred80$upr, lty = 3, col = 'grey20')
-
-legend(
-  x = "topleft", 
-  legend = c("Fit", "95% CI", '80% PI', '90% PI', '95% PI'),
-  lty = c(1, 5, 3, 3, 3),  
-  col = c('black', 'black', 'grey20',  'grey40', 'grey60'),
-  lwd = 2, 
-  bg = adjustcolor("white", 0.4)
-  )      
 
 mod$coefficients[2] # if positive we have an increase 
 sm <- summary(mod)
+
+
+anova(mod)
+mse(mod)
+
+
+#' Calculate confidence and prediction intervals
+#' @param x the original data set
+#' @param y the fitted model 
+PredInts <- function(x, y){
+  
+  gr <- data.frame(FIRE_YEAR =  seq(min(x$FIRE_YEAR), max(x$FIRE_YEAR)+2))
+  mod_pred95 <- data.frame(
+    FIRE_YEAR = gr, 
+    predict.lm(
+      y, gr, SE=TRUE, interval = 'prediction', level = 0.95)
+  )
+  
+  mod_pred90 <- data.frame(
+    FIRE_YEAR = gr, 
+    predict.lm(
+      y, gr, SE=TRUE, interval = 'prediction', level = 0.90)
+  )
+  
+  mod_pred80 <- data.frame(
+    FIRE_YEAR = gr, 
+    predict.lm(
+      y, gr, SE=TRUE, interval = 'prediction', level = 0.80)
+  )
+  
+  mod_ci <-  data.frame(
+    FIRE_YEAR = gr, 
+    predict.lm(
+      y, gr, SE=TRUE, interval = 'confidence', level = 0.95)
+  )
+  
+  return(
+    list(
+      mod_pred95 = mod_pred95, 
+      mod_pred90 = mod_pred90, 
+      mod_pred80 = mod_pred80,
+      mod_ci = mod_ci
+    )
+  )
+  
+}
 
 SupportWriter <- function(x){
   
@@ -208,53 +293,17 @@ SupportWriter <- function(x){
   return(y)
 }
 
-
-
-## Alaska 'staying about the same'
-## Great Lakes - 'slightly increasing'
-## Pacific Islands ??? one of the two above...
-## North Atlantic-Appalachian 
-## all others "Increasing" 
-
-paste(
-  'There is', SupportWriter(mod), 'evidence that the total area burned in this area is', ,  'each year.'
-)
+GrowthWriter <- function(x){
+  
+  coef <- x[["coefficients"]][['FIRE_YEAR']]
+  if(coef < 0.01){y <- 'staying about the same'} else if(
+    coef < 0.05){y <- 'slightly increasing'} else 
+    {y <- 'increasing'}
+  
+  return(y)
+}
 
 
 "A prediction interval indicates the probability of the total burned area laying between the upper and lower bounds in each year. A 95% PI indicates that only 1 in 20 years will observe a total burned area more, or less, extreme than indicated by the lines. A 90% PI indicates 1 in 10, and a 80% 1 in 5, each year the fire has an equal probabily of being smaller or larger than the model fit."
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-boot(
-  fy$TotalArea_Acre, statistic = mean,
-  stype = 'i',
-  R = 1000, 
-  parallel = "multicore",
-)
-
-data <- data.frame(xs = rnorm(15, 2))
-
-library(boot)
-meanfun <- function(data, i){
-  d <- data[i, ]
-  return(mean(d))   
-}
-
-bo <- boot(fy[, "TotalArea_Acre", drop = FALSE], statistic=meanfun, R=5000)
-
-ci80 <- boot.ci(bo, conf=0.8, type="bca")
-ci90 <- boot.ci(bo, conf=0.9, type="bca")
-ci95 <- boot.ci(bo, conf=0.95, type="bca")
 
 
