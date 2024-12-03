@@ -84,6 +84,10 @@ ggplot(data = firesYear, aes(x = NoFire)) +
   geom_density() + 
   facet_wrap(~REG_NAME, scales = 'free') 
 
+ggplot(data = firesYear, aes(x = TotalArea_Acre)) + 
+  geom_histogram() + 
+  facet_wrap(~REG_NAME, scales = 'free')
+
 
 fire_perim <- read.csv(file.path('..', 'data', 'processed', 'FireSizes.csv'))
 # vastly underestimated the skew of the fire sizes, There are MANY very small fires
@@ -92,11 +96,165 @@ ggplot(data = fire_perim, aes(x = Area)) +
   geom_density() + 
   facet_wrap(~REG_NAME, scales = 'free')
 
-################ the other fire stuff #############
+ggplot(data = firesYear, aes(x = log(NoFire), y = log(TotalArea_Acre))) +
+  geom_point()  + 
+ # geom_smooth() + 
+  geom_smooth(method = 'lm') + 
+  facet_wrap(~REG_NAME, scales = 'free')
 
-p2dat <- '../data/geospatial/AnnualDisturbance/'
-f <- 'LF2015_Dist_200_CONUS_20220811/LF2015_Dist_200_CONUS/Tif/LC15_Dist_200.tif'
-# r <- rast(file.path(p2dat, f))
+ggplot(data = firesYear, aes(x = FIRE_YEAR, y = log(TotalArea_Acre))) +
+  geom_point()  + 
+  geom_smooth(method = 'lm') + 
+  facet_wrap(~REG_NAME, scales = 'free') 
 
-# activeCat(r) <- 2
-# plot(r)
+
+
+
+
+mse <- function(x){mean(x$residuals^2)}
+
+mb <- filter(firesYear, REG_NAME == 'Columbia-Pacific Northwest') 
+
+
+mod <- lm(log(TotalArea_Acre) ~ FIRE_YEAR, data = mb)
+summary(mod)
+mse(mod)
+
+gr <- data.frame(FIRE_YEAR =  seq(min(mb$FIRE_YEAR), max(mb$FIRE_YEAR)+2))
+mod_pred95 <- data.frame(
+  FIRE_YEAR = gr, 
+    predict.lm(
+  mod, gr, SE=TRUE, interval = 'prediction', level = 0.95)
+)
+
+mod_pred90 <- data.frame(
+  FIRE_YEAR = gr, 
+  predict.lm(
+    mod, gr, SE=TRUE, interval = 'prediction', level = 0.90)
+)
+
+mod_pred80 <- data.frame(
+  FIRE_YEAR = gr, 
+  predict.lm(
+    mod, gr, SE=TRUE, interval = 'prediction', level = 0.80)
+)
+
+mod_ci <-  data.frame(
+  FIRE_YEAR = gr, 
+  predict.lm(
+    mod, gr, SE=TRUE, interval = 'confidence', level = 0.95)
+)
+
+plot(
+  mb$FIRE_YEAR,
+  log(mb$TotalArea_Acre), 
+  xlab = 'Year', 
+  ylab = 'Area Burned (log)',
+  xlim = c(min(gr$FIRE_YEAR), max(gr$FIRE_YEAR)), 
+  ylim = c(min(mod_pred95$lwr), max(mod_pred95$upr)), 
+  main = 'Observed and Predicted', 
+  xaxs = 'i', 
+  yaxs = 'i'
+)
+
+
+polygon(
+  x = c(
+    max(mb$FIRE_YEAR)+1, max(mb$FIRE_YEAR)+1,  max(gr$FIRE_YEAR),  max(gr$FIRE_YEAR)),
+  y = c(
+    min(mod_pred95$lwr), max(mod_pred95$upr), max(mod_pred95$upr), min(mod_pred95$lwr)), 
+  col = adjustcolor("orange", 0.3), border = 'orange'
+)
+
+lines(gr$FIRE_YEAR, mod_pred95$fit)
+
+## CI 
+lines(gr$FIRE_YEAR, mod_ci$lwr, lty = 5)
+lines(gr$FIRE_YEAR, mod_ci$upr, lty = 5)
+
+## prediction intervals 
+lines(gr$FIRE_YEAR, mod_pred95$lwr, lty = 3, col = 'grey60')
+lines(gr$FIRE_YEAR, mod_pred95$upr, lty = 3, col = 'grey60')
+
+lines(gr$FIRE_YEAR, mod_pred90$lwr, lty = 3, col = 'grey40')
+lines(gr$FIRE_YEAR, mod_pred90$upr, lty = 3, col = 'grey40')
+
+lines(gr$FIRE_YEAR, mod_pred80$lwr, lty = 3, col = 'grey20')
+lines(gr$FIRE_YEAR, mod_pred80$upr, lty = 3, col = 'grey20')
+
+legend(
+  x = "topleft", 
+  legend = c("Fit", "95% CI", '80% PI', '90% PI', '95% PI'),
+  lty = c(1, 5, 3, 3, 3),  
+  col = c('black', 'black', 'grey20',  'grey40', 'grey60'),
+  lwd = 2, 
+  bg = adjustcolor("white", 0.4)
+  )      
+
+mod$coefficients[2] # if positive we have an increase 
+sm <- summary(mod)
+
+SupportWriter <- function(x){
+  
+  am <- anova(x)
+  x1 <- am$`Pr(>F)`[1]
+  
+  if(x1 < -1e-3){y <- 'very strong'} else if(
+    x1 < 0.01) {y <- 'strong'} else if(
+      x1 < 0.05) {y <- 'moderate'} else if(
+        x1 < 0.1) {y <- 'weak'} else 
+        {y <- 'little or no'}
+  
+  return(y)
+}
+
+
+
+## Alaska 'staying about the same'
+## Great Lakes - 'slightly increasing'
+## Pacific Islands ??? one of the two above...
+## North Atlantic-Appalachian 
+## all others "Increasing" 
+
+paste(
+  'There is', SupportWriter(mod), 'evidence that the total area burned in this area is', ,  'each year.'
+)
+
+
+"A prediction interval indicates the probability of the total burned area laying between the upper and lower bounds in each year. A 95% PI indicates that only 1 in 20 years will observe a total burned area more, or less, extreme than indicated by the lines. A 90% PI indicates 1 in 10, and a 80% 1 in 5, each year the fire has an equal probabily of being smaller or larger than the model fit."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+boot(
+  fy$TotalArea_Acre, statistic = mean,
+  stype = 'i',
+  R = 1000, 
+  parallel = "multicore",
+)
+
+data <- data.frame(xs = rnorm(15, 2))
+
+library(boot)
+meanfun <- function(data, i){
+  d <- data[i, ]
+  return(mean(d))   
+}
+
+bo <- boot(fy[, "TotalArea_Acre", drop = FALSE], statistic=meanfun, R=5000)
+
+ci80 <- boot.ci(bo, conf=0.8, type="bca")
+ci90 <- boot.ci(bo, conf=0.9, type="bca")
+ci95 <- boot.ci(bo, conf=0.95, type="bca")
+
+
