@@ -1,5 +1,5 @@
 setwd('~/Documents/assoRted/EstimatingSeedMarketSize/scripts')
-
+source('functions.R')
 library(terra)
 library(tidyverse)
 library(sf)
@@ -81,8 +81,6 @@ firesYear <- read.csv(file.path('..', 'data', 'processed', 'NoFires-TotalArea_by
 
 
 
-
-
 # note that if a place is missing fire in a year, we need to impute that as an explicit '0'. 
 ggplot(data = firesYear, aes(x = NoFire)) + 
   geom_density() + 
@@ -114,196 +112,183 @@ ggplot(data = firesYear, aes(x = FIRE_YEAR, y = log(TotalArea_Acre))) +
 
 listicle <- split(firesYear, f = firesYear$REG_NAME)
 
-#' Develop estimates for total burned area in each DOI region by last data year
-#' 
-#' @description This function performs four tasks. First it fits a simple linear model to the log
-#' transformed input data where FIRE_YEAR predicts TotalArea_Acre. It then develops 
-#' a confidence interval for this model, as well as three sets of prediction intervals
-#' (0.95, 0.9, 0.8, or 1 in 20, 1 in 10, and 1 in 5 odds). It then plots all of these data. 
-#' Finally it returns estimates of the prediction intervals in both the most recent time period, 
-#' and time period + 1, via extrapolation. 
-#' 
-#' @param x a list of fire summary data by DOI region. 
-#' @dir a directory to save the plots, and estimates. 
-RegionalEstimates <- function(x, dir){
-  
-  mod <- lm(log(TotalArea_Acre) ~ FIRE_YEAR, data = x)
-  
- # return(mod)
-  obs <- GrowthWriter(mod)
- # return(obs)
-  
-  ntrvls <- PredInts(x = x, y = mod)
-  BurnedAreaPlots(x = x, z = ntrvls, mod = mod)
-
-  # now we transform the prediction intervals back onto their original scale
-  
-}
-
 lapply(listicle, RegionalEstimates)
-
-#' Create a simple scatter plot showing estimate total burned areas by year 
-#' 
-#' @description A quick base r plot indicating burned areas. 
-#' @param x the initial data input to `RegionalEstimates` 
-#' @param z the ouput of `PredInts`  
-#' @param mod the fit model object 
-BurnedAreaPlots <- function(x, z, mod){
-  
-  pval <- anova(mod); pval <- pval$`Pr(>F)`[1]
-  status <- paste(
-    'There is',
-    SupportWriter(mod),
-    'evidence that the total burned area is increasing.\n', 
-    'Linear model (p = ', round(pval, 5), ', RMSE = ', round(rmse(mod), 3), ')'  
-  )
-  
-  p <- file.path('..', 'results', 'Plots', 'AnnualSummaries', 
-                 paste0(gsub(' ', '_', x$REG_NAME[1]), '.png'))
-  png(p)
-  
-  
-  # Add some color to the scatter points . 
-  nColor <- 10
-  colors = paletteer::paletteer_c("viridis::inferno", n=nColor, direction = -1)
-  rank <- as.factor(as.numeric(cut(log(x$TotalArea_Acre), nColor)))
-  
-  plot(
-    x = x$FIRE_YEAR,
-    y = log(x$TotalArea_Acre), 
-    xlim = c(min(z$mod_ci$FIRE_YEAR), max(z$mod_ci$FIRE_YEAR)), 
-    ylim = c(min(z$mod_pred95$lwr), max(z$mod_pred95$upr)), 
-    
-    cex = 1.5,
-    pch=21,
-    bg = colors[ rank ], # color each point by fire size. 
-    
-    las = 1, # turn x axis text horizontal 
-    xlab = 'Year', 
-    ylab = 'log(Area Burned (Acres))',
-    main = paste0('Total Annual Area Burned by Wildfires\n', x$REG_NAME[1]),
-    sub  = status,
-    col.sub = "grey20",
-    xaxs = 'i', 
-    yaxs = 'i'
-  )
-  
-  polygon(
-    x = c(
-      max(x$FIRE_YEAR)+1, max(x$FIRE_YEAR)+1,  max(x$FIRE_YEAR),  max(x$FIRE_YEAR)),
-    y = c(
-      min(z$mod_pred95$lwr), max(z$mod_pred95$upr), max(z$mod_pred95$upr), min(z$mod_pred95$lwr)), 
-    col = adjustcolor("orange", 0.3), border = 'orange'
-  )
-  
-  lines(z$mod_ci$FIRE_YEAR, z$mod_pred95$fit)
-  
-  ## CI 
-  lines(z$mod_ci$FIRE_YEAR, z$mod_ci$lwr, lty = 5)
-  lines(z$mod_ci$FIRE_YEAR, z$mod_ci$upr, lty = 5)
-  
-  ## prediction intervals 
-  lines(z$mod_ci$FIRE_YEAR, z$mod_pred95$lwr, lty = 3, col = 'grey60')
-  lines(z$mod_ci$FIRE_YEAR, z$mod_pred95$upr, lty = 3, col = 'grey60')
-  
-  lines(z$mod_ci$FIRE_YEAR, z$mod_pred90$lwr, lty = 3, col = 'grey40')
-  lines(z$mod_ci$FIRE_YEAR, z$mod_pred90$upr, lty = 3, col = 'grey40')
-  
-  lines(z$mod_ci$FIRE_YEAR, z$mod_pred80$lwr, lty = 3, col = 'grey20')
-  lines(z$mod_ci$FIRE_YEAR, z$mod_pred80$upr, lty = 3, col = 'grey20')
-  
-  legend(
-    x = "topleft", 
-    legend = c("Fit", "95% CI", '80% PI', '90% PI', '95% PI'),
-    lty = c(1, 5, 3, 3, 3),  
-    col = c('black', 'black', 'grey20',  'grey40', 'grey60'),
-    lwd = 2, 
-    bg = adjustcolor("white", 0.4)
-  )  
-  
-  dev.off()
-}
-
-
-rmse <- function(x){sqrt(mean(x$residuals^2))} # for calculating mse
-
-
-
-
-mod$coefficients[2] # if positive we have an increase 
-sm <- summary(mod)
-
-
-anova(mod)
-mse(mod)
-
-
-#' Calculate confidence and prediction intervals
-#' @param x the original data set
-#' @param y the fitted model 
-PredInts <- function(x, y){
-  
-  gr <- data.frame(FIRE_YEAR =  seq(min(x$FIRE_YEAR), max(x$FIRE_YEAR)+2))
-  mod_pred95 <- data.frame(
-    FIRE_YEAR = gr, 
-    predict.lm(
-      y, gr, SE=TRUE, interval = 'prediction', level = 0.95)
-  )
-  
-  mod_pred90 <- data.frame(
-    FIRE_YEAR = gr, 
-    predict.lm(
-      y, gr, SE=TRUE, interval = 'prediction', level = 0.90)
-  )
-  
-  mod_pred80 <- data.frame(
-    FIRE_YEAR = gr, 
-    predict.lm(
-      y, gr, SE=TRUE, interval = 'prediction', level = 0.80)
-  )
-  
-  mod_ci <-  data.frame(
-    FIRE_YEAR = gr, 
-    predict.lm(
-      y, gr, SE=TRUE, interval = 'confidence', level = 0.95)
-  )
-  
-  return(
-    list(
-      mod_pred95 = mod_pred95, 
-      mod_pred90 = mod_pred90, 
-      mod_pred80 = mod_pred80,
-      mod_ci = mod_ci
-    )
-  )
-  
-}
-
-SupportWriter <- function(x){
-  
-  am <- anova(x)
-  x1 <- am$`Pr(>F)`[1]
-  
-  if(x1 < -1e-3){y <- 'very strong'} else if(
-    x1 < 0.01) {y <- 'strong'} else if(
-      x1 < 0.05) {y <- 'moderate'} else if(
-        x1 < 0.1) {y <- 'weak'} else 
-        {y <- 'little or no'}
-  
-  return(y)
-}
-
-GrowthWriter <- function(x){
-  
-  coef <- x[["coefficients"]][['FIRE_YEAR']]
-  if(coef < 0.01){y <- 'staying about the same'} else if(
-    coef < 0.05){y <- 'slightly increasing'} else 
-    {y <- 'increasing'}
-  
-  return(y)
-}
-
 
 "A prediction interval indicates the probability of the total burned area laying between the upper and lower bounds in each year. A 95% PI indicates that only 1 in 20 years will observe a total burned area more, or less, extreme than indicated by the lines. A 90% PI indicates 1 in 10, and a 80% 1 in 5, each year the fire has an equal probabily of being smaller or larger than the model fit."
 
 
+
+
+lcb <- filter(firesYear, REG_NAME == 'Lower Colorado Basin')
+
+avg <- function(x, y){
+  yname <- paste0('roll', y)
+#  x[[yname]] <- log(data.table::frollmean(x$TotalArea_Acre, y))
+  x[[yname]] <- data.table::frollmean(x$TotalArea_Acre, y)
+  return(x)
+}
+
+
+
+
+test <- avg(lcb, 3)
+
+mod <- lm(log(TotalArea_Acre) ~ FIRE_YEAR, data = test)
+
+modr2 <- lm(roll3 ~ FIRE_YEAR, data = test)
+plot(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey40')
+lines(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey90')
+lines(test$FIRE_YEAR, test$roll3)
+abline(modr2, col = 'red')
+
+
+gr <- data.frame(
+  # only operate on years within the rolling average.
+  FIRE_YEAR =  seq(min(test[!is.na(test$roll3), 'FIRE_YEAR']),
+  max(test$FIRE_YEAR))
+  )
+
+pred_help <- function(y, lvl){
+  mod_pred <- data.frame(
+    FIRE_YEAR = gr, 
+    predict.lm(
+      y, gr, interval = 'confidence', level = lvl)
+  )
+  return(mod_pred)
+}
+
+
+p <- pred_help(modr2, 0.95)
+
+test <- left_join(select(p, FIRE_YEAR, fit), test)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# p[,2:4] <- apply(p[,2:4], FUN = exp, MARGIN = 2)
+
+p$rollAmt <- test[!is.na(test$roll3), 'roll3'] # this is the 3 year average amount burned. 
+p$eventAmt <- test[!is.na(test$roll3), 'TotalArea_Acre'] # this is the observed amount burned. 
+
+p$rollAmtBal.t0 <- p$fit  - p$rollAmt 
+p$eventAmtBal.t0 <- p$fit  - p$eventAmt 
+
+p$rollAmtBal.3yr <- data.table::frollmean(p$rollAmtBal.t0, 3)
+p$eventAmtBal.3yr <- data.table::frollmean(p$eventAmtBal.t0, 3)
+
+mod <- lm(TotalArea_Acre ~ FIRE_YEAR, data = test)
+
+
+plot(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey40', 
+     ylim = c(min(p$rollAmtBal.3yr.dif, na.rm = T), max(test$TotalArea_Acre)))
+lines(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey90')
+#lines(test$FIRE_YEAR, test$roll3)
+abline(modr2, col = 'red')
+abline(mod)
+
+#' Calculate the amount of seed in warehouse at t0
+#' 
+#' @description the goal of this function is to estimate the amount of area  
+#' which would be needed to treat after wildfires in 12 doi regions. Area serves
+#' as a proxy for the number of seeds. The function assumes three sources for seed:
+#' 1) 'old_warehouse' which is the seed greater than the rolling average in years, and which has
+#' not been used in restoration already. 
+#' 2) 'new_warehouse' the seed within the rolling average age range
+#' 3) 'new' fresh seed which will be delivered straight from farm in Fall. 
+#' Despite area being the proxy for seed, and seed aging and losing it's ability to perform as well 
+#' in restorations, we will maintain 'area' as a constant. 
+#' 
+#' @param x The data set to be analysed. 
+#' @param roll the rolling average to apply for the analysis. Rolling averages are used because
+#' the estimates of the amount of seed required annually through them has a regression with a higher slope
+#' that is they better reflect recent fire severity. 
+#' @param export
+reportBalance <- function(x, roll){
+  
+  yname <- paste0('roll', y) # the value used for rolling the average.
+  
+  avg <- function(x, roll, yname){
+    x[[yname]] <- data.table::frollmean(x$TotalArea_Acre, roll)
+    return(x)
+  }
+  
+  pred_help <- function(y, lvl){
+    mod_pred <- data.frame(
+      FIRE_YEAR = gr, 
+      predict.lm(
+        y, gr, interval = 'confidence', level = lvl)
+    )
+    return(mod_pred)
+  }
+  
+  rolled <- avg(x, roll, yname)
+  # fit the linear model to the averaged data set, the averages replacing the raw
+  # fire amounts 
+  mod_roll <- lm(yname ~ FIRE_YEAR, data = rolled)
+  
+  # create a grid which we can predict the fit model onto. 
+  gr <- data.frame(
+    # only operate on years within the rolling average.
+    FIRE_YEAR =  seq(min(test[!is.na(test$roll3), 'FIRE_YEAR']),
+                     max(test$FIRE_YEAR))
+  )
+  
+  # we'll use the fitted values for each annual summary 
+  preds_rolled <- pred_help(mod_roll, 0.95)
+  
+  
+}
+
+#' calculate how many seeds are available for restoration each year from 3 pools
+#' 
+#' @description Calculate how much area can be treated by existing warehoused materials
+#' each year. 
+#' @param x dataframe of observed annual fire sizes
+#' @param prediction prediction grid from a fit linear model. 
+ledger <- function(x, preds_rolled){
+  
+  
+  
+  
+  
+}
+
+
+ts <- sample(0:10)
+diff(ts, lag = 2)
+diff(ts, lag = 1)
+
+
+
+## The DIFFERENCE between the regression line, and the observation indicates 
+# how far off from accurate production we are. 
+
+
+## the total area can be rolled forward up to different time intervals, 2-5 years. 
+## If we are producing enough seed for X acres, but only X-y = S1 burned at t0 and X-z  = S2 and t1, 
+## then we have S1 + S2 
+## burned - X = D1, and to this difference we can subtract S1 + S2 to determine our area deficit. 
