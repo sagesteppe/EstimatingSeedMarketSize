@@ -161,11 +161,40 @@ pred_help <- function(y, lvl){
 p <- pred_help(modr2, 0.95)
 
 test <- left_join(select(p, FIRE_YEAR, fit), test)
+testc <- test %>% 
+  select(FIRE_YEAR, fit, TotalArea_Acre)
+
+testc <- data.frame(
+  testc, 
+  Surplus = NA, 
+  Warehouse = NA, 
+  AnnualDeficit = NA,
+  ExcessArea = NA
+)
+
+for (i in seq_along(1:nrow(test))){
+  
+  testc$AnnualDeficit[i] <- testc$TotalArea_Acre[i] - testc$fit[i] 
+  if(testc$AnnualDeficit[i] < 0){testc$AnnualDeficit[i] <- 0}
+  
+  testc$Surplus[i] <- testc$fit[i] - testc$TotalArea_Acre[i] 
+  if(testc$Surplus[i] < 1){testc$Surplus[i] <- 0}
+  
+  testc$Warehouse[i] <- testc$fit[i] - testc$TotalArea_Acre[i] 
+  if(testc$Warehouse[i] < 1){testc$Warehouse[i] <- 0}
+  
+  if(i > 1){
+    testc$Warehouse[i] <- (testc$Warehouse[i] + testc$Warehouse[i-1] ) - testc$AnnualDeficit[i]
+  }
+  if(testc$Warehouse[i] < 0){testc$ExcessArea[i] <- abs(testc$Warehouse[i])}
+  if(testc$Warehouse[i] < 1){testc$Warehouse[i] <- 0}
+  
+}
 
 
 
 
-
+colnames(testc [ which(colnames(testc)=='Warehouse')] ) <- 'WarehouseYearEnd'
 
 
 
