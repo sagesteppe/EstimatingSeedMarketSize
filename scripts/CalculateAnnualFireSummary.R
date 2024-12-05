@@ -119,32 +119,29 @@ lapply(listicle, RegionalEstimates)
 
 
 
-lcb <- filter(firesYear, REG_NAME == 'Lower Colorado Basin')
+lcb <- filter(firesYear, REG_NAME == 'South Atlantic Gulf')
+
+
+
+
+
+
 
 avg <- function(x, y){
-  yname <- paste0('roll', y)
-#  x[[yname]] <- log(data.table::frollmean(x$TotalArea_Acre, y))
-  x[[yname]] <- data.table::frollmean(x$TotalArea_Acre, y)
+  x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
   return(x)
 }
 
 
+rolled <- avg(lcb, 3)
+modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
 
-
-test <- avg(lcb, 3)
-
-mod <- lm(log(TotalArea_Acre) ~ FIRE_YEAR, data = test)
-
-modr2 <- lm(roll3 ~ FIRE_YEAR, data = test)
-plot(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey40')
-lines(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey90')
-lines(test$FIRE_YEAR, test$roll3)
-abline(modr2, col = 'red')
-
+plot(rolled$FIRE_YEAR, rolled$TotalArea_Acre) 
+lines(rolled$FIRE_YEAR, rolled$roll)
 
 gr <- data.frame(
   # only operate on years within the rolling average.
-  FIRE_YEAR =  seq(min(test[!is.na(test$roll3), 'FIRE_YEAR']),
+  FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
   max(test$FIRE_YEAR))
   )
 
@@ -160,84 +157,94 @@ pred_help <- function(y, lvl){
 
 p <- pred_help(modr2, 0.95)
 
-test <- left_join(select(p, FIRE_YEAR, fit), test)
-testc <- test %>% 
-  select(FIRE_YEAR, fit, TotalArea_Acre)
-
-testc <- data.frame(
-  testc, 
-  Surplus = NA, 
-  Warehouse = NA, 
-  AnnualDeficit = NA,
-  ExcessArea = NA
-)
-
-for (i in seq_along(1:nrow(test))){
+#' 
+#' 
+#' @description Calculate the amount of seed in warehouses, and how much of an area can be treated
+#' based on a fit model and observed differences. 
+#' @param x output of `pred_help` 
+#' @param rolled
+AreaDeficitSummary <- function(x, rolled){
   
-  testc$AnnualDeficit[i] <- testc$TotalArea_Acre[i] - testc$fit[i] 
-  if(testc$AnnualDeficit[i] < 0){testc$AnnualDeficit[i] <- 0}
+  rolled <- dplyr::left_join(dplyr::select(x, FIRE_YEAR, fit), rolled)
+  AreaDeficit <- rolled |> 
+    dplyr::select(FIRE_YEAR, fit, TotalArea_Acre)
   
-  testc$Surplus[i] <- testc$fit[i] - testc$TotalArea_Acre[i] 
-  if(testc$Surplus[i] < 1){testc$Surplus[i] <- 0}
+  AreaDeficit <- data.frame( 
+    AreaDeficit,  
+    Surplus = NA, 
+    Warehouse = NA, 
+    AnnualDeficit = NA,
+    ExcessArea = NA,
+    Treatable = NA
+  )
   
-  testc$Warehouse[i] <- testc$fit[i] - testc$TotalArea_Acre[i] 
-  if(testc$Warehouse[i] < 1){testc$Warehouse[i] <- 0}
-  
-  if(i > 1){
-    testc$Warehouse[i] <- (testc$Warehouse[i] + testc$Warehouse[i-1] ) - testc$AnnualDeficit[i]
+  for (i in seq_along(1:nrow(AreaDeficit))){
+    
+    ## This is the amount of area which burned which is above the regression line fit. 
+    AreaDeficit$AnnualDeficit[i] <- AreaDeficit$TotalArea_Acre[i] - AreaDeficit$fit[i] 
+    if(AreaDeficit$AnnualDeficit[i] < 0){AreaDeficit$AnnualDeficit[i] <- 0}
+    
+    ## This is the amount of area seed produced in a year with less burn than regression fit. 
+    AreaDeficit$Surplus[i] <- AreaDeficit$fit[i] - AreaDeficit$TotalArea_Acre[i] 
+    if(AreaDeficit$Surplus[i] < 1){AreaDeficit$Surplus[i] <- 0}
+    
+    # This is the amount of seed being pulled from warehouse, and how much is left at
+    # years end. 
+    AreaDeficit$Warehouse[i] <- AreaDeficit$fit[i] - AreaDeficit$TotalArea_Acre[i] 
+    if(AreaDeficit$Warehouse[i] < 1){AreaDeficit$Warehouse[i] <- 0}
+    
+    ##  
+    if(i > 1){
+      AreaDeficit$Warehouse[i] <-
+        (AreaDeficit$Warehouse[i] + AreaDeficit$Warehouse[i-1]) - AreaDeficit$AnnualDeficit[i]
+    }
+    
+    ## combining fresh harvest and warehoused seed is not always enough to treat all areas
+    # how much excess area do we have? 
+    if(AreaDeficit$Warehouse[i] < 0){AreaDeficit$ExcessArea[i] <- abs(AreaDeficit$Warehouse[i])}
+    if(AreaDeficit$Warehouse[i] < 1){AreaDeficit$Warehouse[i] <- 0}
+    
+    # now how much area can be treated. 
+    
+    AreaDeficit$Treatable[i] <- AreaDeficit$TotalArea_Acre[i] - AreaDeficit$ExcessArea[i]
   }
-  if(testc$Warehouse[i] < 0){testc$ExcessArea[i] <- abs(testc$Warehouse[i])}
-  if(testc$Warehouse[i] < 1){testc$Warehouse[i] <- 0}
   
+  return(AreaDeficit)
 }
 
 
 
-
-colnames(testc [ which(colnames(testc)=='Warehouse')] ) <- 'WarehouseYearEnd'
-
+ob <- AreaDeficitSummary(p, rolled)
 
 
+plot(
+  x = ob$FIRE_YEAR,
+  y = ob$TotalArea_Acre,
+  main = 'Total Burned Area - and how much could be Treated', 
+  xlab = 'Fire Year', 
+  ylab = 'Total Area (Acre)'
+  ) 
+abline(modr2)
+
+
+# If the burned area is in excess of the fit model, then place a green line 
+# indicating the maximum amount of area which can be treated using the 
+# warehoused seed. 
+
+segments(
+  x0 = 2023, x1 = 2023,
+  y0 =  ob[which(ob$FIRE_YEAR==2023), 'fit'], 
+  y1 = ob[which(ob$FIRE_YEAR==2023), 'Treatable'],
+  col = "darkgreen"
+  ) 
+
+points(ob$FIRE_YEAR, ob$Treatable, pch = 4, col = 'red')
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# p[,2:4] <- apply(p[,2:4], FUN = exp, MARGIN = 2)
-
-p$rollAmt <- test[!is.na(test$roll3), 'roll3'] # this is the 3 year average amount burned. 
-p$eventAmt <- test[!is.na(test$roll3), 'TotalArea_Acre'] # this is the observed amount burned. 
-
-p$rollAmtBal.t0 <- p$fit  - p$rollAmt 
-p$eventAmtBal.t0 <- p$fit  - p$eventAmt 
-
-p$rollAmtBal.3yr <- data.table::frollmean(p$rollAmtBal.t0, 3)
-p$eventAmtBal.3yr <- data.table::frollmean(p$eventAmtBal.t0, 3)
-
-mod <- lm(TotalArea_Acre ~ FIRE_YEAR, data = test)
-
-
-plot(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey40', 
-     ylim = c(min(p$rollAmtBal.3yr.dif, na.rm = T), max(test$TotalArea_Acre)))
-lines(test$FIRE_YEAR, test$TotalArea_Acre, col = 'grey90')
-#lines(test$FIRE_YEAR, test$roll3)
-abline(modr2, col = 'red')
-abline(mod)
 
 #' Calculate the amount of seed in warehouse at t0
 #' 
@@ -291,33 +298,3 @@ reportBalance <- function(x, roll){
   
   
 }
-
-#' calculate how many seeds are available for restoration each year from 3 pools
-#' 
-#' @description Calculate how much area can be treated by existing warehoused materials
-#' each year. 
-#' @param x dataframe of observed annual fire sizes
-#' @param prediction prediction grid from a fit linear model. 
-ledger <- function(x, preds_rolled){
-  
-  
-  
-  
-  
-}
-
-
-ts <- sample(0:10)
-diff(ts, lag = 2)
-diff(ts, lag = 1)
-
-
-
-## The DIFFERENCE between the regression line, and the observation indicates 
-# how far off from accurate production we are. 
-
-
-## the total area can be rolled forward up to different time intervals, 2-5 years. 
-## If we are producing enough seed for X acres, but only X-y = S1 burned at t0 and X-z  = S2 and t1, 
-## then we have S1 + S2 
-## burned - X = D1, and to this difference we can subtract S1 + S2 to determine our area deficit. 
