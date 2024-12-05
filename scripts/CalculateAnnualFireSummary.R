@@ -136,22 +136,27 @@ lapply(listicle, RegionalEstimates)
 #' Despite area being the proxy for seed, and seed aging and losing it's ability to perform as well 
 #' in restorations, we will maintain 'area' as a constant. 
 #' 
-#' @param x The data set to be analysed. 
-#' @param roll the rolling average to apply for the analysis. Rolling averages are used because
-#' the estimates of the amount of seed required annually through them has a regression with a higher slope
-#' that is they better reflect recent fire severity. 
-#' @param export
-reportBalance <- function(x, yr_roll){
+#' @param x Dataframe. The data set to be analysed. 
+#' @param yr_roll Numeric. the rolling average to apply for the analysis. Defaults to 1, which is that no rolling average is used. 
+#' @param interval Character Vector. The type of interval to be used for calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
+#' @param prediction Vector. the name of the column from the fit model to use for calculating the distance between. Defaults to 'fit', other options are: 'lwr', and 'upr'. 
+#' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
+#' @export
+reportBalance <- function(x, yr_roll, interval, prediction, conf_lvl){
+  
+  if(missing(interval)){interval <- 'confidence'}
+  if(missing(prediction)){prediction <- 'fit'}
+  if(missing(conf_lvl)){conf_lvl <- 0.95}
   
   avg <- function(x, y){
     x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
     return(x)
   }
-  pred_help <- function(y, lvl){
+  pred_help <- function(y, conf_lvl, interval){
     mod_pred <- data.frame(
       FIRE_YEAR = gr, 
       predict.lm(
-        y, gr, interval = 'confidence', level = lvl)
+        y, gr, interval = interval, SE = TRUE, level = conf_lvl)
     )
     return(mod_pred)
   }
@@ -165,17 +170,22 @@ reportBalance <- function(x, yr_roll){
                      max(rolled$FIRE_YEAR))
   )
   
-  p <- pred_help(modr2, 0.95) 
-  ob <- AreaDeficitSummary(p, rolled) 
+  p <- pred_help(modr2, conf_lvl, interval) 
+  ob <- AreaDeficitSummary(p, rolled, prediction) 
 
   TreatableAreaPlots(x = ob, rolled, mod = p, colname = 'fit', yr_roll = yr_roll)
 }
 
 
-p <- lapply(listicle['Great Lakes'], reportBalance, yr_roll = 2)
-rolled <- lapply(listicle['Great Lakes'], reportBalance, yr_roll = 2)
+rolled <- lapply(
+  listicle['Great Lakes'], 
+  reportBalance, 
+  yr_roll = 2, 
+  interval = 'prediction', 
+  prediction = 'fit',
+  conf_lvl = 0.95)
 
-lapply(listicle, reportBalance, yr_roll = 1)
+lapply(listicle, reportBalance, yr_roll = 1, conf_lvl = 0.95)
 lapply(listicle, reportBalance, yr_roll = 2)
 lapply(listicle, reportBalance, yr_roll = 3)
 lapply(listicle, reportBalance, yr_roll = 4)

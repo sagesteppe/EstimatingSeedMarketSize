@@ -170,12 +170,14 @@ rmse <- function(x){sqrt(mean(x$residuals^2))} # for calculating mse
 #' @description Calculate the amount of seed in warehouses, and how much of an area can be treated
 #' based on a fit model and observed differences. 
 #' @param x output of `pred_help` 
+#' @param prediction
 #' @param rolled
-AreaDeficitSummary <- function(x, rolled){
+AreaDeficitSummary <- function(x, rolled, prediction){
   
+  prediction <- dplyr::enquo(prediction)
   rolled <- dplyr::left_join(dplyr::select(x, FIRE_YEAR, fit), rolled, by = join_by(FIRE_YEAR))
   AreaDeficit <- rolled |> 
-    dplyr::select(FIRE_YEAR, fit, TotalArea_Acre)
+    dplyr::select(FIRE_YEAR, !!prediction, TotalArea_Acre)
   
   AreaDeficit <- data.frame( 
     AreaDeficit,  
@@ -323,14 +325,14 @@ TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
     nrow(p_trt), ' would have inadequate amounts of seed.'
   )
   
-  
+  # a short description of the results displayed in the plot. 
   mtext(side=1, line=6, adj=1, cex=0.8, status, col = 'grey40') 
   
   # denote what the lines represent. 
   legend(
     x = "topleft", 
     legend = c(paste0(yr_roll, ' year\n rolling avg.'), "Fit", "Treatable", 'Untreatable'),
-    lty = c(2, rep(1, 3)),  
+    lty = c(3, rep(1, 3)),  
     col = c('grey20', 'black', 'darkgreen', 'red4'),
     lwd = 2, 
     bg = adjustcolor("white", 0.4)
