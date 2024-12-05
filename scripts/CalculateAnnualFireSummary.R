@@ -111,7 +111,6 @@ ggplot(data = firesYear, aes(x = FIRE_YEAR, y = log(TotalArea_Acre))) +
 
 
 listicle <- split(firesYear, f = firesYear$REG_NAME)
-
 lapply(listicle, RegionalEstimates)
 
 "A prediction interval indicates the probability of the total burned area laying between the upper and lower bounds in each year. A 95% PI indicates that only 1 in 20 years will observe a total burned area more, or less, extreme than indicated by the lines. A 90% PI indicates 1 in 10, and a 80% 1 in 5, each year the fire has an equal probabily of being smaller or larger than the model fit."
@@ -120,12 +119,7 @@ lapply(listicle, RegionalEstimates)
 
 
 lcb <- filter(firesYear, REG_NAME == 'South Atlantic Gulf')
-
-
-
-
-
-
+yr_roll <- 5
 
 avg <- function(x, y){
   x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
@@ -133,120 +127,127 @@ avg <- function(x, y){
 }
 
 
-rolled <- avg(lcb, 3)
+rolled <- avg(lcb, yr_roll)
 modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
-
-plot(rolled$FIRE_YEAR, rolled$TotalArea_Acre) 
-lines(rolled$FIRE_YEAR, rolled$roll)
 
 gr <- data.frame(
   # only operate on years within the rolling average.
   FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
-  max(test$FIRE_YEAR))
+  max(rolled$FIRE_YEAR))
   )
 
-pred_help <- function(y, lvl){
-  mod_pred <- data.frame(
-    FIRE_YEAR = gr, 
-    predict.lm(
-      y, gr, interval = 'confidence', level = lvl)
-  )
-  return(mod_pred)
-}
+p <- pred_help(modr2, 0.95) 
+ob <- AreaDeficitSummary(p, rolled) 
 
-
-p <- pred_help(modr2, 0.95)
-
+#' Visualize the amount of area which can be treated each year 
 #' 
-#' 
-#' @description Calculate the amount of seed in warehouses, and how much of an area can be treated
-#' based on a fit model and observed differences. 
-#' @param x output of `pred_help` 
-#' @param rolled
-AreaDeficitSummary <- function(x, rolled){
+#' @description This function makes plots and saves them to disk. The plots depict
+#' the observed amount of area burnt each year, and the amount of area which can 
+#' be treated annually based on a regression line. It denotes areas which can 
+#' be treated with warehoused seed in green, while areas in red depict areas in 
+#' excess of what warehouses would have in storage. 
+#' @param x the output of `AreaDeficitSummary`  
+#' @param rolled the ouput of `avg`
+#' @param mod a model prediction which can be used to depict the target amount of area which seed is grown for. 
+#' @param colname the name of the column in the prediction grid to be used for plotting. 
+#' @param yr_roll passed on from outer function. 
+TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
   
-  rolled <- dplyr::left_join(dplyr::select(x, FIRE_YEAR, fit), rolled)
-  AreaDeficit <- rolled |> 
-    dplyr::select(FIRE_YEAR, fit, TotalArea_Acre)
+  p <- file.path('..', 'results', 'Plots', 'AnnualSummariesTreatable', 
+                 paste0(gsub(' ', '_', rolled[['REG_NAME']][1]), '-', yr_roll, 'yrAVG', '.png'))
   
-  AreaDeficit <- data.frame( 
-    AreaDeficit,  
-    Surplus = NA, 
-    Warehouse = NA, 
-    AnnualDeficit = NA,
-    ExcessArea = NA,
-    Treatable = NA
+  png(p)
+  par(mar = c(7, 5, 4, 2))
+  
+  plot(
+    x = x$FIRE_YEAR,
+    y = x$TotalArea_Acre,
+    main = paste0('Total Area Burned - and possibly treated\n', rolled[['REG_NAME']][1]),
+    xlab = 'Fire Year', 
+    ylab = 'Total Area (Acre)',
+    pch = 20,
+    cex = 1.2,
+    yaxt = "n"
+  ) 
+  lines(rolled[['FIRE_YEAR']], rolled[['roll']], lty = 2, col = 'grey20')
+  lines(mod[['FIRE_YEAR']], mod[[colname]])
+  axis(2, 
+       at = labs <- pretty(par()$usr[3:4]),
+       labels = prettyNum(
+         labs, big.mark = ",", scientific = FALSE)
   )
   
-  for (i in seq_along(1:nrow(AreaDeficit))){
-    
-    ## This is the amount of area which burned which is above the regression line fit. 
-    AreaDeficit$AnnualDeficit[i] <- AreaDeficit$TotalArea_Acre[i] - AreaDeficit$fit[i] 
-    if(AreaDeficit$AnnualDeficit[i] < 0){AreaDeficit$AnnualDeficit[i] <- 0}
-    
-    ## This is the amount of area seed produced in a year with less burn than regression fit. 
-    AreaDeficit$Surplus[i] <- AreaDeficit$fit[i] - AreaDeficit$TotalArea_Acre[i] 
-    if(AreaDeficit$Surplus[i] < 1){AreaDeficit$Surplus[i] <- 0}
-    
-    # This is the amount of seed being pulled from warehouse, and how much is left at
-    # years end. 
-    AreaDeficit$Warehouse[i] <- AreaDeficit$fit[i] - AreaDeficit$TotalArea_Acre[i] 
-    if(AreaDeficit$Warehouse[i] < 1){AreaDeficit$Warehouse[i] <- 0}
-    
-    ##  
-    if(i > 1){
-      AreaDeficit$Warehouse[i] <-
-        (AreaDeficit$Warehouse[i] + AreaDeficit$Warehouse[i-1]) - AreaDeficit$AnnualDeficit[i]
-    }
-    
-    ## combining fresh harvest and warehoused seed is not always enough to treat all areas
-    # how much excess area do we have? 
-    if(AreaDeficit$Warehouse[i] < 0){AreaDeficit$ExcessArea[i] <- abs(AreaDeficit$Warehouse[i])}
-    if(AreaDeficit$Warehouse[i] < 1){AreaDeficit$Warehouse[i] <- 0}
-    
-    # now how much area can be treated. 
-    
-    AreaDeficit$Treatable[i] <- AreaDeficit$TotalArea_Acre[i] - AreaDeficit$ExcessArea[i]
+  # If the burned area is in excess of the fit model, then place a green line 
+  # indicating the maximum amount of area which can be treated using the 
+  # warehoused seed. 
+  # thes are 'partial treatments' p_trt
+  p_trt <- x[! is.na(x$Treatable), ]
+  for (i in seq_along(1:nrow(p_trt))){
+    segments(
+      x0 = p_trt[i,'FIRE_YEAR'], x1 = p_trt[i,'FIRE_YEAR'],
+      y0 =  p_trt[i, 'Treatable'], 
+      y1 = p_trt[i, 'fit'],
+      col = "darkgreen"
+    )
   }
   
-  return(AreaDeficit)
+  # now we repeat the process for all burns above the regression line that 
+  # we should have the material to treat in their entirety. 
+  t_trt <- x[x$FIRE_YEAR != min(x$FIRE_YEAR),]
+  t_trt <- t_trt[t_trt$Surplus==0 & is.na(t_trt$Treatable),]
+  for (i in seq_along(1:nrow(t_trt))){
+    segments(
+      x0 = t_trt[i,'FIRE_YEAR'], x1 = t_trt[i,'FIRE_YEAR'],
+      y0 =  t_trt[i, 'TotalArea_Acre'], 
+      y1 = t_trt[i, 'fit'],
+      col = "darkgreen"
+    )
+  }
+  
+  # we'll also have a red line segment running through the untreatable areas. 
+  for (i in seq_along(1:nrow(p_trt))){
+    segments(
+      x0 = p_trt[i,'FIRE_YEAR'], x1 = p_trt[i,'FIRE_YEAR'],
+      y0 =  p_trt[i, 'Treatable'], 
+      y1 = p_trt[i, 'TotalArea_Acre'],
+      col = "red4"
+    )
+  }
+  
+  # we add red 'x' to the area beyond which we have adequate seed to treat the 
+  # area with. Helps draw eye to the transition from treatable-untreatable areas. 
+  points(x$FIRE_YEAR, x$Treatable, pch = 4, col = 'orangered')
+  
+  # write a short summary for the plot. 
+  status <- paste0(
+    'Of the ', nrow(x)-1, ' years in this data set ', nrow(x[x$AnnualDeficit!=0,]),
+    ' had fires above the regression line.\n Of these ', nrow(t_trt), 
+    ' years would have enough seed material to plant at recommended\nseeding rates, while ', 
+    nrow(p_trt), ' would have inadequate amounts of seed.'
+  )
+  
+  
+  mtext(side=1, line=6, adj=1, cex=0.8, status, col = 'grey40') 
+  
+  # denote what the lines represent. 
+  legend(
+    x = "topleft", 
+    legend = c(paste0(yr_roll, ' year\n rolling avg.'), "Fit", "Treatable", 'Untreatable'),
+    lty = c(2, rep(1, 3)),  
+    col = c('grey20', 'black', 'darkgreen', 'red4'),
+    lwd = 2, 
+    bg = adjustcolor("white", 0.4)
+  )  
+  
+  dev.off()
+  
 }
 
 
 
-ob <- AreaDeficitSummary(p, rolled)
+TreatableAreaPlots(x = ob, rolled, mod = p, colname = 'fit', yr_roll = yr_roll)
 
 
-plot(
-  x = ob$FIRE_YEAR,
-  y = ob$TotalArea_Acre,
-  main = 'Total Burned Area - and how much could be Treated', 
-  xlab = 'Fire Year', 
-  ylab = 'Total Area (Acre)'
-  ) 
-abline(modr2)
-
-
-# If the burned area is in excess of the fit model, then place a green line 
-# indicating the maximum amount of area which can be treated using the 
-# warehoused seed. 
-
-segments(
-  x0 = 2023, x1 = 2023,
-  y0 =  ob[which(ob$FIRE_YEAR==2023), 'fit'], 
-  y1 = ob[which(ob$FIRE_YEAR==2023), 'Treatable'],
-  col = "darkgreen"
-  ) 
-
-points(ob$FIRE_YEAR, ob$Treatable, pch = 4, col = 'red')
-
-
-
-
-
-
-
-#' Calculate the amount of seed in warehouse at t0
 #' 
 #' @description the goal of this function is to estimate the amount of area  
 #' which would be needed to treat after wildfires in 12 doi regions. Area serves
@@ -265,13 +266,10 @@ points(ob$FIRE_YEAR, ob$Treatable, pch = 4, col = 'red')
 #' @param export
 reportBalance <- function(x, roll){
   
-  yname <- paste0('roll', y) # the value used for rolling the average.
-  
-  avg <- function(x, roll, yname){
-    x[[yname]] <- data.table::frollmean(x$TotalArea_Acre, roll)
+  avg <- function(x, y){
+    x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
     return(x)
   }
-  
   pred_help <- function(y, lvl){
     mod_pred <- data.frame(
       FIRE_YEAR = gr, 
@@ -281,10 +279,10 @@ reportBalance <- function(x, roll){
     return(mod_pred)
   }
   
-  rolled <- avg(x, roll, yname)
+  rolled <- avg(x, roll)
   # fit the linear model to the averaged data set, the averages replacing the raw
   # fire amounts 
-  mod_roll <- lm(yname ~ FIRE_YEAR, data = rolled)
+  mod_roll <- lm(roll ~ FIRE_YEAR, data = rolled)
   
   # create a grid which we can predict the fit model onto. 
   gr <- data.frame(
