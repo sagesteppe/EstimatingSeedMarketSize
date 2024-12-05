@@ -58,11 +58,20 @@ firesYear <- fire_perim %>%
 # in the firesYear data set. 
 fire_abs <- expand.grid(
   REG_NAME = unique(firesYear$REG_NAME), 
-  FIRE_YEAR = 1990:2023, NoFire = 0, TotalArea_Acre = 0) 
+  FIRE_YEAR = 1990:2023, NoFire = 0, 
+  TotalArea_Acre = units::set_units(0, 'acre')) 
 
 # anti join will identify rows in X which are not matched in Y, if all rows in X have matches in Y
-# then the anti join will produce an empty tibble as seen here. 
-anti_join(firesYear, fire_abs, by  = c('REG_NAME' = 'REG_NAME', 'FIRE_YEAR' = 'FIRE_YEAR'))
+# then the anti join will produce an empty tibble 
+anti_join(fire_abs, firesYear, by  = c('REG_NAME' = 'REG_NAME', 'FIRE_YEAR' = 'FIRE_YEAR'))
+
+firesYear <- rbind(
+  firesYear, 
+  anti_join(fire_abs, firesYear, by  = c('REG_NAME' = 'REG_NAME', 'FIRE_YEAR' = 'FIRE_YEAR'))
+  )
+
+# recent years likely just do not have data yes... 
+firesYear <- mutate(firesYear, NoFire = if_else(FIRE_YEAR >= 2022 & NoFire==0, NA, NoFire))
 
 # write this out as a CSV
 # 'NoFires-TotalArea_byDOIRegion.csv'
@@ -77,11 +86,9 @@ write.csv(fire_perim, file.path('..', 'data', 'processed', 'FireSizes.csv'), row
 rm(p2dat, fire_perim, firesYear)
 
 firesYear <- read.csv(file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))
+fire_perim <- read.csv(file.path('..', 'data', 'processed', 'FireSizes.csv'))
 
 
-
-
-# note that if a place is missing fire in a year, we need to impute that as an explicit '0'. 
 ggplot(data = firesYear, aes(x = NoFire)) + 
   geom_density() + 
   facet_wrap(~REG_NAME, scales = 'free') 
@@ -90,8 +97,6 @@ ggplot(data = firesYear, aes(x = TotalArea_Acre)) +
   geom_histogram() + 
   facet_wrap(~REG_NAME, scales = 'free')
 
-
-fire_perim <- read.csv(file.path('..', 'data', 'processed', 'FireSizes.csv'))
 # vastly underestimated the skew of the fire sizes, There are MANY very small fires
 # there are relatively few large fires. 
 ggplot(data = fire_perim, aes(x = Area)) + 
@@ -110,6 +115,10 @@ ggplot(data = firesYear, aes(x = FIRE_YEAR, y = log(TotalArea_Acre))) +
   facet_wrap(~REG_NAME, scales = 'free') 
 
 
+# to run the analyses we have to remove the more recent years without mapped fire data. 
+
+firesYear <- drop_na(firesYear)
+
 listicle <- split(firesYear, f = firesYear$REG_NAME)
 lapply(listicle, RegionalEstimates)
 
@@ -117,138 +126,6 @@ lapply(listicle, RegionalEstimates)
 
 
 
-
-lcb <- filter(firesYear, REG_NAME == 'South Atlantic Gulf')
-yr_roll <- 5
-
-avg <- function(x, y){
-  x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
-  return(x)
-}
-
-
-rolled <- avg(lcb, yr_roll)
-modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
-
-gr <- data.frame(
-  # only operate on years within the rolling average.
-  FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
-  max(rolled$FIRE_YEAR))
-  )
-
-p <- pred_help(modr2, 0.95) 
-ob <- AreaDeficitSummary(p, rolled) 
-
-#' Visualize the amount of area which can be treated each year 
-#' 
-#' @description This function makes plots and saves them to disk. The plots depict
-#' the observed amount of area burnt each year, and the amount of area which can 
-#' be treated annually based on a regression line. It denotes areas which can 
-#' be treated with warehoused seed in green, while areas in red depict areas in 
-#' excess of what warehouses would have in storage. 
-#' @param x the output of `AreaDeficitSummary`  
-#' @param rolled the ouput of `avg`
-#' @param mod a model prediction which can be used to depict the target amount of area which seed is grown for. 
-#' @param colname the name of the column in the prediction grid to be used for plotting. 
-#' @param yr_roll passed on from outer function. 
-TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
-  
-  p <- file.path('..', 'results', 'Plots', 'AnnualSummariesTreatable', 
-                 paste0(gsub(' ', '_', rolled[['REG_NAME']][1]), '-', yr_roll, 'yrAVG', '.png'))
-  
-  png(p)
-  par(mar = c(7, 5, 4, 2))
-  
-  plot(
-    x = x$FIRE_YEAR,
-    y = x$TotalArea_Acre,
-    main = paste0('Total Area Burned - and possibly treated\n', rolled[['REG_NAME']][1]),
-    xlab = 'Fire Year', 
-    ylab = 'Total Area (Acre)',
-    pch = 20,
-    cex = 1.2,
-    yaxt = "n"
-  ) 
-  lines(rolled[['FIRE_YEAR']], rolled[['roll']], lty = 2, col = 'grey20')
-  lines(mod[['FIRE_YEAR']], mod[[colname]])
-  axis(2, 
-       at = labs <- pretty(par()$usr[3:4]),
-       labels = prettyNum(
-         labs, big.mark = ",", scientific = FALSE)
-  )
-  
-  # If the burned area is in excess of the fit model, then place a green line 
-  # indicating the maximum amount of area which can be treated using the 
-  # warehoused seed. 
-  # thes are 'partial treatments' p_trt
-  p_trt <- x[! is.na(x$Treatable), ]
-  for (i in seq_along(1:nrow(p_trt))){
-    segments(
-      x0 = p_trt[i,'FIRE_YEAR'], x1 = p_trt[i,'FIRE_YEAR'],
-      y0 =  p_trt[i, 'Treatable'], 
-      y1 = p_trt[i, 'fit'],
-      col = "darkgreen"
-    )
-  }
-  
-  # now we repeat the process for all burns above the regression line that 
-  # we should have the material to treat in their entirety. 
-  t_trt <- x[x$FIRE_YEAR != min(x$FIRE_YEAR),]
-  t_trt <- t_trt[t_trt$Surplus==0 & is.na(t_trt$Treatable),]
-  for (i in seq_along(1:nrow(t_trt))){
-    segments(
-      x0 = t_trt[i,'FIRE_YEAR'], x1 = t_trt[i,'FIRE_YEAR'],
-      y0 =  t_trt[i, 'TotalArea_Acre'], 
-      y1 = t_trt[i, 'fit'],
-      col = "darkgreen"
-    )
-  }
-  
-  # we'll also have a red line segment running through the untreatable areas. 
-  for (i in seq_along(1:nrow(p_trt))){
-    segments(
-      x0 = p_trt[i,'FIRE_YEAR'], x1 = p_trt[i,'FIRE_YEAR'],
-      y0 =  p_trt[i, 'Treatable'], 
-      y1 = p_trt[i, 'TotalArea_Acre'],
-      col = "red4"
-    )
-  }
-  
-  # we add red 'x' to the area beyond which we have adequate seed to treat the 
-  # area with. Helps draw eye to the transition from treatable-untreatable areas. 
-  points(x$FIRE_YEAR, x$Treatable, pch = 4, col = 'orangered')
-  
-  # write a short summary for the plot. 
-  status <- paste0(
-    'Of the ', nrow(x)-1, ' years in this data set ', nrow(x[x$AnnualDeficit!=0,]),
-    ' had fires above the regression line.\n Of these ', nrow(t_trt), 
-    ' years would have enough seed material to plant at recommended\nseeding rates, while ', 
-    nrow(p_trt), ' would have inadequate amounts of seed.'
-  )
-  
-  
-  mtext(side=1, line=6, adj=1, cex=0.8, status, col = 'grey40') 
-  
-  # denote what the lines represent. 
-  legend(
-    x = "topleft", 
-    legend = c(paste0(yr_roll, ' year\n rolling avg.'), "Fit", "Treatable", 'Untreatable'),
-    lty = c(2, rep(1, 3)),  
-    col = c('grey20', 'black', 'darkgreen', 'red4'),
-    lwd = 2, 
-    bg = adjustcolor("white", 0.4)
-  )  
-  
-  dev.off()
-  
-}
-
-
-
-TreatableAreaPlots(x = ob, rolled, mod = p, colname = 'fit', yr_roll = yr_roll)
-
-
-#' 
 #' @description the goal of this function is to estimate the amount of area  
 #' which would be needed to treat after wildfires in 12 doi regions. Area serves
 #' as a proxy for the number of seeds. The function assumes three sources for seed:
@@ -264,7 +141,7 @@ TreatableAreaPlots(x = ob, rolled, mod = p, colname = 'fit', yr_roll = yr_roll)
 #' the estimates of the amount of seed required annually through them has a regression with a higher slope
 #' that is they better reflect recent fire severity. 
 #' @param export
-reportBalance <- function(x, roll){
+reportBalance <- function(x, yr_roll){
   
   avg <- function(x, y){
     x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
@@ -279,20 +156,27 @@ reportBalance <- function(x, roll){
     return(mod_pred)
   }
   
-  rolled <- avg(x, roll)
-  # fit the linear model to the averaged data set, the averages replacing the raw
-  # fire amounts 
-  mod_roll <- lm(roll ~ FIRE_YEAR, data = rolled)
+  rolled <- avg(x, yr_roll)
+  modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
   
-  # create a grid which we can predict the fit model onto. 
   gr <- data.frame(
     # only operate on years within the rolling average.
-    FIRE_YEAR =  seq(min(test[!is.na(test$roll3), 'FIRE_YEAR']),
-                     max(test$FIRE_YEAR))
+    FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
+                     max(rolled$FIRE_YEAR))
   )
   
-  # we'll use the fitted values for each annual summary 
-  preds_rolled <- pred_help(mod_roll, 0.95)
-  
-  
+  p <- pred_help(modr2, 0.95) 
+  ob <- AreaDeficitSummary(p, rolled) 
+
+  TreatableAreaPlots(x = ob, rolled, mod = p, colname = 'fit', yr_roll = yr_roll)
 }
+
+
+p <- lapply(listicle['Great Lakes'], reportBalance, yr_roll = 2)
+rolled <- lapply(listicle['Great Lakes'], reportBalance, yr_roll = 2)
+
+lapply(listicle, reportBalance, yr_roll = 1)
+lapply(listicle, reportBalance, yr_roll = 2)
+lapply(listicle, reportBalance, yr_roll = 3)
+lapply(listicle, reportBalance, yr_roll = 4)
+lapply(listicle, reportBalance, yr_roll = 5)

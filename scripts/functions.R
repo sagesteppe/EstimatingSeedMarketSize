@@ -11,13 +11,15 @@
 #' @dir a directory to save the plots, and estimates. 
 RegionalEstimates <- function(x, dir){
   
-  mod <- lm(log(TotalArea_Acre) ~ FIRE_YEAR, data = x)
+  lTAA <- log(x$TotalArea_Acre)
+  if(any(lTAA=='-Inf')){lTAA[which(lTAA=='-Inf')] <- 0.0}
+  x$TotalArea_Acre <- as.numeric(lTAA)
   
+  mod <- lm(TotalArea_Acre ~ FIRE_YEAR, data = x)
   ntrvls <- PredInts(x = x, y = mod)
   BurnedAreaPlots(x = x, z = ntrvls, mod = mod)
 
   # now we transform the prediction intervals back onto their original scale
-  
 }
 
 
@@ -48,11 +50,11 @@ BurnedAreaPlots <- function(x, z, mod){
   # Add some color to the scatter points . 
   nColor <- 10
   colors = paletteer::paletteer_c("viridis::inferno", n=nColor, direction = -1)
-  rank <- as.factor(as.numeric(cut(log(x$TotalArea_Acre), nColor)))
+  rank <- as.factor(as.numeric(cut(x$TotalArea_Acre, nColor)))
   
   plot(
     x = x$FIRE_YEAR,
-    y = log(x$TotalArea_Acre), 
+    y = x$TotalArea_Acre, 
     xlim = c(min(z$mod_ci$FIRE_YEAR), max(z$mod_ci$FIRE_YEAR)), 
     ylim = c(min(z$mod_pred95$lwr), max(z$mod_pred95$upr)), 
     
@@ -231,5 +233,110 @@ pred_help <- function(y, lvl){
       y, gr, interval = 'confidence', level = lvl)
   )
   return(mod_pred)
+}
+
+
+#' Visualize the amount of area which can be treated each year 
+#' 
+#' @description This function makes plots and saves them to disk. The plots depict
+#' the observed amount of area burnt each year, and the amount of area which can 
+#' be treated annually based on a regression line. It denotes areas which can 
+#' be treated with warehoused seed in green, while areas in red depict areas in 
+#' excess of what warehouses would have in storage. 
+#' @param x the output of `AreaDeficitSummary`  
+#' @param rolled the ouput of `avg`
+#' @param mod a model prediction which can be used to depict the target amount of area which seed is grown for. 
+#' @param colname the name of the column in the prediction grid to be used for plotting. 
+#' @param yr_roll passed on from outer function. 
+TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
+  
+  p <- file.path('..', 'results', 'Plots', 'AnnualSummariesTreatable', 
+                 paste0(gsub(' ', '_', rolled[['REG_NAME']][1]), '-', yr_roll, 'yrAVG', '.png'))
+  
+  png(p)
+  par(mar = c(7, 5, 4, 2))
+  
+  plot(
+    x = rolled$FIRE_YEAR,
+    y = rolled$TotalArea_Acre,
+    main = paste0('Total Area Burned - and possibly treated\n', rolled[['REG_NAME']][1]),
+    xlab = 'Fire Year', 
+    ylab = 'Total Area (Acre)',
+    pch = 20,
+    cex = 1.2,
+    yaxt = "n"
+  ) 
+  lines(rolled[['FIRE_YEAR']], rolled[['roll']], lty = 3, col = 'grey30')
+  lines(mod[['FIRE_YEAR']], mod[[colname]])
+  axis(2, 
+       at = labs <- pretty(par()$usr[3:4]),
+       labels = prettyNum(
+         labs, big.mark = ",", scientific = FALSE)
+  )
+  
+  # If the burned area is in excess of the fit model, then place a green line 
+  # indicating the maximum amount of area which can be treated using the 
+  # warehoused seed. 
+  # thes are 'partial treatments' p_trt
+  p_trt <- x[! is.na(x$Treatable), ]
+  for (i in seq_along(1:nrow(p_trt))){
+    segments(
+      x0 = p_trt[i,'FIRE_YEAR'], x1 = p_trt[i,'FIRE_YEAR'],
+      y0 =  p_trt[i, 'Treatable'], 
+      y1 = p_trt[i, 'fit'],
+      col = "darkgreen"
+    )
+  }
+  
+  # now we repeat the process for all burns above the regression line that 
+  # we should have the material to treat in their entirety. 
+  t_trt <- x[x$FIRE_YEAR != min(x$FIRE_YEAR),]
+  t_trt <- t_trt[t_trt$Surplus==0 & is.na(t_trt$Treatable),]
+  for (i in seq_along(1:nrow(t_trt))){
+    segments(
+      x0 = t_trt[i,'FIRE_YEAR'], x1 = t_trt[i,'FIRE_YEAR'],
+      y0 =  t_trt[i, 'TotalArea_Acre'], 
+      y1 = t_trt[i, 'fit'],
+      col = "darkgreen"
+    )
+  }
+  
+  # we'll also have a red line segment running through the untreatable areas. 
+  for (i in seq_along(1:nrow(p_trt))){
+    segments(
+      x0 = p_trt[i,'FIRE_YEAR'], x1 = p_trt[i,'FIRE_YEAR'],
+      y0 =  p_trt[i, 'Treatable'], 
+      y1 = p_trt[i, 'TotalArea_Acre'],
+      col = "red4"
+    )
+  }
+  
+  # we add red 'x' to the area beyond which we have adequate seed to treat the 
+  # area with. Helps draw eye to the transition from treatable-untreatable areas. 
+  points(x$FIRE_YEAR, x$Treatable, pch = 4, col = 'orangered')
+  
+  # write a short summary for the plot. 
+  status <- paste0(
+    'Of the ', nrow(x)-1, ' years in this data set ', nrow(x[x$AnnualDeficit!=0,]),
+    ' had fires above the regression line.\n Of these ', nrow(t_trt), 
+    ' years would have enough seed material to plant at recommended\nseeding rates, while ', 
+    nrow(p_trt), ' would have inadequate amounts of seed.'
+  )
+  
+  
+  mtext(side=1, line=6, adj=1, cex=0.8, status, col = 'grey40') 
+  
+  # denote what the lines represent. 
+  legend(
+    x = "topleft", 
+    legend = c(paste0(yr_roll, ' year\n rolling avg.'), "Fit", "Treatable", 'Untreatable'),
+    lty = c(2, rep(1, 3)),  
+    col = c('grey20', 'black', 'darkgreen', 'red4'),
+    lwd = 2, 
+    bg = adjustcolor("white", 0.4)
+  )  
+  
+  dev.off()
+  
 }
 
