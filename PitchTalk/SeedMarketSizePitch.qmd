@@ -1,0 +1,132 @@
+---
+title: "Estimating Seed Market Size Across the US"
+subtitle: "from Lifeforms to Species"
+author: "Reed Clark Benkendorf"
+date: "2024-December-12"
+institute: "Consultant & Senior Data Specialist"
+date-format: long
+format: 
+  revealjs:
+    theme: black
+    highlight: pygments
+    preview-links: auto
+    logo: ./images/CBG_Logos/NegauneeInstitute_CBG-Logo-FlowerMark.png
+    chalkboard: 
+      boardmarker-width: 5
+    reveal_options:
+      width: 1920
+      height: 1080
+      fontsize: 20pt
+css: custom.css
+editor: 
+  markdown: 
+    wrap: 72
+include-in-header:
+  - text: |
+      <style>
+      #title-slide .title {
+        font-size: 1.5em;
+      }
+      </style>
+---
+
+## National Seed Strategy Keystone Initiative - Action Plan  
+
+Action 4. Enhance coordination (within DOI and across departments) to improve the native seed supply chain 
+
+- Short-term [implementation within 1st year of Action Plan]  
+  - **Develop seed need projections for DOI agencies**  
+  
+- Mid-term [implementation in 1-3 years of Action Plan]  
+  - **Develop seed need projections for DOI agencies for one-, five-, and ten-year timeframes using NISRC national, central coordinating data platform** (see Action #1)  
+  
+::: notes
+The Keystone plan has three objectives related to estimating the seed needs. Above I have reproduced 2 of the three, the third which is not represented - has a longer time frame for implementation. But should draw heavily from the Mid-Term estimates. 
+:::
+
+## historic seed purchase data  
+
+::: {.incremental}
+- Data were collected in times when seed availability is low.  
+- The right seed, was the available seed   
+- Geographically restricted to a few of the 12 DOI regions, and agencies  
+- Unable to provide information on *wants* or *needs*  
+- Context  
+:::
+
+::: notes 
+While data exists on what BLM purchased and when, the purchasing is shaped largely by availability of seed. As we know the market leaves much to be desired, basing our estimates on low performance purchases will predict a low performance market. 
+Further much of these data are restricted to just a handful of regions and agencies relative to the DOI's domain. 
+:::
+
+## hesitations of farmers and investors  
+
+::: {.incremental}
+- Little knowledge of agricultural practices
+- Little support from agricultural extensions  
+- They are betting on the market  
+- Market suffers in low fires years  
+:::
+
+::: notes
+Yes, obviously farmers need more information on *how* to grow the seed, and get it to market. They understand that the value of seed varies in time, however the value of many commodities vary in time - even subsidized staples like corn and soy. If we can better predict the amount of seed which the gov't can purchase and warehouse at points in time, we can decrease the variation in cost and bring it *more* in line like many other crops 
+:::
+
+## hesitations of farmers and investors
+
+
+WANT VCENTER THIS 
+
+> *"There's gold in them thar hills"* 
+
+::: notes
+However, this is a country of boom and bust. Most of the West was founded by people looking for fortunes, and I think the possibilities of financial gains outweigh the restrictions that are imposed by a lack of knowledge of the crops. 
+:::
+
+## a framework for estimating seed need 
+
+Long term  
+
+<details> 
+<summary>Domain & Grain</summary>
+Domain: 
+  - DOI Regions
+  - Each DOI Agency 
+- Temporal Grain: Annual
+- Spatial Grain: 30m 
+</details
+
+$$
+
+$$
+
+::: notes
+Ideally we could estimate the demand for native seeds for the next 3-7 years reliably. This would allow for a crop to be purpose grown, e.g. for an anticipated wildfire of a certain size. 
+However, It is likely to be some time before we can properly estimate the amount of area which will experience a disaster at X point in time in Y space.  
+
+But when we do get there, we are going to need most of the same variables which we need to start gathering now. Accordingly we can begin our estimates of seed market need at both the short and mid term time points, and later incorporate these data into a long term model. 
+::: 
+
+## modelling framework - short term 
+
+## short term - snapshot 
+
+## modelling framework - mid term 
+
+## modelling framework - long term  
+
+## a framework for associating costs with seed need  
+
+## modelling framework what do we need to achieve mid-term estimates?   
+
+## an R package for seed need estimates   
+
+- Reproducible  
+- Avoids code going to waste and being re-invented  
+- Allows others to engage with problems at their 'head' rather than building up a code base to play catch up.  
+
+## Proposal  
+
+## Timeframe  
+
+
