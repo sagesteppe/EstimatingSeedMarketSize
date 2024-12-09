@@ -77,7 +77,7 @@ bs_visual <- data.frame(
 ) |>
   mutate(
     Variable = factor(
-      Variable, levels =  c('NLCD Class', 'Class-Slope', 'Restoration\nMethod', 'Seeding Rate', 'Prop.\nSeed Mixes', 'Prop. in Mix', 'PLS/lb'))
+      Variable, levels = c('NLCD Class', 'Class-Slope', 'Restoration\nMethod', 'Seeding Rate', 'Prop.\nSeed Mixes', 'Prop. in Mix', 'PLS/lb'))
   )
 
 rm(s, p)
@@ -218,7 +218,7 @@ $$
 
 <details> 
 <summary>Model Details</summary>
-```{r Mid term model visual view}
+```{r Mid term model visual view, fig.width=5, fig.height=1}
 ggplot(data = bs_visual, aes(x = x, y = y)) + 
   geom_line() + 
   geom_area(fill = 'white') + 
@@ -280,7 +280,7 @@ Forest service has for a long time loosely followed this tradition, although lot
 ## Timeline  
 
 
-```{r Timeline plot}
+```{r Timeline plot, fig.width=16, fig.height=9}
 months <- data.frame( # these are the center bar. 
   X = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
   Y = 90,
