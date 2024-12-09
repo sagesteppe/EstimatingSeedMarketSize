@@ -1,9 +1,9 @@
 ---
-title: "Estimating Seed Market Size Across the US"
+title: "Estimating Seed Market Size in the US"
 subtitle: "from Lifeforms to Species"
 author: "Reed Clark Benkendorf"
-date: "2024-December-12"
-institute: "Consultant & Senior Data Specialist"
+date: "2024-December-13"
+institute: "Chicago Botanic Garden"
 date-format: long
 format: 
   revealjs:
@@ -17,7 +17,7 @@ format:
       width: 1920
       height: 1080
       fontsize: 20pt
-css: custom.css
+css: styles.css
 editor: 
   markdown: 
     wrap: 72
@@ -30,14 +30,20 @@ include-in-header:
       </style>
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, comment = "")
+```
+
+# Introduction 
+
 ## National Seed Strategy Keystone Initiative - Action Plan  
 
-Action 4. Enhance coordination (within DOI and across departments) to improve the native seed supply chain 
+[Action 4. Enhance coordination (within DOI and across departments) to improve the native seed supply chain]{style="color:#6c6c6c; font-size: 0.8em;"}  
 
-- Short-term [implementation within 1st year of Action Plan]  
+- [Short-term (implementation within 1st year of Action Plan)]{style="color:#6c6c6c;"}  
   - **Develop seed need projections for DOI agencies**  
   
-- Mid-term [implementation in 1-3 years of Action Plan]  
+- [Mid-term (implementation in 1-3 years of Action Plan)]{style="color:#6c6c6c;"}  
   - **Develop seed need projections for DOI agencies for one-, five-, and ten-year timeframes using NISRC national, central coordinating data platform** (see Action #1)  
   
 ::: notes
@@ -51,7 +57,8 @@ The Keystone plan has three objectives related to estimating the seed needs. Abo
 - The right seed, was the available seed   
 - Geographically restricted to a few of the 12 DOI regions, and agencies  
 - Unable to provide information on *wants* or *needs*  
-- Context  
+<br>
+- **All data are contextual -  NSRIC is a paradigm shift. **  
 :::
 
 ::: notes 
@@ -66,39 +73,61 @@ Further much of these data are restricted to just a handful of regions and agenc
 - Little support from agricultural extensions  
 - They are betting on the market  
 - Market suffers in low fires years  
+- ... 
 :::
 
 ::: notes
 Yes, obviously farmers need more information on *how* to grow the seed, and get it to market. They understand that the value of seed varies in time, however the value of many commodities vary in time - even subsidized staples like corn and soy. If we can better predict the amount of seed which the gov't can purchase and warehouse at points in time, we can decrease the variation in cost and bring it *more* in line like many other crops 
 :::
 
-## hesitations of farmers and investors
+## ~~hesitations of~~ farmers and investors
 
+::: {.vcenter}
+::: {.fragment}
+> *"There's gold in them thar hills"*  
+:::
+:::
 
-WANT VCENTER THIS 
+<br> 
 
-> *"There's gold in them thar hills"* 
+::: {.fragment} 
+<center>
+Price of an ounce of gold from 1843-1856 - $20.67^1^
+</center>
+:::
+
+<br>
+<br> 
+
+::: {.fragment} 
+::: {style="color:#6c6c6c; font-size: 0.8em; text-align: right"}  
+^1^[Onlygold.com](https://onlygold.com/gold-prices/historical-gold-prices/)
+:::
+:::
 
 ::: notes
 However, this is a country of boom and bust. Most of the West was founded by people looking for fortunes, and I think the possibilities of financial gains outweigh the restrictions that are imposed by a lack of knowledge of the crops. 
 :::
 
-## a framework for estimating seed need 
-
-Long term  
+# a framework for estimating seed need - long term  
 
 <details> 
 <summary>Domain & Grain</summary>
-Domain: 
-  - DOI Regions
-  - Each DOI Agency 
-- Temporal Grain: Annual
-- Spatial Grain: 30m 
-</details
+<font size='5'>
+
+- Domain   
+  - DOI Regions (12) 
+  - Each DOI Agency (3)  
+- Temporal Grain: Annual  
+- Spatial Grain: 30m  
+
+</font> 
+</details>
 
 $$
 
 $$
+
 
 ::: notes
 Ideally we could estimate the demand for native seeds for the next 3-7 years reliably. This would allow for a crop to be purpose grown, e.g. for an anticipated wildfire of a certain size. 
@@ -108,6 +137,15 @@ But when we do get there, we are going to need most of the same variables which 
 ::: 
 
 ## modelling framework - short term 
+
+- Four lifeforms: 
+  Grasses, Forbs, Shrubs, Trees  
+
+<font size ="5">
+$$
+\text{Burned Area} * \text{Seeding Method}* \frac{\text{Pure Live Seed}}{\text{Area}} = \text{PLS required}
+$$
+</font>
 
 ## short term - snapshot 
 
@@ -119,14 +157,164 @@ But when we do get there, we are going to need most of the same variables which 
 
 ## modelling framework what do we need to achieve mid-term estimates?   
 
+# Proposal 
+
+Two additional elements are required to achieve the modelling goals. 
+
+## a census of the experts  
+
+- Survey 
+
 ## an R package for seed need estimates   
 
+<br>
+
+> "the fundamental unit of **distributable** code in the R programming language" 
+
+[*Open, Reproducible, and Distributable Research With R Packages* Josh Brinks]{style="color:#6c6c6c; font-size: 0.8em; text-align: right"} 
+
+::: {.incremental}
 - Reproducible  
-- Avoids code going to waste and being re-invented  
-- Allows others to engage with problems at their 'head' rather than building up a code base to play catch up.  
+- Avoids duplication of efforts 
+- Testable across Operating Systems (OS)  
+- Allows others to engage with problems at their 'head'   
+:::
 
-## Proposal  
+::: notes
+Rseedneed
 
-## Timeframe  
+::: 
+
+
+
+## Timeline  
+
+
+```{r}
+library(sf)
+library(tidyverse)
+months <- data.frame( # these are the center bar. 
+  X = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
+  Y = 90,
+  Month = month.abb
+)
+
+people <- data.frame(
+  Person = c('Nancy', 'R.C.', 'Becky', 'Ryan', 'Rebecca'),
+  X = 0, 
+  Y = seq(40, 5, by = -8)
+)
+
+# people_help <- data.frame(
+#  Person = c('Nancy', 'R.C.', 'Becky', 'Ryan', 'Rebecca'),
+#  X_start = c(),
+#  X_end = c(), 
+#  Y = seq(40, 5, by = -8)
+#)
+
+milestones <- data.frame(
+  Milestone_l = 
+    c('Survey', 'Short-term\nestimates', 'R package', 
+      'Mid-term\nestimates\n(internal)', 'Mid-term\nestimates'), 
+  Milestone = 
+    c('Survey', 'Short-term', 'R_package', 'Mid-term_internal', 'Mid-term'),
+  X = c(74, 122, 182, 228, 274), 
+  Y = c(rep(200, 3), 197.5, 200)
+)
+
+## just buffer the circles by how long the event takes... 
+
+# buffer amount will define the date range eaten up by each circle. 
+# buffer 1 = 1 week, 2 = 2 weeks, buffer 4 = 4 weeks
+circles <- data.frame(
+  Event = c(
+    'Survey Research', 'Survey Development', 'Survey Release',
+    'Lifeform tabulation', 'Analysis', 'Reporting', 
+    'Assemble', 'Test', 'Document', 
+    'Analyse', 'Troubleshoot', 'Share', 
+    'Analyse', 'Style', 'Report'
+    ), 
+  Milestone = 
+    rep(c('Survey', 'Short-term', 'R_package', 'Mid-term_internal', 'Mid-term'), each = 3),
+  X = c(
+    8, 35, 73, 
+    87, 105, 113, 
+    140, 159, 174, 
+    187, 200, 214, 
+    233, 259, 273 
+    ), 
+  Y = 90,
+  buffer = c(
+    2, 4, 2.5, 
+    1, 2, 1,
+    4, 2, 1.5,
+    3, 1, 1, 
+    3.5, 2, 1
+    ) * 7
+) |>
+  sf::st_as_sf(coords = c('X', 'Y'))
+
+belt <- data.frame(
+  X = c(0, 365), 
+  Y = 90
+) |>
+  sf::st_as_sf(coords = c('X', 'Y')) |>
+  sf::st_union() |>
+  sf::st_cast('LINESTRING') |>
+  sf::st_buffer(3.5)
+
+circles <- split(circles, f = 1:nrow(circles)) |>
+  lapply( FUN = function(x){dist <- jitter(x$buffer, amount = 5); x <- sf::st_buffer(x, dist)}) |>
+  bind_rows() |> 
+  arrange(-buffer)
+
+explanations <- data.frame(
+  explanation_l = c(
+    "Research, Develop, & Release\na 15-20 minute survey\nfor land managers from the\nDOI agencies using Shiny", 
+    "Tabulate, Analyse, & Report\n estimates of seed\nneeds by lifeforms", 
+    "Develop, Test, & Document\na stable version of\n`rseedneed` to github", 
+    "Analyse, Troubleshoot & Share\nestimates of mid-term\nseed requirements,\nand distribute internally.", 
+    "Analyse, Style, & Report\n feedback from previous\niteration to prepare results\nfor distribution."
+  ), 
+  Milestone = c('Survey', 'Short-term', 'R_package', 'Mid-term_internal', 'Mid-term'), 
+  X = c(74, 122, 182, 228, 274)-10, 
+  Y = 155 + rep(c(12, -12), times = 3)[1:5]
+)
+
+# lines for each persons contributions
+
+ggplot() +  
+  geom_sf(
+    data = circles, alpha = 0.5, 
+    aes(fill = Milestone)) + 
+  geom_sf(
+    data = belt, fill = '#191919', color = NA, alpha = 0.6) + 
+  geom_text(
+    data = months,
+    aes(x = X, y = Y, label = Month), 
+    color ='white', size = 2.75) + 
+  geom_text(
+    data = people, 
+    aes(x = X, y = Y, label = Person), 
+    color ='grey80', size = 2.5) + 
+  geom_label(
+    data = milestones, 
+    aes(x = X, y = Y, label = Milestone_l, fill = Milestone), 
+    color ='white', label.size = NA) + 
+  geom_label(
+    data = explanations,
+    aes(x = X, y = Y, label = explanation_l, fill = Milestone),
+    alpha = 0.2, size = 2.25, color ='grey90', label.size = NA) + 
+  theme_void() + 
+  ylim(0, 205) + 
+  xlim(0, 366) + 
+  theme(
+    legend.position = 'none',
+    panel.background = element_rect(fill='#191919'), 
+    plot.background = element_rect(fill='#191919', color=NA)
+    )
+
+```
+
 
 
