@@ -34,6 +34,55 @@ include-in-header:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, comment = "")
 ```
 
+```{r Load Libraries}
+library(sf)
+library(tidyverse)
+```
+
+```{r Mid term model data}
+
+s <- seq(0.1, 25, by = 0.1)
+p <- seq(0, 1, length=100)
+
+bs_visual <- data.frame(
+  Theme = c(
+    rep('Land Cover', length(s)*2),
+    rep('Application', length(p)*2),
+    rep('Seed Mixes', length(p)*2), 
+    rep('Constants', length(s))
+    ),
+  Variable = c(
+    rep('NLCD Class', length(s)),
+    rep('Class-Slope', length(s)),
+    rep('Restoration\nMethod', length(p)), 
+    rep('Seeding Rate',  length(p)), 
+    rep('Prop.\nSeed Mixes',  length(p)), 
+    rep('Prop. in Mix', length(p)), 
+    rep('PLS/lb',  length(s)) 
+),
+  x = c(
+    rep(s, times = 2), 
+    rep(p, times = 4),
+    s
+    ), 
+  y = c(
+    dnorm(s, mean = 12.5, sd = 5), 
+    dnorm(s, mean = 12.5, sd = 2.5), 
+    dbeta(p, 4, 9), 
+    dbeta(p, 2, 20), 
+    dbeta(p, 5, 2), 
+    dbeta(p, 2, 3), 
+    dchisq(s, df = 6)
+  )
+) |>
+  mutate(
+    Variable = factor(
+      Variable, levels =  c('NLCD Class', 'Class-Slope', 'Restoration\nMethod', 'Seeding Rate', 'Prop.\nSeed Mixes', 'Prop. in Mix', 'PLS/lb'))
+  )
+
+rm(s, p)
+```
+
 # Introduction 
 
 ## National Seed Strategy Keystone Initiative - Action Plan  
@@ -141,7 +190,7 @@ But when we do get there, we are going to need most of the same variables which 
 - Four lifeforms: 
   Grasses, Forbs, Shrubs, Trees  
 
-<font size ="5">
+<font size ="4">
 $$
 \text{Burned Area} * \text{Seeding Method}* \frac{\text{Pure Live Seed}}{\text{Area}} = \text{PLS required}
 $$
@@ -150,6 +199,42 @@ $$
 ## short term - snapshot 
 
 ## modelling framework - mid term 
+
+<font size='4'>
+<details> 
+<summary>Model</summary>
+$$
+\text{Cover Class} * \text{Slope Category} * \text{Restoration Type} * \text{Seeding Rate} * \text{Prop. Seed Mixes} * \text{Prop. of Mix} * \text{PLS/lb}
+$$
+</details>
+
+<details>
+<summary>Data Sources</summary>
+$$
+\frac{\text{Cover Class} * \text{Slope Category}}{\text{Landscape}} * \frac{\text{Restoration Type} * \text{Seeding Rate} * \text{Prop. Seed Mixes} * \text{Prop. of Mix}}{\text{Practicioner Knowledge}} * \frac{\text{PLS/lb}}{\text{NRCS}}
+$$
+</summary>
+</details>
+
+<details> 
+<summary>Model Details</summary>
+```{r Mid term model visual view}
+ggplot(data = bs_visual, aes(x = x, y = y)) + 
+  geom_line() + 
+  geom_area(fill = 'white') + 
+  facet_wrap(~Variable, scales = 'free', nrow = 1) + 
+  theme_void() + 
+  theme(
+    strip.text = element_text(color = 'white'),
+    aspect.ratio = 1/1, 
+    panel.spacing = unit(0, 'points'), 
+    panel.background = element_rect(fill='#191919'), 
+    plot.background = element_rect(fill='#191919', color=NA)
+    )
+```
+</details>
+
+</font>
 
 ## modelling framework - long term  
 
@@ -195,9 +280,7 @@ Forest service has for a long time loosely followed this tradition, although lot
 ## Timeline  
 
 
-```{r}
-library(sf)
-library(tidyverse)
+```{r Timeline plot}
 months <- data.frame( # these are the center bar. 
   X = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
   Y = 90,
@@ -325,6 +408,8 @@ ggplot() +
     plot.background = element_rect(fill='#191919', color=NA)
     )
 
+
+rm(belt, circles, explanations, milestones, months, people, people_help)
 ```
 
 
