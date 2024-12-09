@@ -181,8 +181,13 @@ Two additional elements are required to achieve the modelling goals.
 :::
 
 ::: notes
-Rseedneed
+Theoretically most of our values and work should be transferrable to other municipal governments, as well as companies interested in producting seed. 
+Futher there is one very large DOI agency - the BIA - which I think may not be the most involved in this process, and it seems similar processes will need to be done in Puerto Rico, and the Pacific Islands may very well just more or less redo much of this themselves. 
+So it would be great to be able to get folks onto the same playing field without much effort. 
 
+In the botany community sharing 'scripts' seems common, which yes we can do, but most important is actually developing code of the quality that it can be bound into packages and the functions can be shared. This allows us to ensure that the analyses are actually reproducible, and that the code works on multiple operating systems. 
+
+Forest service has for a long time loosely followed this tradition, although lot's of their software is in external programs making maintenance very hard. Both the USGS and EPA are frequent developers of R packages for various analysis. 
 ::: 
 
 
@@ -205,12 +210,17 @@ people <- data.frame(
   Y = seq(40, 5, by = -8)
 )
 
-# people_help <- data.frame(
-#  Person = c('Nancy', 'R.C.', 'Becky', 'Ryan', 'Rebecca'),
-#  X_start = c(),
-#  X_end = c(), 
-#  Y = seq(40, 5, by = -8)
-#)
+
+people_help <- data.frame(
+  Person = rep(c('Nancy', 'R.C.', 'Becky', 'Ryan',  'Rebecca'), each = 2),
+  X = c(32, 73, 32, 73, 15, 40, 174, 227, 161, 175),
+  Y = rep(seq(40, 5, by = -8), each = 2)
+  ) |>
+  sf::st_as_sf(coords = c('X', 'Y')) |>
+  dplyr::group_by(Person) |>
+  summarize(geometry = sf::st_union(geometry)) |>
+  sf::st_cast('MULTILINESTRING') |>
+  sf::st_buffer(0.5)
 
 milestones <- data.frame(
   Milestone_l = 
@@ -284,6 +294,7 @@ explanations <- data.frame(
 # lines for each persons contributions
 
 ggplot() +  
+  geom_sf(data = people_help) + 
   geom_sf(
     data = circles, alpha = 0.5, 
     aes(fill = Milestone)) + 
