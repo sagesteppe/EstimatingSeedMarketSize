@@ -242,8 +242,7 @@ ggplot(data = bs_visual, aes(x = x, y = y)) +
 <center>
 "How much [Elymus elymoides]{style="text-decoration: underline;"} *(species)* is required on BLM land in DOI region 10 *(domain)* next year *(grain)*?"
 
-```{r}
-
+```{r Mid term modelling visualized}
 DiagrammeR::grViz("digraph{
  
       graph[rankdir = LR]
@@ -388,9 +387,7 @@ new_model %>%
   auto_layout(lengthMultiplier=250) %>%
   plot()
 
-
 model_relational_data(new_model)
-
 ```
 
 ## an R package for seed need estimates   
