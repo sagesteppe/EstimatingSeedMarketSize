@@ -28,10 +28,16 @@ species_taxonomy_tab <- data.frame(
   'MONTH_POPULATED' = as.numeric() # the number month of the year these values were acquired. 
 ) 
 
-coverclass_tab <- data.frame(
+
+administration_tab <- data.frame(
+  'AdminID' = as.integer(), 
   'DOI_REG' = as.integer(), # the DOI region of analysis, as it's number
   'NLCD_No' = as.integer(), # the NLCD number for the cover type 
   'agency' = as.character(), # the particular agencies surface administrative area 
+)
+
+coverclass_tab <- data.frame(
+  'AdminID',  # JOIN KEY
   'year' = as.integer(), # the year of the measurements
   'area' = as.numeric(), # the total area of the cover class on agencies land, in acres
   'slope_gr_10' = as.numeric(), # total area of CC on agencies land, where slope >= 10* in acres, 
@@ -43,9 +49,7 @@ coverclass_tab <- data.frame(
 
 # this table showcases the estimated ACTUAL treatment rates applied by a practitioner over a time range 
 restoration_realized_tab <- data.frame(
-  'DOI_REG' = as.numeric(), # the doi region treatments occurred in 
-  'agency' = as.character(), # the agency administering the treatments 
-  'NLCD_No' = as.integer(), # the NLCD the treatment occurs in 
+  'AdminID',  # JOIN KEY
   'year_end' = as.integer(), # when the practitioner started doing treatments 
   'year_start' = as.integer(), # when the practitioner stopped doing treatments / survey year
   'method' = as.character(), # method one of "Drill", "Aerial", "Broadcast", "Hydro"
@@ -55,9 +59,7 @@ restoration_realized_tab <- data.frame(
 
 # this table showcases what a practitioner would require to meet land health standards or management objectives. 
 restoration_needed_tab <- data.frame(
-  'DOI_REG' = as.numeric(), # the doi region treatments occurred in 
-  'agency' = as.character(), # the agency administering the treatments 
-  'NLCD_No' = as.integer(), # the NLCD the treatment occurs in 
+  'AdminID',  # JOIN KEY
   'method' = as.character(), # method one of "Drill", "Aerial", "Broadcast", "Hydro"
   'PLS_acre' = as.numeric(), # PLS per acre which would need to be applied to achieve goals 
   'PLS_m2'= as.numeric() # PLS per m2 which would need to be applied to achieve goals 
@@ -65,7 +67,10 @@ restoration_needed_tab <- data.frame(
 
 
 seedmix_species_tab <- data.frame(
-  
+  'Prop_in_mix_avg' = as.numeric(), # When used, on average, how much of a seed mix contains this species? 
+  'Prop_in_mix_min' = as.numeric(), # When used, what's the smallest amount, of this a seed mix contains? 
+  'Prop_in_mix_max' = as.numeric(), # When used, what's the largest amount, of this a seed mix contains? 
+  'Prop_area_treated' = as.numeric() # what proportion of area get's treated by this species? 
 )
 
 
