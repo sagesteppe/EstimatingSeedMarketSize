@@ -37,6 +37,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, comment = 
 ```{r Load Libraries}
 library(sf)
 library(tidyverse)
+library(ReDaMoR)
 ```
 
 ```{r Mid term model data}
@@ -218,6 +219,7 @@ $$
 
 <details> 
 <summary>Model Details</summary>
+<center>
 ```{r Mid term model visual view, fig.width=5, fig.height=1}
 ggplot(data = bs_visual, aes(x = x, y = y)) + 
   geom_line() + 
@@ -232,8 +234,116 @@ ggplot(data = bs_visual, aes(x = x, y = y)) +
     plot.background = element_rect(fill='#191919', color=NA)
     )
 ```
+</center>
 </details>
 
+<details> 
+<summary>Example</summary>
+<center>
+"How much [Elymus elymoides]{style="text-decoration: underline;"} *(species)* is required on BLM land in DOI region 10 *(domain)* next year *(grain)*?"
+
+```{r}
+
+DiagrammeR::grViz("digraph{
+ 
+      graph[rankdir = LR]
+      bgcolor = black
+      node[shape = rectangle, style = filled]
+      
+      subgraph cluster_0 { 
+         graph[shape = rectangle]
+         style = rounded
+         bgcolor = '#755C1B'
+    
+         label = 'Cover Class\n(Area)'
+         node[shape = rectangle, fillcolor = '#B78F2A', margin = 0.25]
+         A[label = 'NLCD 52 Shrub Scrub']
+         Aa[label = 'NLCD 82 Grassland']
+        }
+      
+      subgraph cluster_1 {
+         graph[shape = rectangle]
+         style = rounded
+         bgcolor = '#83BCA9'
+    
+         label = 'Cover Class x Slope\n(Area)'
+         node[shape = rectangle, fillcolor = '#A2CDBF', margin = 0.25]
+         C[label = 'NLCD 52 > 10%']
+         D[label = 'NLCD 52 < 10%']
+      }
+      
+      subgraph cluster_2 {
+         graph[shape = rectangle]
+         style = rounded
+         bgcolor = '#83BCA9'
+    
+         label = 'Cover Class x Slope\n(Area)'
+         node[shape = rectangle, fillcolor = '#A2CDBF', margin = 0.25]
+         Cc[label = 'NLCD 82 > 10%']
+         Dd[label = 'NLCD 82 < 10%']
+      }        
+        
+      subgraph cluster_3 {
+         graph[shape = rectangle]
+         style = rounded
+         bgcolor = '#F76F8E'
+    
+         label = 'Restoration Method\n(Area)'
+         node[shape = rectangle, fillcolor = '#F99FB4', margin = 0.25]
+         E[label = 'Drill']
+         F[label = 'Aerial']
+         G[label = 'Hydro']
+         H[label = 'Broadcast']
+      } 
+      
+      subgraph cluster_4 {
+         graph[shape = rectangle]
+         style = rounded
+         bgcolor = '#F76F8E'
+    
+         label = 'Restoration Method\n(Area)'
+         node[shape = rectangle, fillcolor = '#F99FB4', margin = 0.25]
+         Ee[label = 'Drill']
+         Ff[label = 'Aerial']
+         Gg[label = 'Hydro']
+         Hh[label = 'Broadcast']
+      } 
+      
+      subgraph cluster_5 {
+         graph[shape = rectangle]
+         style = rounded
+         bgcolor = '#5E5C6C'
+    
+         label = 'Seeding Rate\n(Count)'
+         node[shape = rectangle, fillcolor = '#7D7B8E', margin = 0.25]
+         I[label = 'seeds/area']
+         J[label = 'seeds/area']
+         K[label = 'seeds/area']
+         L[label = 'seeds/area']
+      } 
+      
+      node[fillcolor = '#0B5563', margin = 0.2]
+      M[label = 'Prop. Area Applied to']
+      
+      node[fillcolor = '#89023E', margin = 0.2]
+      N[label = 'Prop. of Seed Mix\n(when Used)']
+      
+      edge[color = white, arrowhead = vee, arrowsize = 1.25, linesize = 2.5]
+      A -> {C D}
+      Aa -> {Cc Dd}
+      C -> {E F G H}
+      D -> {Ee Ff Gg Hh}
+      E -> I
+      F -> J
+      G -> K
+      H -> L
+      {I J K L} -> {M}
+      M -> N
+      
+      }", width = 1000, height = 400)
+```
+</center>
+</details>
 </font>
 
 ## modelling framework - long term  
@@ -246,9 +356,42 @@ ggplot(data = bs_visual, aes(x = x, y = y)) +
 
 Two additional elements are required to achieve the modelling goals. 
 
-## a census of the experts  
+## a census of the experts I  
 
 - Survey 
+
+## a census of the experts II
+
+```{r Relational Data Model for Survey Results}
+hpo_model <- read_json_data_model(
+  system.file("examples/HPO-model.json", package="ReDaMoR")
+)
+plot(hpo_model)
+
+
+## creating a new model from a set of data frames example data 
+
+confrontation_report <- confront_data(
+  hpo_model,
+  path=list.files(
+    system.file("examples/HPO-subset", package="ReDaMoR"),
+    full.names=TRUE
+  ),
+  returnData=TRUE
+)
+
+hpo_tables <- confrontation_report$data
+new_model <- df_to_model(
+  list=names(hpo_tables), envir=as.environment(hpo_tables)
+)
+new_model %>%
+  auto_layout(lengthMultiplier=250) %>%
+  plot()
+
+
+model_relational_data(new_model)
+
+```
 
 ## an R package for seed need estimates   
 
@@ -338,7 +481,7 @@ circles <- data.frame(
     ), 
   Y = 90,
   buffer = c(
-    2, 4, 2.5, 
+    2, 3.5, 2.5, 
     1, 2, 1,
     4, 2, 1.5,
     3, 1, 1, 
@@ -376,6 +519,9 @@ explanations <- data.frame(
 
 # lines for each persons contributions
 
+pal <- c('#755C1B', '#83BCA9', '#F76F8E', '#5E5C6C', '#0B5563')
+names(pal) <- explanations$Milestone
+
 ggplot() +  
   geom_sf(data = people_help) + 
   geom_sf(
@@ -399,6 +545,7 @@ ggplot() +
     data = explanations,
     aes(x = X, y = Y, label = explanation_l, fill = Milestone),
     alpha = 0.2, size = 2.25, color ='grey90', label.size = NA) + 
+  scale_fill_manual(values = pal) + 
   theme_void() + 
   ylim(0, 205) + 
   xlim(0, 366) + 
