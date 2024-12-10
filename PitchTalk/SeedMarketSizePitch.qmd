@@ -367,7 +367,7 @@ hpo_model <- read_json_data_model(
 )
 plot(hpo_model)
 
-
+library(ReDaMoR)
 ## creating a new model from a set of data frames example data 
 
 confrontation_report <- confront_data(
