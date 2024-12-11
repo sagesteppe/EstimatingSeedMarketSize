@@ -1,3 +1,5 @@
+setwd('~/Documents/assoRted/EstimatingSeedMarketSize/scripts')
+
 species_longevity <- data.frame(
   'PLANTS_code' = as.character(), # USDA Plants code at time of DB establishment- can be updated in overhauls. 
 
@@ -139,6 +141,7 @@ respondent <- data.frame(
   'position_end' = as.integer() # optionally the year they left, especially if filling out info based on a previous job. 
 )
 
+library(dm)
 
 all_tables <- Filter(function(x) is(x, "data.frame"), mget(ls()))
 short_items <- c(
@@ -183,9 +186,19 @@ cols <- setNames(
   names(short_term), c('#755C1B', '#83BCA9', '#F76F8E', rep('#5E5C6C',2), rep('#0B5563', 2))
 ) 
 
-short_term_dm %>%
+par(bg = 'red')
+
+sh_dm_plot <- short_term_dm %>%
   dm_set_colors(!!!cols) %>%
   dm_draw(rankdir = "LR", view_type = "all", columnArrows = FALSE)
+
+svg <- DiagrammeRsvg::export_svg(sh_dm_plot)
+htmltools::html_print(htmltools::HTML(svg))
+
+htmltools::html_print(
+  html = sh_dm_plot,
+  background = "transparent", 
+  viewer = '../PitchTalk/images/ShortTermERD.html')
 
 ### plot two distinct graphs - one for short term - one for medium term . 
 
@@ -227,6 +240,18 @@ cols <- setNames(
   names(medium_term), c('#755C1B', '#83BCA9', '#F76F8E', rep('#5E5C6C', 2), rep('#0B5563', 2), '#89023E')
 )  
 
-medium_term_dm %>%
+mt_dm_plot <- medium_term_dm %>%
   dm_set_colors(!!!cols) %>%
   dm_draw( rankdir = "LR", view_type = "all", columnArrows = FALSE)
+
+htmltools::html_print(background = "transparent")
+saveRDS(mt_dm_plot, '../PitchTalk/images/MediumTermERD.rda')
+
+
+
+
+
+
+
+
+

@@ -119,7 +119,7 @@ Further much of these data are restricted to just a handful of regions and agenc
 ## hesitations of farmers and investors  
 
 ::: {.incremental}
-- Little knowledge of agricultural practices
+- Little knowledge of native species behavior in cultivation  
 - Little support from agricultural extensions  
 - They are betting on the market  
 - Market suffers in low fires years  
@@ -159,25 +159,14 @@ Price of an ounce of gold from 1843-1856 - $20.67^1^
 However, this is a country of boom and bust. Most of the West was founded by people looking for fortunes, and I think the possibilities of financial gains outweigh the restrictions that are imposed by a lack of knowledge of the crops. 
 :::
 
-# a framework for estimating seed need - long term  
-
-<details> 
-<summary>Domain & Grain</summary>
-<font size='5'>
+# a framework for estimating seed need  
 
 - Domain   
   - DOI Regions (12) 
-  - Each DOI Agency (3)  
+  - Each DOI Agency (3/4?)  
 - Temporal Grain: Annual  
 - Spatial Grain: 30m  
-
-</font> 
-</details>
-
-$$
-
-$$
-
+- Data Sources: 
 
 ::: notes
 Ideally we could estimate the demand for native seeds for the next 3-7 years reliably. This would allow for a crop to be purpose grown, e.g. for an anticipated wildfire of a certain size. 
@@ -185,6 +174,8 @@ However, It is likely to be some time before we can properly estimate the amount
 
 But when we do get there, we are going to need most of the same variables which we need to start gathering now. Accordingly we can begin our estimates of seed market need at both the short and mid term time points, and later incorporate these data into a long term model. 
 ::: 
+
+## modelling framework - long term   
 
 ## modelling framework - short term 
 
@@ -357,38 +348,34 @@ Two additional elements are required to achieve the modelling goals.
 
 ## a census of the experts I  
 
-- Survey 
+- Survey using Shiny
+  - Ability to create 'dependencies' within the survey
+  - Sends respondents from different regions and organizations different sets of questions
+  - free (? at this scale)
 
-## a census of the experts II
+## a census II - short term
 
-```{r Relational Data Model for Survey Results}
-hpo_model <- read_json_data_model(
-  system.file("examples/HPO-model.json", package="ReDaMoR")
-)
-plot(hpo_model)
-
-library(ReDaMoR)
-## creating a new model from a set of data frames example data 
-
-confrontation_report <- confront_data(
-  hpo_model,
-  path=list.files(
-    system.file("examples/HPO-subset", package="ReDaMoR"),
-    full.names=TRUE
-  ),
-  returnData=TRUE
-)
-
-hpo_tables <- confrontation_report$data
-new_model <- df_to_model(
-  list=names(hpo_tables), envir=as.environment(hpo_tables)
-)
-new_model %>%
-  auto_layout(lengthMultiplier=250) %>%
-  plot()
-
-model_relational_data(new_model)
+```{r Relational Data Model for Survey Results - Short Term,  fig.width=5, fig.height = 5}
+sh_dm_plot <- readRDS('./images/ShortTermERD.rda')
+sh_dm_plot
+#htmltools::HTML(DiagrammeRsvg::export_svg(sh_dm_plot))
+rm(sh_dm_plot)
 ```
+
+## a census III - medium term
+<center>
+```{r Relational Data Model for Survey Results - Medium Term, fig.width=10, fig.height = 3.5}
+mt_dm_plot <- readRDS('./images/MediumTermERD.rda')
+mt_dm_plot
+#htmltools::HTML(DiagrammeRsvg::export_svg(mt_dm_plot))
+rm(mt_dm_plot)
+```
+
+</center> 
+
+## a census IV - medium term 
+
+- An R.C. and Nancy adventure  
 
 ## an R package for seed need estimates   
 
@@ -416,9 +403,7 @@ Forest service has for a long time loosely followed this tradition, although lot
 ::: 
 
 
-
 ## Timeline  
-
 
 ```{r Timeline plot, fig.width=16, fig.height=9}
 months <- data.frame( # these are the center bar. 
@@ -529,19 +514,19 @@ ggplot() +
   geom_text(
     data = months,
     aes(x = X, y = Y, label = Month), 
-    color ='white', size = 2.75) + 
+    color ='white', size = 5) + 
   geom_text(
     data = people, 
     aes(x = X, y = Y, label = Person), 
-    color ='grey80', size = 2.5) + 
+    color ='grey80', size = 4.75) + 
   geom_label(
     data = milestones, 
     aes(x = X, y = Y, label = Milestone_l, fill = Milestone), 
-    color ='white', label.size = NA) + 
+    color ='white', label.size = NA, size = 6) + 
   geom_label(
     data = explanations,
     aes(x = X, y = Y, label = explanation_l, fill = Milestone),
-    alpha = 0.2, size = 2.25, color ='grey90', label.size = NA) + 
+    alpha = 0.2, size = 4.5, color ='grey90', label.size = NA) + 
   scale_fill_manual(values = pal) + 
   theme_void() + 
   ylim(0, 205) + 
