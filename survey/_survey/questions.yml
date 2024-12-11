@@ -1,0 +1,25 @@
+# ! JUST READ - don't change the content of this file
+# Question structure extracted from survey.html
+penguins:
+  type: mc
+  label: Which type of penguin do you like the best?
+  options:
+    Adélie: adelie
+    Chinstrap: chinstrap
+    Gentoo: gentoo
+silly_word:
+  type: text
+  label: 'Write a silly word here:'
+Graminoid12-area:
+  type: numeric
+  label: 'Graminoids:'
+Forbs12-area:
+  type: text
+  label: 'Forbs:'
+Shrubs12-area:
+  type: text
+  label: 'Shrubs:'
+Trees12-area:
+  type: text
+  label: 'Trees:'
+

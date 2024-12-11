@@ -344,16 +344,45 @@ DiagrammeR::grViz("digraph{
 
 # Proposal 
 
-Two additional elements are required to achieve the modelling goals. 
+Three additional elements are required to achieve the modelling goals. 
 
-## a census of the experts I  
+## a survey of the experts I  
 
-- Survey using Shiny
-  - Ability to create 'dependencies' within the survey
-  - Sends respondents from different regions and organizations different sets of questions
-  - free (? at this scale)
+The US federal land management agencies have a plurality of the worlds restoration expertise... unstructured... 
 
-## a census II - short term
+:::: {.columns}
+::: {.column width = '50%'}
+::: {.fragment}
+::: {.incremental}
+- biggest concern: completion 
+  - minimize the number of questions each participant sees  
+- Estimate based survey
+  - allows faster completion, less do-not-finish respondents  
+  
+:::
+:::
+::: 
+
+::: {.column width = '50%'}
+::: {.fragment}
+::: {.incremental}
+- Survey using R Shiny  
+  - supports 'dependencies' within survey's 
+  - Sends respondents from different regions and organizations different sets of questions  
+- Anticipated [cost: \$49 or \$98](https://www.shinyapps.io/)
+
+:::
+::: 
+:::
+:::: 
+
+## a survey of the experts II 
+
+```{r}
+install.packages("surveydown")
+```
+
+## survey - short term I 
 
 ```{r Relational Data Model for Survey Results - Short Term,  fig.width=5, fig.height = 5}
 sh_dm_plot <- readRDS('./images/ShortTermERD.rda')
@@ -362,7 +391,7 @@ sh_dm_plot
 rm(sh_dm_plot)
 ```
 
-## a census III - medium term
+## survey - medium term II
 <center>
 ```{r Relational Data Model for Survey Results - Medium Term, fig.width=10, fig.height = 3.5}
 mt_dm_plot <- readRDS('./images/MediumTermERD.rda')
@@ -373,7 +402,7 @@ rm(mt_dm_plot)
 
 </center> 
 
-## a census IV - medium term 
+## a survey IV - medium term 
 
 - An R.C. and Nancy adventure  
 
