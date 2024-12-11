@@ -1,25 +1,88 @@
 # ! JUST READ - don't change the content of this file
 # Question structure extracted from survey.html
-penguins:
-  type: mc
-  label: Which type of penguin do you like the best?
+FirstName:
+  type: text
+  label: What is your first name?
+LastName:
+  type: text
+  label: And your last name?
+email_followup:
+  type: mc_buttons
+  label: Can we follow up with you on any questions we may have regarding the survey?
   options:
-    Adélie: adelie
-    Chinstrap: chinstrap
-    Gentoo: gentoo
-silly_word:
+    'Yes': 'Yes'
+    'No': 'No'
+respondent_email_address:
   type: text
-  label: 'Write a silly word here:'
-Graminoid12-area:
+  label: What is your email address?
+respondentAgency:
+  type: mc_buttons
+  label: Which agency do you currently work for?
+  options:
+    BIA: BIA
+    BLM: BLM
+    NPS: NPS
+    USFWS: USFWS
+    Other: other
+respondentAgency_other:
+  type: text
+  label: 'If you selected ‘other’ above, please specify the agency you work for:'
+respondent_DOI_region:
+  type: mc_buttons
+  label: Which DOI region is your office primarily located in?
+  options:
+    1 North Atlantic-Appalachian: '1'
+    2 South Atlantic-Gulf: '2'
+    3 Great Lakes: '3'
+    4 Mississippi Basin: '4'
+    5 Missouri Basin: '5'
+    6 Arkansas-Rio Grande-Texas-Gulf: '6'
+    7 Upper Colorado Basin: '7'
+    8 Lower Colorado Basin: '8'
+    9 Columbia-Pacific Northwest: '9'
+    10 California-Great-Basin: '9'
+    11 Alaska: '11'
+    12 Pacific Islands: '12'
+Graminoid12-42area:
   type: numeric
-  label: 'Graminoids:'
-Forbs12-area:
-  type: text
+  label: |-
+    42
+    Graminoids:
+Graminoid12-52area:
+  type: numeric
+  label: |-
+    52
+    Graminoids:
+Graminoid12-68area:
+  type: numeric
+  label: |-
+    68
+    Graminoids:
+Forbs12-42area:
+  type: numeric
   label: 'Forbs:'
-Shrubs12-area:
-  type: text
+Forbs12-52area:
+  type: numeric
+  label: 'Forbs:'
+Forbs12-68area:
+  type: numeric
+  label: 'Forbs:'
+Shrubs12-42area:
+  type: numeric
   label: 'Shrubs:'
-Trees12-area:
-  type: text
+Shrubs12-52area:
+  type: numeric
+  label: 'Shrubs:'
+Shrubs12-68area:
+  type: numeric
+  label: 'Shrubs:'
+Trees12-42area:
+  type: numeric
+  label: 'Trees:'
+Trees12-52area:
+  type: numeric
+  label: 'Trees:'
+Trees12-68area:
+  type: numeric
   label: 'Trees:'
 

@@ -8,100 +8,169 @@ library(surveydown)
 ```
 
 ::: {#welcome .sd-page}
-
 # Welcome to our survey!
+We would like to know a little bit about you so that we only ask questions relevant to your expertise.  
 
-This is a simple demonstration of a surveydown survey. It has two pages with one question on each page.
-
-Here is a basic "multiple choice" question, created using `type = 'mc'` inside the `sd_question()` function:
-
-```{r}
+```{r respondent name}
 sd_question(
-  type  = 'mc',
-  id    = 'penguins',
-  label = "Which type of penguin do you like the best?",
-  option = c(
-    'Adélie'    = 'adelie',
-    'Chinstrap' = 'chinstrap',
-    'Gentoo'    = 'gentoo'
+  type  = "text",
+  id    = "FirstName",
+  label = "What is your first name?"
+)
+
+sd_question(
+  type  = "text",
+  id    = "LastName",
+  label = "And your last name?"
+)
+
+sd_question(
+  type  = "mc_buttons",
+  id    = "email_followup",
+  label = "Can we follow up with you on any questions we may have regarding the survey?",
+    option = c(
+    "Yes"   = "Yes",
+    "No"   = "No"
   )
 )
-```
 
-You need to insert next buttons with `sd_next()` and set the `next_page` argument to the name of the page you want to go to next.
-
-```{r}
-sd_next(next_page = 'page2')
-```
-
-:::
-
-::: {#page2 .sd-page}
-
-This is another page in your survey.
-
-{surveydown} supports many types of questions. For example, here is a simple `text` type question:
-
-```{r}
 sd_question(
   type  = "text",
-  id    = "silly_word",
-  label = "Write a silly word here:"
+  id    = "respondent_email_address",
+  label = "What is your email address?"
 )
 ```
 
-```{r}
-sd_next(next_page = 'page3')
+```{r respondent agency}
+sd_question(
+  type   = 'mc_buttons',
+  id     = 'respondentAgency',
+  label  = "Which agency do you currently work for?",
+  option = c(
+    "BIA"   = "BIA",
+    "BLM"   = "BLM",
+    "NPS"   = "NPS",
+    "USFWS" = "USFWS",
+    "Other" = "other"
+  )
+)
+
+sd_question(
+  type  = "text",
+  id    = "respondentAgency_other", 
+  label = "If you selected 'other' above, please specify the agency you work for:"
+)
+```
+
+```{r respondent DOI region}
+sd_question(
+  type   = 'mc_buttons',
+  id     = 'respondent_DOI_region',
+  direction = 'vertical', 
+  label  = "Which DOI region is your office primarily located in?",
+  option = c(
+    "1 North Atlantic-Appalachian" = 1,
+    "2 South Atlantic-Gulf" = 2,
+    "3 Great Lakes" = 3,
+    "4 Mississippi Basin" = 4,
+    "5 Missouri Basin" = 5,
+    "6 Arkansas-Rio Grande-Texas-Gulf" = 6,
+    "7 Upper Colorado Basin" = 7,
+    "8 Lower Colorado Basin" = 8,
+    "9 Columbia-Pacific Northwest" = 9,
+    "10 California-Great-Basin" = 9,
+    "11 Alaska" = 11,
+    "12 Pacific Islands" = 12
+  )
+)
+
+sd_next(label = 'Head to my regions survey')
 ```
 
 :::
 
 
-::: {#page3 .sd-page}
-### Region XX - Alaska
+::: {#Alaska_lifeform_area .sd-page}
+### Region 11 - Alaska - Growth Forms
 
-In NLCD XX - DWARF SHRUBS how often do you use the following lifeforms in restoration? 
+```{r}
+region <- 12
+nlcd <- c(42, 52, 68)
+```
+
+Across the total area of NLCD XX - Dwarf Shrubs, what proportion of area do you estimate you've treated with life cycle? 
+
 ```{r Matrix for Lifeforms}
 #| column: screen-inset-shaded
+#| layout-ncol: 3
 #| layout-nrow: 4
-#| layout-ncol: 1
-sd_question(
-  type  = "numeric",
-  id    = "Graminoid12-area",
-  label = "Graminoids:"
-)
-sd_question(
-  type  = "text",
-  id    = "Forbs12-area",
-  label = "Forbs:"
-)
-sd_question(
-  type  = "text",
-  id    = "Shrubs12-area",
-  label = "Shrubs:"
-)
-sd_question(
-  type  = "text",
-  id    = "Trees12-area",
-  label = "Trees:"
-)
+
+sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[1], "area"), 
+            label = paste0(nlcd[1], "\nGraminoids:"))
+sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[2], "area"), 
+            label = paste0(nlcd[2], "\nGraminoids:"))
+sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[3], "area"),
+            label = paste0(nlcd[3], "\nGraminoids:"))
+
+sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[1], "area"), label = "Forbs:")
+sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[2], "area"), label = "Forbs:")
+sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[3], "area"), label = "Forbs:")
+
+sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[1], "area"), label = "Shrubs:")
+sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[2], "area"), label = "Shrubs:")
+sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[3], "area"), label = "Shrubs:")
+
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Trees:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[2], "area"), label = "Trees:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[3], "area"), label = "Trees:")
+```
+
+```{r}
+sd_next(next_page = 'Alaska_lifeform_prop')
+```
+:::
+
+::: {#Alaska_lifeform_prop .sd-page} 
+
+### Alaska - Growth Form 
+
+When using these lifeforms in a restoration what proportion of a seed mix do they make up? 
+
+```{r}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[1], "area"), 
+            label = paste0(nlcd[1], "\nGraminoids:"))
+sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[2], "area"), 
+            label = paste0(nlcd[2], "\nGraminoids:"))
+sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[3], "area"),
+            label = paste0(nlcd[3], "\nGraminoids:"))
+
+sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[1], "area"), label = "Forbs:")
+sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[2], "area"), label = "Forbs:")
+sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[3], "area"), label = "Forbs:")
+
+sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[1], "area"), label = "Shrubs:")
+sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[2], "area"), label = "Shrubs:")
+sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[3], "area"), label = "Shrubs:")
+
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Trees:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[2], "area"), label = "Trees:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[3], "area"), label = "Trees:")
 ```
 
 ```{r}
 sd_next(next_page = 'end')
 ```
-
-:::
-
+::: 
 
 ::: {#end .sd-page}
-
 ## End
-
-This it the last page in the survey.
+This it the last page in the survey. Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length. 
 
 ```{r}
 sd_close("Exit Survey")
 ```
-
-:::
+::: 
