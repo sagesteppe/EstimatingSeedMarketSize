@@ -340,6 +340,29 @@ DiagrammeR::grViz("digraph{
 
 ## a framework for associating costs with seed need  
 
+:::: {.columns}
+::: {.column width = '50%'}
+- Need to unify perspectives on the benefits of seed warehousing and fiscal costs
+  - full warehouses preclude further acquisitions 
+  - empty warehouses lead to seed need in fire years  
+- Need a framework to balance these scenarios
+
+:::
+
+::: {.column width = '50%'}
+::: {.fragment}
+::: {style="float: center; width: 100%; font-size: 0.8em; color: #cbc4c3; text-align: center;"}
+```{r, eval = F}
+png_files <- list.files("../results/Plots/AnnualSummariesTreatable", pattern = "Mississippi_Basin.*png$", full.names = TRUE)
+gifski::gifski(png_files, gif_file = "./images/AnnualSummaryTreatableMississippi.gif", width = 800, height = 600, delay = 1)
+```
+
+![Treatable 'area', assuming 100% seed longevity](images/AnnualSummaryTreatableMississippi.gif)
+:::
+:::
+:::
+::::
+
 ## modelling framework what do we need to achieve mid-term estimates?   
 
 # Proposal 

@@ -98,7 +98,7 @@ region <- 12
 nlcd <- c(42, 52, 68)
 ```
 
-Across the total area of NLCD XX - Dwarf Shrubs, what proportion of area do you estimate you've treated with life cycle? 
+Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to? 
 
 ```{r Matrix for Lifeforms}
 #| column: screen-inset-shaded
