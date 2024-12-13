@@ -127,7 +127,7 @@ Further much of these data are restricted to just a handful of regions and agenc
 - They are betting on the market  
 - Market suffers in low fires years  
 - ... 
-:::
+::: 
 
 ::: notes
 Yes, obviously farmers need more information on *how* to grow the seed, and get it to market. They understand that the value of seed varies in time, however the value of many commodities vary in time - even subsidized staples like corn and soy. If we can better predict the amount of seed which the gov't can purchase and warehouse at points in time, we can decrease the variation in cost and bring it *more* in line like many other crops 
@@ -239,7 +239,6 @@ ggplot(data = bs_visual, aes(x = x, y = y)) +
 <summary>Implementation</summary>
 Bootstrap resampling from density functions based on the empirical distributions. 
 This allows us to 'fill in' the variance between respondents, and have more uniform responses in the simulations.  
-</center>
 </details>
 
 ## modelling framework - mid term 
@@ -247,6 +246,7 @@ This allows us to 'fill in' the variance between respondents, and have more unif
 <details> 
 <summary>Example</summary>
 <center>
+
 ::: {style="font-size: 0.8em;"}  
 "How much [Elymus elymoides]{style="text-decoration: underline;"} *(species)* is required on BLM land in DOI region 10 *(domain)* next year *(grain)*?"
 
@@ -349,16 +349,17 @@ DiagrammeR::grViz("digraph{
       
       }", width = 1000, height = 400)
 ```
-:::
+
+::: 
+
 </center>
 </details>
 
-## modelling framework - long term  
 
 ## a framework for associating costs with seed need  
 
 :::: {.columns}
-::: {.column width = '50%'}
+::: {.column width = '55%'}
 - Need to unify perspectives on the benefits of seed warehousing and fiscal costs 
   - full warehouses preclude further acquisitions 
   - empty warehouses lead to seed need in fire years  
@@ -366,9 +367,9 @@ DiagrammeR::grViz("digraph{
 
 :::
 
-::: {.column width = '50%'} 
-::: {.fragment}
-::: {style="float: center; width: 100%; font-size: 0.8em; color: #cbc4c3; text-align: center;"}
+::: {.column width = '45%'}
+::: {style="float: center; width: 100%; font-size: 0.8em; color: #cbc4c3; text-align: center;"} 
+
 ```{r, eval = F}
 png_files <- list.files("../results/Plots/AnnualSummariesTreatable", pattern = "Mississippi_Basin.*png$", full.names = TRUE)
 gifski::gifski(png_files, gif_file = "./images/AnnualSummaryTreatableMississippi.gif", width = 800, height = 600, delay = 1)
@@ -377,8 +378,8 @@ gifski::gifski(png_files, gif_file = "./images/AnnualSummaryTreatableMississippi
 ![Treatable 'area', assuming 100% seed longevity](images/AnnualSummaryTreatableMississippi.gif)
 :::
 :::
-:::
 ::::
+
 
 # Proposal 
 
@@ -386,7 +387,7 @@ Three additional elements are required to achieve the modelling goals.
 
 ::: {.incremental}
 
-::: {style="font-size: 1.1em;"} 
+::: {style="font-size: 1.1em;"}
 - documentation of *historic* seed usage, and **desired** seed usage  
 ::: 
 
@@ -401,9 +402,9 @@ Three additional elements are required to achieve the modelling goals.
 
 The US federal land management agencies have a plurality of the worlds restoration expertise. 
 
-:::: {.columns}
-::: {.column width = '50%'}
-::: {.fragment}
+:::: { .columns}
+::: {.column width = '50%'} 
+::: {.fragment} 
 - biggest concern: completion 
   - minimize the number of questions each participant sees  
 - Estimate based survey
@@ -421,7 +422,7 @@ The US federal land management agencies have a plurality of the worlds restorati
 
 :::
 :::  
-:::: 
+::::
 
 ## a survey of the experts  II 
 
@@ -448,7 +449,6 @@ rm(mt_dm_plot)
 </center> 
 
 
-
 ## a survey of costs IV  
 
 Unable to make *sense* of any seed requirement modelling results, without incorporating costs.  
@@ -467,7 +467,6 @@ Costs (warehousing)
 - Decreasing seed prices? 
 
 :::
-
 :::
 
 ::: {.column width='50%'}
@@ -518,15 +517,15 @@ Forest service has for a long time loosely followed this tradition, although lot
 **1) farmers grow native seed**  
 **2) politicians fund NSRIC**  
 3) Determine stocking levels in the seed warehouses  
-:::
-:::
+::: 
+::: 
 
-::: {.column width=50%'}
+::: {.column width=50%'} 
 ::: {.incremental}
 <center>Needs</center>  
 Showcase the 
-:::
-:::
+::: 
+::: 
 ::::
 
 ## Units of Analysis
