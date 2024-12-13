@@ -403,8 +403,8 @@ Three additional elements are required to achieve the modelling goals.
 The US federal land management agencies have a plurality of the worlds restoration expertise. 
 
 :::: { .columns}
-::: {.column width = '50%'} 
-::: {.fragment} 
+::: {.column width = '50%'}
+::: {.fragment}
 - biggest concern: completion 
   - minimize the number of questions each participant sees  
 - Estimate based survey
@@ -426,7 +426,9 @@ The US federal land management agencies have a plurality of the worlds restorati
 
 ## a survey of the experts  II 
 
-Preview of the shiny survey 
+Usage of dependencies minimizes the number of fields respondents interact with  
+
+{{< video ./videos/Survey.mp4 >}}
 
 ## survey - short term I 
 
@@ -448,40 +450,45 @@ rm(mt_dm_plot)
 
 </center> 
 
-
 ## a survey of costs IV  
 
 Unable to make *sense* of any seed requirement modelling results, without incorporating costs.  
 *A Nancy and R.C. adventure*  
 
 :::: {.columns}
-
-::: {.column width='50%'} 
+::::: {.fragment}
+::: {.column width='50%'}
 Costs (warehousing)  
 - Seed death  
 - Shipping  
 
-::: {style="color:#6c6c6c;"}  
+::: {style="color:#6c6c6c;"}
 - Disposal  
 - Internal movement 
 - Decreasing seed prices? 
 
 :::
 :::
+:::::
 
+::::: {.fragment}
 ::: {.column width='50%'}
-
 Benefits  
-  - Not buying seed from 3^rd^ parties 
+  - Not buying seed from 3^rd^ parties  
   
 :::
+:::::
 ::::
 
 ## Fire
 
 - Products on probability of fire under current fire regime (exist!)  
-- Extreme Value Theory - associate sizes, and probabilities with unseen events   
+- Extreme Value Theory - associate sizes, and probabilities with unseen events.    
 - Markov chain for fire return intervals  
+
+<br>
+
+- Allow for more accurate predictions of burned areas in future. 
 
 ## an R package for seed need estimates   
 
