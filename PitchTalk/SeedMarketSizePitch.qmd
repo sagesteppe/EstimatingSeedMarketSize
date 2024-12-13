@@ -86,6 +86,7 @@ rm(s, p)
 
 # Introduction 
 
+
 ## National Seed Strategy Keystone Initiative - Action Plan  
 
 [Action 4. Enhance coordination (within DOI and across departments) to improve the native seed supply chain]{style="color:#6c6c6c; font-size: 0.8em;"}  
@@ -94,25 +95,27 @@ rm(s, p)
   - **Develop seed need projections for DOI agencies**  
   
 - [Mid-term (implementation in 1-3 years of Action Plan)]{style="color:#6c6c6c;"}  
-  - **Develop seed need projections for DOI agencies for one-, five-, and ten-year timeframes using NISRC national, central coordinating data platform** (see Action #1)  
+  - **Develop seed need projections for DOI agencies for one-, five-, and ten-year time frames using NISRC national, central coordinating data platform** (see Action #1)  
   
-::: notes
+::: notes 
 The Keystone plan has three objectives related to estimating the seed needs. Above I have reproduced 2 of the three, the third which is not represented - has a longer time frame for implementation. But should draw heavily from the Mid-Term estimates. 
-:::
+::: 
 
 ## historic seed purchase data  
 
 ::: {.incremental}
 - Data were collected in times when seed availability is low.  
-- The right seed, was the available seed   
-- Geographically restricted to a few of the 12 DOI regions, and agencies  
-- Unable to provide information on *wants* or *needs*  
+- the right seed, was the available seed   
+- restricted to just a couple DOI regions and agencies  
+- unable to provide information on *wants* or *needs*  
+
 <br>
-- **All data are contextual -  NSRIC is a paradigm shift. **  
+
+- **All data are contextual -  NISRC is a paradigm shift. **  
 :::
 
 ::: notes 
-While data exists on what BLM purchased and when, the purchasing is shaped largely by availability of seed. As we know the market leaves much to be desired, basing our estimates on low performance purchases will predict a low performance market. 
+While data exists on what BLM purchased and when, the purchasing is shaped largely by availability of seed. As we know the market leaves much to be desired, basing our estimates on low performance purchases will predict a low performance market.  
 Further much of these data are restricted to just a handful of regions and agencies relative to the DOI's domain. 
 :::
 
@@ -162,11 +165,10 @@ However, this is a country of boom and bust. Most of the West was founded by peo
 # a framework for estimating seed need  
 
 - Domain   
-  - DOI Regions (12) 
-  - Each DOI Agency (3/4?)  
+  - all DOI regions (12) 
+  - all DOI agencies (3/4?)  
 - Temporal Grain: Annual  
 - Spatial Grain: 30m  
-- Data Sources: 
 
 ::: notes
 Ideally we could estimate the demand for native seeds for the next 3-7 years reliably. This would allow for a crop to be purpose grown, e.g. for an anticipated wildfire of a certain size. 
@@ -175,12 +177,12 @@ However, It is likely to be some time before we can properly estimate the amount
 But when we do get there, we are going to need most of the same variables which we need to start gathering now. Accordingly we can begin our estimates of seed market need at both the short and mid term time points, and later incorporate these data into a long term model. 
 ::: 
 
-## modelling framework - long term   
-
 ## modelling framework - short term 
 
 - Four lifeforms: 
   Grasses, Forbs, Shrubs, Trees  
+  
+<br>
 
 <font size ="4">
 $$
@@ -188,29 +190,32 @@ $$
 $$
 </font>
 
-## short term - snapshot 
-
 ## modelling framework - mid term 
 
-<font size='4'>
+::: {style="font-size: 0.8em;"}  
 <details> 
 <summary>Model</summary>
+::: {style="font-size: 0.5em;"}  
 $$
 \text{Cover Class} * \text{Slope Category} * \text{Restoration Type} * \text{Seeding Rate} * \text{Prop. Seed Mixes} * \text{Prop. of Mix} * \text{PLS/lb}
 $$
+:::
 </details>
 
 <details>
 <summary>Data Sources</summary>
+::: {style="font-size: 0.5em;"}  
 $$
 \frac{\text{Cover Class} * \text{Slope Category}}{\text{Landscape}} * \frac{\text{Restoration Type} * \text{Seeding Rate} * \text{Prop. Seed Mixes} * \text{Prop. of Mix}}{\text{Practicioner Knowledge}} * \frac{\text{PLS/lb}}{\text{NRCS}}
 $$
+:::
 </summary>
 </details>
 
 <details> 
 <summary>Model Details</summary>
 <center>
+::: {style="font-size: 0.5em;"}  
 ```{r Mid term model visual view, fig.width=5, fig.height=1}
 ggplot(data = bs_visual, aes(x = x, y = y)) + 
   geom_line() + 
@@ -225,12 +230,24 @@ ggplot(data = bs_visual, aes(x = x, y = y)) +
     plot.background = element_rect(fill='#191919', color=NA)
     )
 ```
+:::
 </center>
 </details>
+:::
+
+<details> 
+<summary>Implementation</summary>
+Bootstrap resampling from density functions based on the empirical distributions. 
+This allows us to 'fill in' the variance between respondents, and have more uniform responses in the simulations.  
+</center>
+</details>
+
+## modelling framework - mid term 
 
 <details> 
 <summary>Example</summary>
 <center>
+::: {style="font-size: 0.8em;"}  
 "How much [Elymus elymoides]{style="text-decoration: underline;"} *(species)* is required on BLM land in DOI region 10 *(domain)* next year *(grain)*?"
 
 ```{r Mid term modelling visualized}
@@ -332,9 +349,9 @@ DiagrammeR::grViz("digraph{
       
       }", width = 1000, height = 400)
 ```
+:::
 </center>
 </details>
-</font>
 
 ## modelling framework - long term  
 
@@ -342,14 +359,14 @@ DiagrammeR::grViz("digraph{
 
 :::: {.columns}
 ::: {.column width = '50%'}
-- Need to unify perspectives on the benefits of seed warehousing and fiscal costs
+- Need to unify perspectives on the benefits of seed warehousing and fiscal costs 
   - full warehouses preclude further acquisitions 
   - empty warehouses lead to seed need in fire years  
 - Need a framework to balance these scenarios
 
 :::
 
-::: {.column width = '50%'}
+::: {.column width = '50%'} 
 ::: {.fragment}
 ::: {style="float: center; width: 100%; font-size: 0.8em; color: #cbc4c3; text-align: center;"}
 ```{r, eval = F}
@@ -363,47 +380,52 @@ gifski::gifski(png_files, gif_file = "./images/AnnualSummaryTreatableMississippi
 :::
 ::::
 
-## modelling framework what do we need to achieve mid-term estimates?   
-
 # Proposal 
 
 Three additional elements are required to achieve the modelling goals. 
 
+::: {.incremental}
+
+::: {style="font-size: 1.1em;"} 
+- documentation of *historic* seed usage, and **desired** seed usage  
+::: 
+
+::: {style="font-size: 1.1em; color:#6c6c6c;"}  
+- Better documentation of costs  
+- predicted data on disturbances     
+::: 
+
+:::
+
 ## a survey of the experts I  
 
-The US federal land management agencies have a plurality of the worlds restoration expertise... unstructured... 
+The US federal land management agencies have a plurality of the worlds restoration expertise. 
 
 :::: {.columns}
 ::: {.column width = '50%'}
 ::: {.fragment}
-::: {.incremental}
 - biggest concern: completion 
   - minimize the number of questions each participant sees  
 - Estimate based survey
   - allows faster completion, less do-not-finish respondents  
   
 :::
-:::
 ::: 
 
 ::: {.column width = '50%'}
 ::: {.fragment}
-::: {.incremental}
 - Survey using R Shiny  
   - supports 'dependencies' within survey's 
   - Sends respondents from different regions and organizations different sets of questions  
 - Anticipated [cost: \$49 or \$98](https://www.shinyapps.io/)
 
 :::
-::: 
-:::
+:::  
 :::: 
 
-## a survey of the experts II 
+## a survey of the experts  II 
 
-```{r}
-install.packages("surveydown")
-```
+Preview of the shiny survey 
 
 ## survey - short term I 
 
@@ -425,9 +447,42 @@ rm(mt_dm_plot)
 
 </center> 
 
-## a survey IV - medium term 
 
-- An R.C. and Nancy adventure  
+
+## a survey of costs IV  
+
+Unable to make *sense* of any seed requirement modelling results, without incorporating costs.  
+*A Nancy and R.C. adventure*  
+
+:::: {.columns}
+
+::: {.column width='50%'} 
+Costs (warehousing)  
+- Seed death  
+- Shipping  
+
+::: {style="color:#6c6c6c;"}  
+- Disposal  
+- Internal movement 
+- Decreasing seed prices? 
+
+:::
+
+:::
+
+::: {.column width='50%'}
+
+Benefits  
+  - Not buying seed from 3^rd^ parties 
+  
+:::
+::::
+
+## Fire
+
+- Products on probability of fire under current fire regime (exist!)  
+- Extreme Value Theory - associate sizes, and probabilities with unseen events   
+- Markov chain for fire return intervals  
 
 ## an R package for seed need estimates   
 
@@ -454,6 +509,39 @@ In the botany community sharing 'scripts' seems common, which yes we can do, but
 Forest service has for a long time loosely followed this tradition, although lot's of their software is in external programs making maintenance very hard. Both the USGS and EPA are frequent developers of R packages for various analysis. 
 ::: 
 
+# Reporting
+
+:::: .{columns}
+::: {.column width=50%'}
+::: {.incremental}
+<center>Goals</center>  
+**1) farmers grow native seed**  
+**2) politicians fund NSRIC**  
+3) Determine stocking levels in the seed warehouses  
+:::
+:::
+
+::: {.column width=50%'}
+::: {.incremental}
+<center>Needs</center>  
+Showcase the 
+:::
+:::
+::::
+
+## Units of Analysis
+
+::: {.incremental}
+- DOI Wide
+- Agency (e.g. NPS) wide 
+- Ecoregions  
+- Seed Transfer Zones 
+- DOI regions 
+::: 
+
+::: {.incremental}
+... and all combinations thereof! 
+:::
 
 ## Timeline  
 

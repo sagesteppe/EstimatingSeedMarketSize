@@ -172,7 +172,7 @@ Reed Clark Benkendorf
 </ul></li>
 <li><span style="color:#6c6c6c;">Mid-term (implementation in 1-3 years of Action Plan)</span>
 <ul>
-<li><strong>Develop seed need projections for DOI agencies for one-, five-, and ten-year timeframes using NISRC national, central coordinating data platform</strong> (see Action #1)</li>
+<li><strong>Develop seed need projections for DOI agencies for one-, five-, and ten-year time frames using NISRC national, central coordinating data platform</strong> (see Action #1)</li>
 </ul></li>
 </ul>
 <aside class="notes">
@@ -195,18 +195,21 @@ Reed Clark Benkendorf
 <ul>
 <li class="fragment">Data were collected in times when seed availability is low.<br>
 </li>
-<li class="fragment">The right seed, was the available seed<br>
+<li class="fragment">the right seed, was the available seed<br>
 </li>
-<li class="fragment">Geographically restricted to a few of the 12 DOI regions, and agencies<br>
+<li class="fragment">restricted to just a couple DOI regions and agencies<br>
 </li>
-<li class="fragment">Unable to provide information on <em>wants</em> or <em>needs</em><br>
-<br></li>
-<li class="fragment"><strong>All data are contextual - NSRIC is a paradigm shift. </strong><br>
+<li class="fragment">unable to provide information on <em>wants</em> or <em>needs</em></li>
+</ul>
+<p><br></p>
+<ul>
+<li class="fragment"><strong>All data are contextual - NISRC is a paradigm shift. </strong><br>
 </li>
 </ul>
 </div>
 <aside class="notes">
-<p>While data exists on what BLM purchased and when, the purchasing is shaped largely by availability of seed. As we know the market leaves much to be desired, basing our estimates on low performance purchases will predict a low performance market. Further much of these data are restricted to just a handful of regions and agencies relative to the DOI’s domain.</p>
+<p>While data exists on what BLM purchased and when, the purchasing is shaped largely by availability of seed. As we know the market leaves much to be desired, basing our estimates on low performance purchases will predict a low performance market.<br>
+Further much of these data are restricted to just a handful of regions and agencies relative to the DOI’s domain.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -289,15 +292,13 @@ Price of an ounce of gold from 1843-1856 - $20.67<sup>1</sup>
 <ul>
 <li>Domain
 <ul>
-<li>DOI Regions (12)</li>
-<li>Each DOI Agency (3/4?)<br>
+<li>all DOI regions (12)</li>
+<li>all DOI agencies (3/4?)<br>
 </li>
 </ul></li>
 <li>Temporal Grain: Annual<br>
 </li>
-<li>Spatial Grain: 30m<br>
-</li>
-<li>Data Sources:</li>
+<li>Spatial Grain: 30m</li>
 </ul>
 <aside class="notes">
 <p>Ideally we could estimate the demand for native seeds for the next 3-7 years reliably. This would allow for a crop to be purpose grown, e.g.&nbsp;for an anticipated wildfire of a certain size. However, It is likely to be some time before we can properly estimate the amount of area which will experience a disaster at X point in time in Y space.</p>
@@ -314,39 +315,38 @@ Price of an ounce of gold from 1843-1856 - $20.67<sup>1</sup>
           display:block!important;
       }</style></aside>
 </section>
-<section id="modelling-framework---long-term" class="slide level2">
-<h2>modelling framework - long term</h2>
-</section>
 <section id="modelling-framework---short-term" class="slide level2">
 <h2>modelling framework - short term</h2>
 <ul>
 <li>Four lifeforms: Grasses, Forbs, Shrubs, Trees</li>
 </ul>
+<p><br></p>
 <p><font size="4"> <span class="math display">\[
 \text{Burned Area} * \text{Seeding Method}* \frac{\text{Pure Live Seed}}{\text{Area}} = \text{PLS required}
 \]</span> </font></p>
 </section>
-<section id="short-term---snapshot" class="slide level2">
-<h2>short term - snapshot</h2>
-</section>
 <section id="modelling-framework---mid-term" class="slide level2">
 <h2>modelling framework - mid term</h2>
-<font size="4">
+<div style="font-size: 0.8em;">
 <details>
 <summary>
 Model
 </summary>
-<span class="math display">\[
+<div style="font-size: 0.5em;">
+<p><span class="math display">\[
 \text{Cover Class} * \text{Slope Category} * \text{Restoration Type} * \text{Seeding Rate} * \text{Prop. Seed Mixes} * \text{Prop. of Mix} * \text{PLS/lb}
-\]</span>
+\]</span></p>
+</div>
 </details>
 <details>
 <summary>
 Data Sources
 </summary>
-<span class="math display">\[
+<div style="font-size: 0.5em;">
+<p><span class="math display">\[
 \frac{\text{Cover Class} * \text{Slope Category}}{\text{Landscape}} * \frac{\text{Restoration Type} * \text{Seeding Rate} * \text{Prop. Seed Mixes} * \text{Prop. of Mix}}{\text{Practicioner Knowledge}} * \frac{\text{PLS/lb}}{\text{NRCS}}
-\]</span>
+\]</span></p>
+</div>
 
 </details>
 <details>
@@ -354,6 +354,7 @@ Data Sources
 Model Details
 </summary>
 <center>
+<div style="font-size: 0.5em;">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -363,25 +364,39 @@ Model Details
 </div>
 </div>
 </div>
+</div>
 </center>
 </details>
+</div>
+<details>
+<summary>
+Implementation
+</summary>
+Bootstrap resampling from density functions based on the empirical distributions. This allows us to ‘fill in’ the variance between respondents, and have more uniform responses in the simulations.<br>
+
+
+</details>
+</section>
+<section id="modelling-framework---mid-term-1" class="slide level2">
+<h2>modelling framework - mid term</h2>
 <details>
 <summary>
 Example
 </summary>
 <center>
+<div style="font-size: 0.8em;">
 <p>“How much <span style="text-decoration: underline;">Elymus elymoides</span> <em>(species)</em> is required on BLM land in DOI region 10 <em>(domain)</em> next year <em>(grain)</em>?”</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="htmlwidget-fc20a92604fc7141052a" style="width:1000px;height:400px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-fc20a92604fc7141052a">{"x":{"diagram":"digraph{\n \n      graph[rankdir = LR]\n      bgcolor = black\n      node[shape = rectangle, style = filled]\n      \n      subgraph cluster_0 { \n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#755C1B\"\n    \n         label = \"Cover Class\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#B78F2A\", margin = 0.25]\n         A[label = \"NLCD 52 Shrub Scrub\"]\n         Aa[label = \"NLCD 82 Grassland\"]\n        }\n      \n      subgraph cluster_1 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#83BCA9\"\n    \n         label = \"Cover Class x Slope\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#A2CDBF\", margin = 0.25]\n         C[label = \"NLCD 52 > 10%\"]\n         D[label = \"NLCD 52 < 10%\"]\n      }\n      \n      subgraph cluster_2 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#83BCA9\"\n    \n         label = \"Cover Class x Slope\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#A2CDBF\", margin = 0.25]\n         Cc[label = \"NLCD 82 > 10%\"]\n         Dd[label = \"NLCD 82 < 10%\"]\n      }        \n        \n      subgraph cluster_3 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#F76F8E\"\n    \n         label = \"Restoration Method\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#F99FB4\", margin = 0.25]\n         E[label = \"Drill\"]\n         F[label = \"Aerial\"]\n         G[label = \"Hydro\"]\n         H[label = \"Broadcast\"]\n      } \n      \n      subgraph cluster_4 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#F76F8E\"\n    \n         label = \"Restoration Method\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#F99FB4\", margin = 0.25]\n         Ee[label = \"Drill\"]\n         Ff[label = \"Aerial\"]\n         Gg[label = \"Hydro\"]\n         Hh[label = \"Broadcast\"]\n      } \n      \n      subgraph cluster_5 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#5E5C6C\"\n    \n         label = \"Seeding Rate\n(Count)\"\n         node[shape = rectangle, fillcolor = \"#7D7B8E\", margin = 0.25]\n         I[label = \"seeds/area\"]\n         J[label = \"seeds/area\"]\n         K[label = \"seeds/area\"]\n         L[label = \"seeds/area\"]\n      } \n      \n      node[fillcolor = \"#0B5563\", margin = 0.2]\n      M[label = \"Prop. Area Applied to\"]\n      \n      node[fillcolor = \"#89023E\", margin = 0.2]\n      N[label = \"Prop. of Seed Mix\n(when Used)\"]\n      \n      edge[color = white, arrowhead = vee, arrowsize = 1.25, linesize = 2.5]\n      A -> {C D}\n      Aa -> {Cc Dd}\n      C -> {E F G H}\n      D -> {Ee Ff Gg Hh}\n      E -> I\n      F -> J\n      G -> K\n      H -> L\n      {I J K L} -> {M}\n      M -> N\n      \n      }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-c0e5fc739d7984e2b58f" style="width:1000px;height:400px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c0e5fc739d7984e2b58f">{"x":{"diagram":"digraph{\n \n      graph[rankdir = LR]\n      bgcolor = black\n      node[shape = rectangle, style = filled]\n      \n      subgraph cluster_0 { \n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#755C1B\"\n    \n         label = \"Cover Class\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#B78F2A\", margin = 0.25]\n         A[label = \"NLCD 52 Shrub Scrub\"]\n         Aa[label = \"NLCD 82 Grassland\"]\n        }\n      \n      subgraph cluster_1 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#83BCA9\"\n    \n         label = \"Cover Class x Slope\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#A2CDBF\", margin = 0.25]\n         C[label = \"NLCD 52 > 10%\"]\n         D[label = \"NLCD 52 < 10%\"]\n      }\n      \n      subgraph cluster_2 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#83BCA9\"\n    \n         label = \"Cover Class x Slope\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#A2CDBF\", margin = 0.25]\n         Cc[label = \"NLCD 82 > 10%\"]\n         Dd[label = \"NLCD 82 < 10%\"]\n      }        \n        \n      subgraph cluster_3 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#F76F8E\"\n    \n         label = \"Restoration Method\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#F99FB4\", margin = 0.25]\n         E[label = \"Drill\"]\n         F[label = \"Aerial\"]\n         G[label = \"Hydro\"]\n         H[label = \"Broadcast\"]\n      } \n      \n      subgraph cluster_4 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#F76F8E\"\n    \n         label = \"Restoration Method\n(Area)\"\n         node[shape = rectangle, fillcolor = \"#F99FB4\", margin = 0.25]\n         Ee[label = \"Drill\"]\n         Ff[label = \"Aerial\"]\n         Gg[label = \"Hydro\"]\n         Hh[label = \"Broadcast\"]\n      } \n      \n      subgraph cluster_5 {\n         graph[shape = rectangle]\n         style = rounded\n         bgcolor = \"#5E5C6C\"\n    \n         label = \"Seeding Rate\n(Count)\"\n         node[shape = rectangle, fillcolor = \"#7D7B8E\", margin = 0.25]\n         I[label = \"seeds/area\"]\n         J[label = \"seeds/area\"]\n         K[label = \"seeds/area\"]\n         L[label = \"seeds/area\"]\n      } \n      \n      node[fillcolor = \"#0B5563\", margin = 0.2]\n      M[label = \"Prop. Area Applied to\"]\n      \n      node[fillcolor = \"#89023E\", margin = 0.2]\n      N[label = \"Prop. of Seed Mix\n(when Used)\"]\n      \n      edge[color = white, arrowhead = vee, arrowsize = 1.25, linesize = 2.5]\n      A -> {C D}\n      Aa -> {Cc Dd}\n      C -> {E F G H}\n      D -> {Ee Ff Gg Hh}\n      E -> I\n      F -> J\n      G -> K\n      H -> L\n      {I J K L} -> {M}\n      M -> N\n      \n      }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
 </div>
 </div>
 </center>
 </details>
-</font><p><font size="4"></font></p>
 </section>
-<section id="modelling-framework---long-term-1" class="slide level2">
+<section id="modelling-framework---long-term" class="slide level2">
 <h2>modelling framework - long term</h2>
 </section>
 <section id="a-framework-for-associating-costs-with-seed-need" class="slide level2">
@@ -397,72 +412,78 @@ Example
 </ul></li>
 <li>Need a framework to balance these scenarios</li>
 </ul>
-</div><div class="column" style="width:50%;">
-<div class="fragment">
-<div style="float: center; width: 100%; font-size: 0.8em; color: #cbc4c3; text-align: center;">
-<div class="quarto-figure quarto-figure-center">
+</div><p>::: {.column width = ‘50%’} ::: {.fragment} ::: {style=“float: center; width: 100%; font-size: 0.8em; color: #cbc4c3; text-align: center;”}</p><div class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="images/AnnualSummaryTreatableMississippi.gif"></p>
-<figcaption>Treatable Area, assuming 100% seed longevity</figcaption>
+<figcaption>Treatable ‘area’, assuming 100% seed longevity</figcaption>
 </figure>
 </div>
 </div>
-</div>
-</div></div>
-</section>
-<section id="modelling-framework-what-do-we-need-to-achieve-mid-term-estimates" class="slide level2">
-<h2>modelling framework what do we need to achieve mid-term estimates?</h2>
+<p>::: ::: ::::</p>
 </section></section>
 <section>
 <section id="proposal" class="title-slide slide level1 center">
 <h1>Proposal</h1>
 <p>Three additional elements are required to achieve the modelling goals.</p>
+<div>
+<div style="font-size: 1.1em;">
+<ul>
+<li class="fragment">documentation of <em>historic</em> seed usage, and <strong>desired</strong> seed usage<br>
+</li>
+</ul>
+</div>
+<div style="font-size: 1.1em; color:#6c6c6c;">
+<ul>
+<li class="fragment">Better documentation of costs<br>
+</li>
+<li class="fragment">predicted data on disturbances<br>
+</li>
+</ul>
+</div>
+</div>
 </section>
 <section id="a-survey-of-the-experts-i" class="slide level2">
 <h2>a survey of the experts I</h2>
-<p>The US federal land management agencies have a plurality of the worlds restoration expertise… unstructured…</p>
+<p>The US federal land management agencies have a plurality of the worlds restoration expertise.</p>
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="fragment">
-<div>
 <ul>
-<li class="fragment">biggest concern: completion
+<li>biggest concern: completion
 <ul>
-<li class="fragment">minimize the number of questions each participant sees<br>
+<li>minimize the number of questions each participant sees<br>
 </li>
 </ul></li>
-<li class="fragment">Estimate based survey
+<li>Estimate based survey
 <ul>
-<li class="fragment">allows faster completion, less do-not-finish respondents</li>
+<li>allows faster completion, less do-not-finish respondents</li>
 </ul></li>
 </ul>
-</div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="fragment">
-<div>
 <ul>
-<li class="fragment">Survey using R Shiny
+<li>Survey using R Shiny
 <ul>
-<li class="fragment">supports ‘dependencies’ within survey’s</li>
-<li class="fragment">Sends respondents from different regions and organizations different sets of questions<br>
+<li>supports ‘dependencies’ within survey’s</li>
+<li>Sends respondents from different regions and organizations different sets of questions<br>
 </li>
 </ul></li>
-<li class="fragment">Anticipated <a href="https://www.shinyapps.io/">cost: $49 or $98</a></li>
+<li>Anticipated <a href="https://www.shinyapps.io/">cost: $49 or $98</a></li>
 </ul>
-</div>
 </div>
 </div></div>
 </section>
 <section id="a-survey-of-the-experts-ii" class="slide level2">
 <h2>a survey of the experts II</h2>
+<p>Preview of the shiny survey</p>
 </section>
 <section id="survey---short-term-i" class="slide level2">
 <h2>survey - short term I</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-bbebc83bbedc52c1aeb3" style="width:480px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-bbebc83bbedc52c1aeb3">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"administration\" [id = \"administration\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#577D70AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#83BCA9FF\" BORDER=\"0\"><FONT COLOR=\"#000000\">administration<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><U>region_agency<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">NLCD_no<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_name<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_area<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"cover_class\" [id = \"cover_class\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#A44A5EAA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#F76F8EFF\" BORDER=\"0\"><FONT COLOR=\"#000000\">cover_class<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">year<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10_burned<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"lifeform_needed\" [id = \"lifeform_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">lifeform_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_max<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"lifeform_realized\" [id = \"lifeform_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">lifeform_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_max<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"respondent\" [id = \"respondent\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#4E3D12AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#755C1BFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">respondent<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><U>RespondentID<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">region_agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_first<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_last<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">office<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">email<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_end<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_needed\" [id = \"restoration_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_realized\" [id = \"restoration_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_end<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"respondent\"->\"administration\" [id=\"respondent_1\"]\n\"administration\"->\"cover_class\" [id=\"administration_1\"]\n\"cover_class\"->\"restoration_needed\" [id=\"cover_class_1\"]\n\"cover_class\"->\"restoration_realized\" [id=\"cover_class_2\"]\n\"restoration_needed\"->\"lifeform_needed\" [id=\"restoration_needed_1\"]\n\"restoration_realized\"->\"lifeform_realized\" [id=\"restoration_realized_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-0ba8d477c3107c7d6f59" style="width:480px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-0ba8d477c3107c7d6f59">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"administration\" [id = \"administration\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#577D70AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#83BCA9FF\" BORDER=\"0\"><FONT COLOR=\"#000000\">administration<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><U>region_agency<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">NLCD_no<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_name<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_area<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"cover_class\" [id = \"cover_class\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#A44A5EAA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#F76F8EFF\" BORDER=\"0\"><FONT COLOR=\"#000000\">cover_class<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">year<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10_burned<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"lifeform_needed\" [id = \"lifeform_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">lifeform_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_max<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"lifeform_realized\" [id = \"lifeform_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">lifeform_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_graminoid_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_forb_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_shrub_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_tree_max<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"respondent\" [id = \"respondent\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#4E3D12AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#755C1BFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">respondent<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><U>RespondentID<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">region_agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_first<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_last<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">office<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">email<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_end<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_needed\" [id = \"restoration_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_realized\" [id = \"restoration_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_end<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"respondent\"->\"administration\" [id=\"respondent_1\"]\n\"administration\"->\"cover_class\" [id=\"administration_1\"]\n\"cover_class\"->\"restoration_needed\" [id=\"cover_class_1\"]\n\"cover_class\"->\"restoration_realized\" [id=\"cover_class_2\"]\n\"restoration_needed\"->\"lifeform_needed\" [id=\"restoration_needed_1\"]\n\"restoration_realized\"->\"lifeform_realized\" [id=\"restoration_realized_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 </section>
@@ -471,16 +492,42 @@ Example
 <center>
 <div class="cell">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-76af2375b4661e4160cc" style="width:960px;height:336px;"></div>
-<script type="application/json" data-for="htmlwidget-76af2375b4661e4160cc">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"administration\" [id = \"administration\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#577D70AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#83BCA9FF\" BORDER=\"0\"><FONT COLOR=\"#000000\">administration<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><U>region_agency<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">NLCD_no<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_name<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_area<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"cover_class\" [id = \"cover_class\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#A44A5EAA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#F76F8EFF\" BORDER=\"0\"><FONT COLOR=\"#000000\">cover_class<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">year<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10_burned<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"respondent\" [id = \"respondent\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#4E3D12AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#755C1BFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">respondent<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><U>RespondentID<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">region_agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_first<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_last<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">office<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">email<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_end<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_needed\" [id = \"restoration_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_realized\" [id = \"restoration_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_end<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species_PLS\" [id = \"species_PLS\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#5B0129AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#89023EFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">species_PLS<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><U>PLANTS_code<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb_source<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb_source_method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb_source_comment<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species_seedmix_needed\" [id = \"species_seedmix_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">species_seedmix_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">PLANTS_code<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_area_treated<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species_seedmix_realized\" [id = \"species_seedmix_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">species_seedmix_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">PLANTS_code<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_area_treated<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"respondent\"->\"administration\" [id=\"respondent_1\"]\n\"administration\"->\"cover_class\" [id=\"administration_1\"]\n\"cover_class\"->\"restoration_needed\" [id=\"cover_class_1\"]\n\"cover_class\"->\"restoration_realized\" [id=\"cover_class_2\"]\n\"restoration_needed\"->\"species_seedmix_needed\" [id=\"restoration_needed_1\"]\n\"restoration_realized\"->\"species_seedmix_realized\" [id=\"restoration_realized_1\"]\n\"species_seedmix_needed\"->\"species_PLS\" [id=\"species_seedmix_needed_1\"]\n\"species_seedmix_realized\"->\"species_PLS\" [id=\"species_seedmix_realized_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-7b050d3ace2fbdd6354f" style="width:960px;height:336px;"></div>
+<script type="application/json" data-for="htmlwidget-7b050d3ace2fbdd6354f">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"administration\" [id = \"administration\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#577D70AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#83BCA9FF\" BORDER=\"0\"><FONT COLOR=\"#000000\">administration<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><U>region_agency<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">NLCD_no<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_name<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E6F1EDFF\">agency_area<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"cover_class\" [id = \"cover_class\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#A44A5EAA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#F76F8EFF\" BORDER=\"0\"><FONT COLOR=\"#000000\">cover_class<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">year<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">area_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_greater_10_burned<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FDE2E8FF\">slope_less_10_burned<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"respondent\" [id = \"respondent\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#4E3D12AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#755C1BFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">respondent<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><U>RespondentID<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">region_agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">agency<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">DOI_region<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_first<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">name_last<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">office<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">email<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E3DED1FF\">position_end<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_needed\" [id = \"restoration_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"restoration_realized\" [id = \"restoration_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#3E3D48AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#5E5C6CFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">restoration_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_end<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">year_start<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_acre<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#DEDEE1FF\">PLS_per_m2<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species_PLS\" [id = \"species_PLS\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#5B0129AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#89023EFF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">species_PLS<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><U>PLANTS_code<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb_source<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb_source_method<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#E7CCD8FF\">PLS_per_lb_source_comment<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species_seedmix_needed\" [id = \"species_seedmix_needed\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">species_seedmix_needed<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">PLANTS_code<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_area_treated<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species_seedmix_realized\" [id = \"species_seedmix_realized\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#073842AA\">\n    <TR>\n      <TD COLSPAN=\"2\" BGCOLOR=\"#0B5563FF\" BORDER=\"0\"><FONT COLOR=\"#FFFFFF\">species_seedmix_realized<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><U>NLCD_no<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">~<\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">PLANTS_code<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_avg<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_min<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_in_mix_max<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\"><\/TD>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#CEDDDFFF\">pct_area_treated<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"respondent\"->\"administration\" [id=\"respondent_1\"]\n\"administration\"->\"cover_class\" [id=\"administration_1\"]\n\"cover_class\"->\"restoration_needed\" [id=\"cover_class_1\"]\n\"cover_class\"->\"restoration_realized\" [id=\"cover_class_2\"]\n\"restoration_needed\"->\"species_seedmix_needed\" [id=\"restoration_needed_1\"]\n\"restoration_realized\"->\"species_seedmix_realized\" [id=\"restoration_realized_1\"]\n\"species_seedmix_needed\"->\"species_PLS\" [id=\"species_seedmix_needed_1\"]\n\"species_seedmix_realized\"->\"species_PLS\" [id=\"species_seedmix_realized_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 </center>
 </section>
-<section id="a-survey-iv---medium-term" class="slide level2">
-<h2>a survey IV - medium term</h2>
+<section id="a-survey-of-costs-iv" class="slide level2">
+<h2>a survey of costs IV</h2>
+<p>Unable to make <em>sense</em> of any seed requirement modelling results, without incorporating costs.<br>
+<em>A Nancy and R.C. adventure</em></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p>Costs (warehousing)<br>
+- Seed death<br>
+- Shipping</p>
+<div style="color:#6c6c6c;">
 <ul>
-<li>An R.C. and Nancy adventure</li>
+<li>Disposal<br>
+</li>
+<li>Internal movement</li>
+<li>Decreasing seed prices?</li>
+</ul>
+</div>
+</div><div class="column" style="width:50%;">
+<p>Benefits<br>
+- Not buying seed from 3<sup>rd</sup> parties</p>
+</div></div>
+</section>
+<section id="fire" class="slide level2">
+<h2>Fire</h2>
+<ul>
+<li>Products on probability of fire under current fire regime (exist!)<br>
+</li>
+<li>Extreme Value Theory - associate sizes, and probabilities with unseen events<br>
+</li>
+<li>Markov chain for fire return intervals</li>
 </ul>
 </section>
 <section id="an-r-package-for-seed-need-estimates" class="slide level2">
@@ -516,6 +563,44 @@ Example
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section></section>
+<section>
+<section id="reporting" class="title-slide slide level1 center">
+<h1>Reporting</h1>
+<div class=".{columns}">
+<div class="column" style="width:50%';">
+<div>
+<center>
+Goals
+</center>
+<p><strong>1) farmers grow native seed</strong><br>
+<strong>2) politicians fund NSRIC</strong><br>
+3) Determine stocking levels in the seed warehouses</p>
+</div>
+</div><div class="column" style="width:50%';">
+<div>
+<center>
+Needs
+</center>
+<p>Showcase the</p>
+</div>
+</div></div>
+</section>
+<section id="units-of-analysis" class="slide level2">
+<h2>Units of Analysis</h2>
+<div>
+<ul>
+<li class="fragment">DOI Wide</li>
+<li class="fragment">Agency (e.g.&nbsp;NPS) wide</li>
+<li class="fragment">Ecoregions<br>
+</li>
+<li class="fragment">Seed Transfer Zones</li>
+<li class="fragment">DOI regions</li>
+</ul>
+</div>
+<div>
+<p>… and all combinations thereof!</p>
+</div>
 </section>
 <section id="timeline" class="slide level2">
 <h2>Timeline</h2>

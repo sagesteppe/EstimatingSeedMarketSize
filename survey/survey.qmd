@@ -62,6 +62,19 @@ sd_question(
 )
 ```
 
+The next question will require some information on which DOI region you are in.
+If you don't know click the button below to view a map at doi.gov.
+
+```{r DOI region map}
+sd_redirect(
+  id     = "redirect",
+  url    = "https://www.doi.gov/sites/doi.gov/files/uploads/12-unified-regions-based-on-watersheds-17x11-250dpi-20191018.pdf",
+  label  = "DOI region",
+  button = TRUE,
+  newtab = TRUE
+)
+```
+
 ```{r respondent DOI region}
 sd_question(
   type   = 'mc_buttons',
@@ -83,7 +96,20 @@ sd_question(
     "12 Pacific Islands" = 12
   )
 )
+```
 
+Before heading to your DOI regions survey you may want to take a quick glimpse at the Multi-Resolution Land Characteristics Consortium data set for NLCD... Using the small 'i' button on the upper left of the map you can identify a pixels class, we'll associate these numbers with their names in the coming pages. 
+```{r MRLC link 1}
+sd_redirect(
+  id     = "redirect",
+  url    = "https://www.mrlc.gov/viewer/",
+  label  = "https://www.mrlc.gov/viewer/",
+  button = TRUE,
+  newtab = TRUE
+)
+```
+
+```{r}
 sd_next(label = 'Head to my regions survey')
 ```
 
