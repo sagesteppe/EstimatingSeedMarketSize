@@ -4,8 +4,36 @@ library(sf)
 library(tidyverse)
 library(rmapshaper)
 
-regions <- st_read('../data/geospatial/AdministrativeUnits/DOIRegions/DOI_12_Unified_Regions_20180801.shp', quiet = T)
-l3 <- st_read('../data/geospatial/AdministrativeUnits/Ecoregions/us_eco_l3.shp', quiet = T)
+public_lands_pal <- setNames(
+  
+  # these manually transcribed from the H-1553-Publications Standards Manual
+  # Handbook - hopefully no errors.
+  # [H-1553](https://www.ntc.blm.gov/krc/uploads/223/Ownership_Map_Color_Reference_Sheet.pdf)
+  
+  c( # colours
+    rgb(254, 230, 121, max = 255), # BLM
+    rgb(204, 235, 197, max = 255), # USFS
+    rgb(202, 189, 220, max = 255), # NPS
+    rgb(127, 204, 167, max = 255), # FWS
+    rgb(255, 255, 179, max = 255), # USBR
+    rgb(253, 180, 108, max = 255), # TRIB
+    rgb(251, 180, 206, max = 255), # DOD
+    rgb(228, 196, 159, max = 255), # OTHF
+    rgb(179, 227, 238, max = 255), # SLB
+    rgb(255, 255, 255, max = 255), # PVT
+    rgb(143, 181, 190, max = 255) # CITY CNTY
+  ), 
+  
+  c( # names
+    'BLM', 'USFS', 'NPS', 'FWS', 'USBR', 'TRIB', 'DOD', 'OTHF', 'SLB', 'PVT', 'CITY_CNTY_SDC_SDNR_SPR')
+)
+
+regions <- st_read(
+  '../data/geospatial/AdministrativeUnits/DOIRegions/DOI_12_Unified_Regions_20180801.shp', 
+  quiet = T)
+l3 <- st_read(
+  '../data/geospatial/AdministrativeUnits/Ecoregions/us_eco_l3.shp', 
+  quiet = T)
 
 ###############################################################################
 ### Simplify the Protected areas database for cartography purposes ##
@@ -16,7 +44,6 @@ pad <- st_read(
   filter(Mang_Name %in% c('BLM', 'NPS', 'FWS')) |> 
   st_cast('MULTIPOLYGON')
 
-  head(pad)
 # if on parkland, or with less than 32 (gib) if that ram config exists, run piecewise 
 # FWS causes crashes 
 
@@ -59,11 +86,85 @@ terrestrial <- bind_rows(minor_islands, land)  |>
   sf::st_make_valid()
 
 pad_simp <- sf::st_intersection(terrestrial, pad_simp)
+pad_simp <- sf::st_intersection(pad_simp, regions)
 
 ggplot(data = pad_simp) + 
-  geom_sf()
+  geom_sf() + 
+  geom_sf(data = regions, fill = NA, color = 'red') + 
+  geom_sf(data = terrestrial)
+
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+extra_terrestrial <- st_erase(terrestrial, regions)
+
+st_write(terrestrial, append = F, 
+         '../data/geospatial/TerrestrialAreas/focal_terrestrial/focal_terrestrial.shp')
+
+st_write(extra_terrestrial, append = F,
+         '../data/geospatial/TerrestrialAreas/non-us_terrestrial/non-us_terrestrial.shp')
 
 st_write(pad_simp, append = FALSE, 
          '../data/geospatial/AdministrativeUnits/SurfaceManagement/PAD_simp.shp')
 
-rm(land, terrestrial, minor_islands)
+rm(land, terrestrial, minor_islands, extra_terrestrial, st_erase)
+
+####################################
+## make a simplified copy of the provisional seed transfer zones real quick too. 
+pSTZ <- st_read('../data/geospatial/BowerProvisional/original/2017_New_PSZ_Labels.shp')
+pSTZ <- rmapshaper::ms_simplify(pSTZ)
+pSTZ <- pSTZ[which(st_geometry_type(pSTZ) %in% c('POLYGON', 'MULTIPOLYGON') == TRUE), ]
+
+st_write(
+  pSTZ, append = FALSE, 
+  '../data/geospatial/BowerProvisional/simplified/BowerProvisionalPSTZ.shp'
+  )
+
+pSTZ <- st_read('../data/geospatial/BowerProvisional/simplified/BowerProvisionalPSTZ.shp')
+####################################
+
+pad_simp <- st_intersection(regions, pad_simp)
+pad_simp <- pad_simp[which(st_geometry_type(pad_simp) %in% c('POLYGON', 'MULTIPOLYGON') == TRUE), ]
+
+terrest_nt <- st_read('../data/geospatial/TerrestrialAreas/non-us_terrestrial/non-us_terrestrial.shp')
+terrest <- st_read('../data/geospatial/TerrestrialAreas/focal_terrestrial/focal_terrestrial.shp')
+
+ak <- filter(regions, REG_NAME == 'Alaska') |> sf::st_bbox()
+
+ak_plot <- ggplot() + 
+  geom_sf(data = terrest, fill = '#C4D4C8') + 
+  geom_sf(data = terrest_nt, fill = '#837569') + 
+  geom_sf(data = pad_simp, aes(fill = Mang_Name), color = NA) + 
+  scale_fill_manual(values = public_lands_pal) + 
+  coord_sf(xlim = c(ak[1], ak[3]), ylim = c(ak[2], ak[4])) + 
+  theme_void() + 
+  theme(
+    panel.background = element_rect(fill = '#2D728F'), 
+    legend.position = 'none'
+  )
+
+lks <- rnaturalearth::ne_download( 
+  type = "lakes",  
+  category = "physical", 
+  scale = "small") |> 
+  select(name) 
+
+conus_reg <- filter(regions, ! REG_NAME %in% c('Alaska', 'Pacific Islands')) |> 
+  sf::st_bbox()
+
+conus_plot <- ggplot() + 
+  geom_sf(data = terrest, fill = '#C4D4C8') + 
+  geom_sf(data = terrest_nt, fill = '#837569') + 
+  geom_sf(data = lks, fill = '#2D728F') + 
+  
+  geom_sf(data = pad_simp, aes(fill = Mang_Name), color = NA) + 
+  geom_sf(data = regions, color = '#ED254E', fill = NA) + 
+  scale_fill_manual(values = public_lands_pal) + 
+  coord_sf(
+    xlim = c(conus_reg[1], conus_reg[3]), 
+    ylim = c(conus_reg[2], conus_reg[4])
+    ) + 
+  theme_void() + 
+  theme(
+    panel.background = element_rect(fill = '#2D728F'), 
+    legend.position = 'none'
+  ) 
+
