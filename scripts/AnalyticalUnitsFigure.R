@@ -96,6 +96,8 @@ ggplot(data = pad_simp) +
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 extra_terrestrial <- st_erase(terrestrial, regions)
 
+terrestrial <- st_intersection(terrestrial, regions)
+
 st_write(terrestrial, append = F, 
          '../data/geospatial/TerrestrialAreas/focal_terrestrial/focal_terrestrial.shp')
 
@@ -119,25 +121,47 @@ st_write(
   )
 
 pSTZ <- st_read('../data/geospatial/BowerProvisional/simplified/BowerProvisionalPSTZ.shp')
-####################################
+################################################################################
+### Now create figures ###
+################################################################################
+
+
+pad_simp <- st_read(
+  '../data/geospatial/AdministrativeUnits/SurfaceManagement/PAD_simp.shp')
 
 pad_simp <- st_intersection(regions, pad_simp)
 pad_simp <- pad_simp[which(st_geometry_type(pad_simp) %in% c('POLYGON', 'MULTIPOLYGON') == TRUE), ]
 
-terrest_nt <- st_read('../data/geospatial/TerrestrialAreas/non-us_terrestrial/non-us_terrestrial.shp')
-terrest <- st_read('../data/geospatial/TerrestrialAreas/focal_terrestrial/focal_terrestrial.shp')
+terrest_nt <- st_read(
+  '../data/geospatial/TerrestrialAreas/non-us_terrestrial/non-us_terrestrial.shp')
+terrest <- st_read(
+  '../data/geospatial/TerrestrialAreas/focal_terrestrial/focal_terrestrial.shp')
 
-ak <- filter(regions, REG_NAME == 'Alaska') |> sf::st_bbox()
+ak <- filter(regions, REG_NAME == 'Alaska') |> 
+  sf::st_bbox()
 
 ak_plot <- ggplot() + 
   geom_sf(data = terrest, fill = '#C4D4C8') + 
-  geom_sf(data = terrest_nt, fill = '#837569') + 
   geom_sf(data = pad_simp, aes(fill = Mang_Name), color = NA) + 
   scale_fill_manual(values = public_lands_pal) + 
   coord_sf(xlim = c(ak[1], ak[3]), ylim = c(ak[2], ak[4])) + 
   theme_void() + 
   theme(
-    panel.background = element_rect(fill = '#2D728F'), 
+    legend.position = 'none'
+  )
+
+rm(ak)
+
+pi <- filter(regions, REG_NAME == 'Pacific Islands') |> 
+  sf::st_bbox()
+
+pi_plot <- ggplot() + 
+  geom_sf(data = terrest, fill = '#C4D4C8') + 
+  geom_sf(data = pad_simp, aes(fill = Mang_Name), color = NA) + 
+  scale_fill_manual(values = public_lands_pal) + 
+  coord_sf(xlim = c(pi[1], pi[3]), ylim = c(pi[2], pi[4])) + 
+  theme_void() + 
+  theme(
     legend.position = 'none'
   )
 
@@ -145,26 +169,34 @@ lks <- rnaturalearth::ne_download(
   type = "lakes",  
   category = "physical", 
   scale = "small") |> 
-  select(name) 
+  select(name) |>
+  sf::st_make_valid() |>
+  sf::st_transform(st_crs(regions))
+
+lks <- lks [ lengths(st_intersects(lks, regions)) > 0, ]
 
 conus_reg <- filter(regions, ! REG_NAME %in% c('Alaska', 'Pacific Islands')) |> 
   sf::st_bbox()
 
 conus_plot <- ggplot() + 
   geom_sf(data = terrest, fill = '#C4D4C8') + 
-  geom_sf(data = terrest_nt, fill = '#837569') + 
+#  geom_sf(data = terrest_nt, fill = '#837569') + 
   geom_sf(data = lks, fill = '#2D728F') + 
   
   geom_sf(data = pad_simp, aes(fill = Mang_Name), color = NA) + 
   geom_sf(data = regions, color = '#ED254E', fill = NA) + 
   scale_fill_manual(values = public_lands_pal) + 
   coord_sf(
-    xlim = c(conus_reg[1], conus_reg[3]), 
+    xlim = c(conus_reg[1]-10000, conus_reg[3]+10000), 
     ylim = c(conus_reg[2], conus_reg[4])
     ) + 
   theme_void() + 
   theme(
-    panel.background = element_rect(fill = '#2D728F'), 
     legend.position = 'none'
   ) 
 
+
+cowplot::ggdraw() + 
+  cowplot::draw_plot(conus_plot) + 
+  cowplot::draw_plot(pi_plot, x = 0.8, y = -0.2, width = 0.25, height = 0.25) + 
+  cowplot::draw_plot(ak_plot, x = 0.2, y = -0.175, width = 0.5, height = 0.5) 

@@ -1,0 +1,82 @@
+---
+title: "Extreme Fire Values"
+author: "Reed Benkendorf"
+date: "2024-12-20"
+output: html_document
+---
+
+
+
+```{r}
+library(tidyverse)
+library(extRemes)
+```
+
+
+
+```{r Import Fire data}
+annual <- read.csv('../data/processed/NoFires-TotalArea_byDOIRegion.csv')
+```
+
+
+Both the frequency and size of very large fires appears to be increasing over time, as illustrated by plots made in the SCRIPT NAME. 
+These expectations are aligned with our both our experience of working in public lands for over a decade, and reports by the media. 
+Because a clear trend is present with these very large fires we will treat this process as *non-stationary*. 
+
+I am most interested in the total amount of area burned in a region each year, and the number of very large fires within that area. 
+While the size of fires vary within a season, with the largest fires often burning in late summer and needing to be naturally extinguished by fall temperatures, we will not analyze data at the within season scale.
+We will treat the sum of all areas as a a yearly block maxima for these purposes. 
+
+While non-stationary data are more commonly used with the GP distribution, the GEV distribution is more generally used for block maxima. 
+We will use the GEV distribution, because GP does not lend itself to single annual values. 
+
+
+```{r}
+ak <- filter(annual, REG_NAME == 'California-Great Basin' & NoFire > 0)
+plot(ak$FIRE_YEAR, ak$TotalArea_Acre)
+
+ak_ext <- fevd(
+  log(ak$TotalArea_Acre), 
+  type = 'GEV',
+  units ='Acres', 
+  span = length(ak$TotalArea_Acre), 
+  time.units = '1/year')
+
+plot(ak_ext)
+
+ob <- ci(ak_ext, type = "parameter", method = 'boot')
+
+ob1 <- ci(ak_ext, type = "return.level", method = "proflik",
+    xrange = c(10, 20), verbose = TRUE) # these are used on values we have not predicted yet.. 
+# we have predicted a 50 year return interval, so we have to calculate at the 100 year level now.
+# it doesn't seem to matter what the xrange is, as long as it is above the highest recent estimates, 
+# and it appears to be unable to push past the first unmodelled return interval
+
+# this allows us to obtain estimates of the fire sizes at different probabilities. 
+# it will work on GEV models, but assumes the data are stationary 
+
+ret_period <-seq(1.1, 99, 0.01) # 'years' for the return intervals. 
+return_ls <- return.level(ak_ext, ret_period, do.ci = TRUE, burn.in = 100) 
+#Find the intersection of the desired value and the generated sequence of return levels
+
+return_ls <- data.frame(
+  Pr = 1 - (ret_period/100), 
+  lwrCI = return_ls[,1], 
+  estimate = return_ls[,2], 
+  uprCI = return_ls[,3] 
+)
+
+return_ls[,2:4] <- apply(return_ls[,2:4], 2, exp)
+
+positions <- sort(sample(1:nrow(return_ls), prob = return_ls$Pr, size = 100, replace = TRUE))
+hist( sort(return_ls[positions,'Pr']) )
+
+plot(
+  return_ls$Pr, return_ls$estimate, type = 'l'#, 
+ # ylim = c(min(return_ls$lowerCI), max(return_ls$upperCI)),
+ # xlim = c(2, max(return_ls$period))
+  )
+lines(return_ls$period, return_ls$upperCI, lty = 2)
+lines(return_ls$period, return_ls$lowerCI, lty = 2)
+```
+
