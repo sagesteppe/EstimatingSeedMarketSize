@@ -45,38 +45,45 @@ ak_ext <- fevd(
 plot(ak_ext)
 
 ob <- ci(ak_ext, type = "parameter", method = 'boot')
-
-ob1 <- ci(ak_ext, type = "return.level", method = "proflik",
-    xrange = c(10, 20), verbose = TRUE) # these are used on values we have not predicted yet.. 
-# we have predicted a 50 year return interval, so we have to calculate at the 100 year level now.
-# it doesn't seem to matter what the xrange is, as long as it is above the highest recent estimates, 
-# and it appears to be unable to push past the first unmodelled return interval
-
 # this allows us to obtain estimates of the fire sizes at different probabilities. 
 # it will work on GEV models, but assumes the data are stationary 
 
-ret_period <-seq(1.1, 99, 0.01) # 'years' for the return intervals. 
+ret_period <- seq(1.1, 99, 0.01) # 'years' for the return intervals. 
 return_ls <- return.level(ak_ext, ret_period, do.ci = TRUE, burn.in = 100) 
 #Find the intersection of the desired value and the generated sequence of return levels
 
 return_ls <- data.frame(
+  Period = ret_period,
   Pr = 1 - (ret_period/100), 
   lwrCI = return_ls[,1], 
   estimate = return_ls[,2], 
   uprCI = return_ls[,3] 
 )
 
-return_ls[,2:4] <- apply(return_ls[,2:4], 2, exp)
+cols <- c('lwrCI', 'uprCI', 'estimate')
+return_ls[,cols] <- apply(return_ls[,cols], 2, exp)
 
-positions <- sort(sample(1:nrow(return_ls), prob = return_ls$Pr, size = 100, replace = TRUE))
-hist( sort(return_ls[positions,'Pr']) )
+positions <- sort( # sampling rows from the data frame based on the return intervals
+  sample(1:nrow(return_ls), 
+         prob = return_ls$Pr, 
+         size = 1000, replace = TRUE))
+plot(density( sort(return_ls[positions,'Pr']) ))
 
 plot(
-  return_ls$Pr, return_ls$estimate, type = 'l'#, 
- # ylim = c(min(return_ls$lowerCI), max(return_ls$upperCI)),
- # xlim = c(2, max(return_ls$period))
-  )
-lines(return_ls$period, return_ls$upperCI, lty = 2)
-lines(return_ls$period, return_ls$lowerCI, lty = 2)
+  return_ls$Period, return_ls$estimate, type = 'l', 
+  ylim = c(min(return_ls$lwrCI), max(return_ls$uprCI)), 
+  main = 'Annual Fire Return Intervals', xlab = 'Return Interval', ylab = 'Area (Acres)'
+)
+
+
+# let's draw each line from the intercept on x to the estimate on X. 
+for (i in 1:nrow(ak)){
+  segments(
+    x0 = 0, x1 = 5, y0 = ak$TotalArea_Acre[i], col = 'red')
+}
+lines(return_ls$Period, return_ls$uprCI, lty = 2)
+lines(return_ls$Period, return_ls$lwrCI, lty = 2)
+
+points(return_ls$Period[positions], return_ls$estimate[positions]) # these are the sample points 
 ```
 
