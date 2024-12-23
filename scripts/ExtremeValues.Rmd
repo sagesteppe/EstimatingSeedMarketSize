@@ -32,58 +32,23 @@ We will use the GEV distribution, because GP does not lend itself to single annu
 
 
 ```{r}
-ak <- filter(annual, REG_NAME == 'California-Great Basin' & NoFire > 0)
-plot(ak$FIRE_YEAR, ak$TotalArea_Acre)
 
-ak_ext <- fevd(
-  log(ak$TotalArea_Acre), 
-  type = 'GEV',
-  units ='Acres', 
-  span = length(ak$TotalArea_Acre), 
-  time.units = '1/year')
-
-plot(ak_ext)
-
-ob <- ci(ak_ext, type = "parameter", method = 'boot')
-# this allows us to obtain estimates of the fire sizes at different probabilities. 
-# it will work on GEV models, but assumes the data are stationary 
-
-ret_period <- seq(1.1, 99, 0.01) # 'years' for the return intervals. 
-return_ls <- return.level(ak_ext, ret_period, do.ci = TRUE, burn.in = 100) 
-#Find the intersection of the desired value and the generated sequence of return levels
-
-return_ls <- data.frame(
-  Period = ret_period,
-  Pr = 1 - (ret_period/100), 
-  lwrCI = return_ls[,1], 
-  estimate = return_ls[,2], 
-  uprCI = return_ls[,3] 
-)
-
-cols <- c('lwrCI', 'uprCI', 'estimate')
-return_ls[,cols] <- apply(return_ls[,cols], 2, exp)
-
-positions <- sort( # sampling rows from the data frame based on the return intervals
-  sample(1:nrow(return_ls), 
-         prob = return_ls$Pr, 
-         size = 1000, replace = TRUE))
-plot(density( sort(return_ls[positions,'Pr']) ))
-
-plot(
-  return_ls$Period, return_ls$estimate, type = 'l', 
-  ylim = c(min(return_ls$lwrCI), max(return_ls$uprCI)), 
-  main = 'Annual Fire Return Intervals', xlab = 'Return Interval', ylab = 'Area (Acres)'
-)
+regs <- split(annual, f = annual$REG_NAME)
+lapply(regs[1], CalculateReturnIntervals)
 
 
-# let's draw each line from the intercept on x to the estimate on X. 
-for (i in 1:nrow(ak)){
-  segments(
-    x0 = 0, x1 = 5, y0 = ak$TotalArea_Acre[i], col = 'red')
-}
-lines(return_ls$Period, return_ls$uprCI, lty = 2)
-lines(return_ls$Period, return_ls$lwrCI, lty = 2)
+log(regs[[1]]$TotalArea_Acre) # -inf on missing data. 
 
-points(return_ls$Period[positions], return_ls$estimate[positions]) # these are the sample points 
+log(regs[[10]]$TotalArea_Acre) 
+
+# 1, 4, 10 are problematic 
+
+fevd( log1p(c(0:10)) )
+
+ak <- filter(annual, REG_NAME == 'Upper Colorado Basin' & NoFire > 0)
+
+# generate a plot showing the computed return intervals. 
+CalculateReturnIntervals(ak)
+
 ```
 

@@ -279,7 +279,7 @@ TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
   # If the burned area is in excess of the fit model, then place a green line 
   # indicating the maximum amount of area which can be treated using the 
   # warehoused seed. 
-  # thes are 'partial treatments' p_trt
+  # these are 'partial treatments' p_trt
   p_trt <- x[! is.na(x$Treatable), ]
   for (i in seq_along(1:nrow(p_trt))){
     segments(
@@ -342,3 +342,169 @@ TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
   
 }
 
+#' @description the goal of this function is to estimate the amount of area  
+#' which would be needed to treat after wildfires in 12 doi regions. Area serves
+#' as a proxy for the number of seeds. The function assumes three sources for seed:
+#' 1) 'old_warehouse' which is the seed greater than the rolling average in years, and which has
+#' not been used in restoration already. 
+#' 2) 'new_warehouse' the seed within the rolling average age range
+#' 3) 'new' fresh seed which will be delivered straight from farm in Fall. 
+#' Despite area being the proxy for seed, and seed aging and losing it's ability to perform as well 
+#' in restorations, we will maintain 'area' as a constant. 
+#' 
+#' @param x Dataframe. The data set to be analysed. 
+#' @param yr_roll Numeric. the rolling average to apply for the analysis. Defaults to 1, which is that no rolling average is used. 
+#' @param interval Character Vector. The type of interval to be used for calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
+#' @param prediction Vector. the name of the column from the fit model to use for calculating the distance between. Defaults to 'fit', other options are: 'lwr', and 'upr'. 
+#' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
+#' @export
+reportBalance <- function(x, yr_roll, interval, prediction, conf_lvl){
+  
+  if(missing(interval)){interval <- 'confidence'}
+  if(missing(prediction)){prediction <- 'fit'}
+  if(missing(conf_lvl)){conf_lvl <- 0.95}
+  
+  avg <- function(x, y){
+    x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
+    return(x)
+  }
+  pred_help <- function(y, conf_lvl, interval){
+    mod_pred <- data.frame(
+      FIRE_YEAR = gr, 
+      predict.lm(
+        y, gr, interval = interval, SE = TRUE, level = conf_lvl)
+    )
+    return(mod_pred)
+  }
+  
+  rolled <- avg(x, yr_roll)
+  modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
+  
+  gr <- data.frame(
+    # only operate on years within the rolling average.
+    FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
+                     max(rolled$FIRE_YEAR))
+  )
+  
+  p <- pred_help(modr2, conf_lvl, interval) 
+  ob <- AreaDeficitSummary(p, rolled, prediction) 
+  
+  TreatableAreaPlots(x = ob, rolled, mod = p, colname = 'fit', yr_roll = yr_roll)
+}
+
+
+
+#' calculate fire return intervals for a DOI region
+#'
+#' @description Calculate fire return intervals for a DOI region, and save a few different results. 
+#' @param x a dataframe of observed fire events. 
+#' @param returns  a plot of intervals, a data frame of predictions from the fit model, the model, and a sample of positions from the  predictions data frame. 
+#' @param export
+CalculateReturnIntervals <- function(x){
+  
+  fevd_ext <- fevd(
+    log(x$TotalArea_Acre), 
+    type = 'GEV',
+    units ='Acres', 
+    span = length(x$TotalArea_Acre), 
+    time.units = '1/year'
+  )
+  
+  ret_period <- seq(1.01, 99, 0.01) # 'years' for the return intervals. 
+  return_ls <- return.level(fevd_ext, ret_period, do.ci = TRUE, burn.in = 10000) 
+  
+  # Find the intersection of the desired value and the generated sequence of return levels
+  return_ls <- data.frame(
+    Period = ret_period,
+    Pr = 1 - (ret_period/100), 
+    lwrCI = return_ls[,1], 
+    estimate = return_ls[,2], 
+    uprCI = return_ls[,3] 
+  )
+  
+  cols <- c('lwrCI', 'uprCI', 'estimate') # convert back to a linear scale 
+  return_ls[,cols] <- apply(return_ls[,cols], 2, exp)
+  
+  positions <- sort( # sampling rows from the data frame based on the return intervals
+    sample(1:nrow(return_ls), 
+           prob = return_ls$Pr, 
+           size = 1250, replace = TRUE))
+  plot(density(sort(return_ls[positions,'Pr'])))
+  
+  ReturnIntervalsPlot(x = x, mod = fevd_ext, return_ls = return_ls)
+  
+  write.csv(
+    positions, 
+    file.path(
+      '..', 'results', 'Tabular', 'FireReturnIntervals', 
+      paste0('SampleIndex-',  x$REG_NAME[1], '.txt')
+      ), row.names = F)
+  
+  write.csv(
+    return_ls,
+    file.path(
+      '..', 'results', 'Tabular', 'FireReturnIntervals', 
+      paste0('Predictions-', x$REG_NAME[1], '.csv')
+    )
+  )
+  
+}
+
+
+#' @description Create a simple plot for internal use/documentation of results from estimating
+#' fire return intervals. 
+#' @param x original object input to parent function, essentially fire summary data for a DOI region 
+#' @param mod fit model from `fevd` function. 
+#' @param return_ls predictions of burned area 
+ReturnIntervalsPlot <- function(x, mod, return_ls){
+  
+  p <- file.path('..', 'results', 'Plots', 'FireReturnIntervals', 
+                 paste0(gsub(' ', '_', x$REG_NAME[1]), '.png'))
+  
+  if(mod[['type']]=='GEV'){
+    type <- 'generalized extreme value distribution'} else {
+      type <- 'generalized pareto'}
+  status <- paste(
+    'Estimates generated using', type, 'with method', 
+    mod[['method']], '\nand a sample of', mod[['n']],
+    'records, using the R package `extRemes`.'
+  )
+  
+  ticks <- c(c(0, 2, 5, 10), seq(20, 100, by = 20))
+  
+  png(p, width = 8, height = 5.5, units = 'in', res = 300)
+  par(mar = c(6, 5, 4, 2))
+  plot(
+    return_ls$Period, return_ls$estimate, type = 'l', 
+    ylim = c(min(return_ls$lwrCI), max(return_ls$uprCI)), 
+    main = paste0('Annual Fire Return Intervals\n', sub = x$REG_NAME[1]), 
+    xlab = 'Return Interval (Years)', ylab = 'Area (Acres)', yaxt = "n"
+  )
+  
+  legend(
+    x = "topleft", 
+    legend = c('Prediction', '95% CI', 'Observed\nAnnual Burns'),
+    lty = c(1, 2, 3),  
+    col = c('black', 'black', 'red4'),
+    lwd = 2, cex = 0.7,
+    bg = adjustcolor("white", 0.4) 
+  )  
+  
+  for (i in 1:nrow(x)){ # these are the observed fire events from the training data
+    segments(
+      x0 = 0, 
+      x1 = return_ls[which.min(abs(x[i,'TotalArea_Acre'] - return_ls$estimate)), 'Period'], 
+      y0 = x$TotalArea_Acre[i], col = 'red', lty = 3, lwd = 0.8)
+  }
+  lines(return_ls$Period, return_ls$uprCI, lty = 2)
+  lines(return_ls$Period, return_ls$lwrCI, lty = 2)
+  axis(1, at = ticks, labels = ticks) 
+  axis(2, cex = 0.4,
+       at = labs <- pretty(par()$usr[3:4]),
+       labels = prettyNum(
+         labs, big.mark = ",", scientific = FALSE)
+  )
+  mtext(side=1, line=5, adj=1, cex=0.8, status, col = 'grey40') 
+  dev.off()
+  
+}
