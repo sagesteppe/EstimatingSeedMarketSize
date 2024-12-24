@@ -223,57 +223,6 @@ AreaDeficitSummary <- function(x, rolled, prediction){
 }
 
 
-#' calculate a rolling mean for fire sizes
-#' 
-#' @description This function wraps around two under laying data.table functions 
-#' to calculate a rolling mean of a numeric vector. It implements one of two functions, 
-#' either data.table::frollmean, if type = 'arithematic', or a geometric mean if 
-#' type = 'geometric'. The geometric mean is calculated using spatstat.utils::harmonicmean
-#' wrapped within data.table::frollapply. 
-#' @param x Data.frame. A data frame of values
-#' @param colname. Character. A Column to calculate the values on. No default, will exit function.
-#' @param w Numeric. The rolling window to use for the calculation. Defaults to 3. 
-#' @param type Character. One of 'a' for arithematic or 'g' for geometric. Defaults to arithmetic. 
-#' @param returns Data.frame x, with a column added with a prefix 'roll_' and the type abbreviation and
-#' the window size. For example if using the arithematic mean with a window of 3, 'roll_g3'
-#' @examples
-#' arith <- data.frame(
-#'   Value = 1:10, 
-#'   Observation = LETTERS[1:10]
-#' )
-#'
-#' geo <- data.frame(
-#'   Value = exp(1:10), 
-#'   Observation = LETTERS[1:10]
-#' )
-#'
-#' avg(arith, colname = 'Value')
-#' avg(geo, colname = 'Value', type = 'g', w = 4)
-s#' @export 
-avg <- function(x, colname, w, type){
-  if(missing(w)){w <- 3}
-  if(missing(type)){type <- 'a'}
-  outname <- paste0('roll_', type, w)
-  
-  if(type == 'a'){
-    x[[outname]] <- data.table::frollmean(x[[colname]], w)
-  } else {
-    x[[outname]]  <- frollapply(x[[colname]], w, FUN = spatstat.utils::harmonicmean)
-  }
-  return(x)
-  
-}
-
-pred_help <- function(y, lv, gr){
-  mod_pred <- data.frame(
-    FIRE_YEAR = gr, 
-    predict.lm(
-      y, gr, interval = 'confidence', level = lvl)
-  )
-  return(mod_pred)
-}
-
-
 #' Visualize the amount of area which can be treated each year 
 #' 
 #' @description This function makes plots and saves them to disk. The plots depict
@@ -389,7 +338,7 @@ TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
 #' in restorations, we will maintain 'area' as a constant. 
 #' 
 #' @param x Dataframe. The data set to be analysed. 
-#' @param yr_roll Numeric. the rolling average to apply for the analysis. 
+#' @param w Numeric. The rolling window to use for the calculation. Defaults to 3. 
 #' Defaults to 1, which is that no rolling average is used. 
 #' @param interval Character Vector. The type of interval to be used for 
 #' calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
@@ -397,14 +346,17 @@ TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
 #' calculating the distance between. Defaults to 'fit', other options are: 'lwr', and 'upr'. 
 #' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
 #' @export
-reportBalance <- function(x, yr_roll, interval, prediction, conf_lvl){
+reportBalance <- function(x, w, interval, prediction, conf_lvl){
   
   if(missing(interval)){interval <- 'confidence'}
   if(missing(prediction)){prediction <- 'fit'}
   if(missing(conf_lvl)){conf_lvl <- 0.95}
+  if(missing(w)){w <- 1}
   
-  rolled <- avg(x, yr_roll)
-  modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
+  rolled <- avg(x, w = w, ...)
+  rl_col <- colnames(rolled)[grep('roll_.*$', colnames(rolled))]
+  form <- as.formula(paste0(rl_col, "~", 'FIRE_YEAR'))
+  modr2 <- lm(form, data = rolled)
   
   gr <- data.frame(
     # only operate on years within the rolling average.
@@ -544,14 +496,6 @@ ReturnIntervalsPlot <- function(x, mod, return_ls){
 }
 
 
-#' Calculate rolling averages, wrapper around data.table::frollmean
-#' 
-#' TODO: can we use other means - especially geometric with this? 
-avg <- function(x, y){
-  x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
-  return(x)
-}
-
 #' prediction help wrapper for am ordinary least squares linear model. 
 pred_help <- function(y, conf_lvl, interval){
   mod_pred <- data.frame(
@@ -562,6 +506,56 @@ pred_help <- function(y, conf_lvl, interval){
   return(mod_pred)
 }
 
+#' calculate a rolling mean for fire sizes
+#' 
+#' @description This function wraps around two under laying data.table functions 
+#' to calculate a rolling mean of a numeric vector. It implements one of two functions, 
+#' either data.table::frollmean, if type = 'arithematic', or a geometric mean if 
+#' type = 'geometric'. The geometric mean is calculated using spatstat.utils::harmonicmean
+#' wrapped within data.table::frollapply. 
+#' @param x Data.frame. A data frame of values
+#' @param colname Character. A Column to calculate the values on. No default, will exit function.
+#' @param w Numeric. The rolling window to use for the calculation. Defaults to 3. 
+#' @param type Character. One of 'a' for arithematic or 'g' for geometric. Defaults to arithmetic. 
+#' @param returns Data.frame x, with a column added with a prefix 'roll_' and the type abbreviation and
+#' the window size. For example if using the arithematic mean with a window of 3, 'roll_g3'
+#' @examples
+#' arith <- data.frame(
+#'   Value = 1:10, 
+#'   Observation = LETTERS[1:10]
+#' )
+#'
+#' geo <- data.frame(
+#'   Value = exp(1:10), 
+#'   Observation = LETTERS[1:10]
+#' )
+#'
+#' avg(arith, colname = 'Value')
+#' avg(geo, colname = 'Value', type = 'g', w = 4)
+#' @export 
+avg <- function(x, colname, w, type){
+  if(missing(w)){w <- 3}
+  if(missing(type)){type <- 'a'}
+  outname <- paste0('roll_', type, w)
+  
+  if(type == 'a'){
+    x[[outname]] <- data.table::frollmean(x[[colname]], w)
+  } else {
+    x[[outname]]  <- data.table::frollapply(
+      x[[colname]], w, FUN = spatstat.utils::harmonicmean)
+  }
+  return(x)
+  
+}
+
+pred_help <- function(y, lv, gr){
+  mod_pred <- data.frame(
+    FIRE_YEAR = gr, 
+    predict.lm(
+      y, gr, interval = 'confidence', level = lvl)
+  )
+  return(mod_pred)
+}
 
 #' Obtain regression parameter estimates for classifying fire years for markov chains
 #' 
@@ -570,31 +564,29 @@ pred_help <- function(y, conf_lvl, interval){
 #' 'below' for all points beneath the lower confidence limit, 'around' for 
 #' points within the confidence limit, and 'upper' for points above the upper 95% confidence limit.  
 #' @param x Dataframe. The data set to be analysed. 
-#' @param yr_roll Numeric. the rolling average to apply for the analysis. 
-#' Defaults to 1, which is that no rolling average is used. 
 #' @param interval Character Vector. The type of interval to be used for 
 #' calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
 #' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
 #' @param save Boolean. Whether to save objects to disk or just return locally. Defaults to TRUE. 
-#' @export
-classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction, save){
+#' @export 
+classifyPtsMarkov <- function(x, w, interval, conf_lvl, prediction, type, save, ...){
   
   if(missing(interval)){interval <- 'confidence'}
   if(missing(prediction)){prediction <- 'fit'}
   if(missing(save)){save <- TRUE}
   if(missing(conf_lvl)){conf_lvl <- 0.95}
-  if(missing(yr_roll)){yr_roll <- 1}
   
-  
-  rolled <- avg(x, yr_roll)
-  modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
+  rolled <- avg(x, ...)
+  rl_col <- colnames(rolled)[grep('roll_.*$', colnames(rolled))]
+  form <- as.formula(paste0(rl_col, "~", 'FIRE_YEAR'))
+  modr2 <- lm(form, data = rolled)
   
   gr <- data.frame(
     # only operate on years within the rolling average.
-    FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
+    FIRE_YEAR =  seq(min(rolled[!is.na(rolled[rl_col]), 'FIRE_YEAR']),
                      max(rolled$FIRE_YEAR))
   )
-  
+
   pred_help <- function(y, lvl, gr){
     mod_pred <- data.frame(
       FIRE_YEAR = gr, 
@@ -605,7 +597,7 @@ classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction, save){
   }
   
   p <- pred_help(modr2, lvl = conf_lvl, gr) 
-  p$observed <- x$TotalArea_Acre
+  p$observed <- x[!is.na(rolled[rl_col]), 'TotalArea_Acre']
   
   state = vector(mode = 'character', length = nrow(p))
   for (i in 1:nrow(p)){
@@ -619,7 +611,6 @@ classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction, save){
   # The input object works in pairs, essentially position 1 x[1] is state 1, and
   # position 2 x[2] is state 2, the 3rd and 4th positions refer to an entirely new 
   # set of observations. 
-  
   mcFitMLE <- markovchain::markovchainFit(state, method = 'mle')
   
   # we create another s4 object which the package relies on using base R's `new` 
