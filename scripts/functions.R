@@ -223,9 +223,28 @@ AreaDeficitSummary <- function(x, rolled, prediction){
 }
 
 
-avg <- function(x, y){
-  x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
+#' calculate a rolling mean for fire sizes
+#' 
+#' @description This function wraps around two under laying data.table functions 
+#' to calculate a rolling mean of a numeric vector. It implements one of two functions, 
+#' either data.table::frollmean, if type = 'arithematic', or a geometric mean if 
+#' type = 'geometric'. The geometric mean is calculated using spatstat.utils::harmonicmean
+#' wrapped within data.table::frollapply. 
+#' @param x Data.frame. A data frame of values
+#' @param y Numeric. The rolling window to use for the calculation. Defaults to 3. 
+#' @param type Character. One of 'arithematic' or 'geometric'. Defaults to arithmetic. 
+avg <- function(x, y, type){
+
+  if(missing(y)){y <- 3}
+  if(missing(type)){type <- 'arithematic'}
+  
+  if(type == 'arithmetic'){
+    x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
+  } else {
+    x$roll <- frollapply(x$TotalArea_Acre, y, FUN = spatstat.utils::harmonicmean)
+  }
   return(x)
+  
 }
 
 pred_help <- function(y, lv, gr){
@@ -539,13 +558,16 @@ pred_help <- function(y, conf_lvl, interval){
 #' @param interval Character Vector. The type of interval to be used for 
 #' calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
 #' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
+#' @param save Boolean. Whether to save objects to disk or just return locally. Defaults to TRUE. 
 #' @export
-classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction){
+classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction, save){
   
   if(missing(interval)){interval <- 'confidence'}
   if(missing(prediction)){prediction <- 'fit'}
+  if(missing(save)){save <- TRUE}
   if(missing(conf_lvl)){conf_lvl <- 0.95}
   if(missing(yr_roll)){yr_roll <- 1}
+  
   
   rolled <- avg(x, yr_roll)
   modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
@@ -555,7 +577,6 @@ classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction){
     FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
                      max(rolled$FIRE_YEAR))
   )
-  
   
   pred_help <- function(y, lvl, gr){
     mod_pred <- data.frame(
@@ -569,6 +590,55 @@ classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction){
   p <- pred_help(modr2, lvl = conf_lvl, gr) 
   p$observed <- x$TotalArea_Acre
   
-  return(p)
+  state = vector(mode = 'character', length = nrow(p))
+  for (i in 1:nrow(p)){
+    if(p$observed[i] <= p$fit[i]){state[i] = 'below'}  else {state[i] = 'above'}
+  }
+  
+  # first we need to calculate the transition probabilities between the various states. 
+  
+  # Doing this is not super well documented in the `markovchain` package, but the 
+  # function `markovchainFit` will develop transition probabilities. 
+  # The input object works in pairs, essentially position 1 x[1] is state 1, and
+  # position 2 x[2] is state 2, the 3rd and 4th positions refer to an entirely new 
+  # set of observations. 
+  
+  mcFitMLE <- markovchain::markovchainFit(state, method = 'mle')
+  
+  # we create another s4 object which the package relies on using base R's `new` 
+  # function 
+  fire_chain <- new(
+    "markovchain", 
+    states = c('above', 'below'), 
+    transitionMatrix = mcFitMLE[["estimate"]]@transitionMatrix, # access the transition matrix
+    name = "Fire Chain - Relative to Regression fit")
+  
+  # save the original data object. 
+  
+   # many more years are below the fire amount than are
+  # above the trend line is largely informed by a few large fires. 
+  
+  # we can repeat this process n times. 
+  set.seed(1428)
+  markov_sim <- replicate(100, expr = 
+                            markovchain::markovchainSequence(
+                              n = 10,  # number of years into future. 
+                              markovchain = fire_chain # chain object. 
+                            )
+  )
+  
+  markov_sim <- as.data.frame(markov_sim)
+  colnames(markov_sim) <- paste0('S', 1:ncol(markov_sim))
+  
+  return(
+    list(
+      chain = fire_chain, 
+      steadyStates = markovchain::steadyStates(fire_chain),
+      markov_simulations = markov_sim
+    )
+  )
+  
+  write.csv()
+  
 }
 
