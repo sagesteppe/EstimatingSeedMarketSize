@@ -88,7 +88,6 @@ rm(p2dat, fire_perim, firesYear)
 firesYear <- read.csv(file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))
 fire_perim <- read.csv(file.path('..', 'data', 'processed', 'FireSizes.csv'))
 
-
 ggplot(data = firesYear, aes(x = NoFire)) + 
   geom_density() + 
   facet_wrap(~REG_NAME, scales = 'free') 
@@ -116,7 +115,6 @@ ggplot(data = firesYear, aes(x = FIRE_YEAR, y = log(TotalArea_Acre))) +
 
 
 # to run the analyses we have to remove the more recent years without mapped fire data. 
-
 firesYear <- drop_na(firesYear)
 
 listicle <- split(firesYear, f = firesYear$REG_NAME)
@@ -125,14 +123,13 @@ lapply(listicle, RegionalEstimates)
 "A prediction interval indicates the probability of the total burned area laying between the upper and lower bounds in each year. A 95% PI indicates that only 1 in 20 years will observe a total burned area more, or less, extreme than indicated by the lines. A 90% PI indicates 1 in 10, and a 80% 1 in 5, each year the fire has an equal probabily of being smaller or larger than the model fit."
 
 
-
 rolled <- lapply(
   listicle['Great Lakes'], 
   reportBalance, 
   yr_roll = 2, 
   interval = 'prediction', 
   prediction = 'fit',
-  conf_lvl = 0.95)
+  conf_lvl = 0.95) 
 
 lapply(listicle, reportBalance, yr_roll = 1, conf_lvl = 0.95)
 lapply(listicle, reportBalance, yr_roll = 2)

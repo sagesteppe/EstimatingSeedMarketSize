@@ -228,7 +228,7 @@ avg <- function(x, y){
   return(x)
 }
 
-pred_help <- function(y, lvl){
+pred_help <- function(y, lv, gr){
   mod_pred <- data.frame(
     FIRE_YEAR = gr, 
     predict.lm(
@@ -353,9 +353,12 @@ TreatableAreaPlots <- function(x, rolled, mod, colname, yr_roll){
 #' in restorations, we will maintain 'area' as a constant. 
 #' 
 #' @param x Dataframe. The data set to be analysed. 
-#' @param yr_roll Numeric. the rolling average to apply for the analysis. Defaults to 1, which is that no rolling average is used. 
-#' @param interval Character Vector. The type of interval to be used for calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
-#' @param prediction Vector. the name of the column from the fit model to use for calculating the distance between. Defaults to 'fit', other options are: 'lwr', and 'upr'. 
+#' @param yr_roll Numeric. the rolling average to apply for the analysis. 
+#' Defaults to 1, which is that no rolling average is used. 
+#' @param interval Character Vector. The type of interval to be used for 
+#' calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
+#' @param prediction Vector. the name of the column from the fit model to use for 
+#' calculating the distance between. Defaults to 'fit', other options are: 'lwr', and 'upr'. 
 #' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
 #' @export
 reportBalance <- function(x, yr_roll, interval, prediction, conf_lvl){
@@ -363,19 +366,6 @@ reportBalance <- function(x, yr_roll, interval, prediction, conf_lvl){
   if(missing(interval)){interval <- 'confidence'}
   if(missing(prediction)){prediction <- 'fit'}
   if(missing(conf_lvl)){conf_lvl <- 0.95}
-  
-  avg <- function(x, y){
-    x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
-    return(x)
-  }
-  pred_help <- function(y, conf_lvl, interval){
-    mod_pred <- data.frame(
-      FIRE_YEAR = gr, 
-      predict.lm(
-        y, gr, interval = interval, SE = TRUE, level = conf_lvl)
-    )
-    return(mod_pred)
-  }
   
   rolled <- avg(x, yr_roll)
   modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
@@ -402,11 +392,19 @@ reportBalance <- function(x, yr_roll, interval, prediction, conf_lvl){
 #' @param export
 CalculateReturnIntervals <- function(x){
   
+  x <- x[!is.na(x$NoFire),] # this removes recent no-data years - is safe and stable
+  
+  # this replaces the log of years without any burned area with a 0. Seems stable
+  # but may have peculiar side effects? 
+  logs <- log(x$TotalArea_Acre)
+  pos <- logs=='-Inf'
+  logs <- replace(logs, pos, 0)
+  
   fevd_ext <- fevd(
-    log(x$TotalArea_Acre), 
+    logs, 
     type = 'GEV',
     units ='Acres', 
-    span = length(x$TotalArea_Acre), 
+    span = length(logs), 
     time.units = '1/year'
   )
   
@@ -487,7 +485,7 @@ ReturnIntervalsPlot <- function(x, mod, return_ls){
     lty = c(1, 2, 3),  
     col = c('black', 'black', 'red4'),
     lwd = 2, cex = 0.7,
-    bg = adjustcolor("white", 0.4) 
+    bg = adjustcolor("white", 0.8) 
   )  
   
   for (i in 1:nrow(x)){ # these are the observed fire events from the training data
@@ -508,3 +506,69 @@ ReturnIntervalsPlot <- function(x, mod, return_ls){
   dev.off()
   
 }
+
+
+#' Calculate rolling averages, wrapper around data.table::frollmean
+#' 
+#' TODO: can we use other means - especially geometric with this? 
+avg <- function(x, y){
+  x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
+  return(x)
+}
+
+#' prediction help wrapper for am ordinary least squares linear model. 
+pred_help <- function(y, conf_lvl, interval){
+  mod_pred <- data.frame(
+    FIRE_YEAR = gr, 
+    predict.lm(
+      y, gr, interval = interval, SE = TRUE, level = conf_lvl)
+  )
+  return(mod_pred)
+}
+
+
+#' Obtain regression parameter estimates for classifying fire years for markov chains
+#' 
+#' @description Wrapper function to fit a linear model and predict it onto a matrix
+#' and classify the training data as being in one of three or optionally three classes. 
+#' 'below' for all points beneath the lower confidence limit, 'around' for 
+#' points within the confidence limit, and 'upper' for points above the upper 95% confidence limit.  
+#' @param x Dataframe. The data set to be analysed. 
+#' @param yr_roll Numeric. the rolling average to apply for the analysis. 
+#' Defaults to 1, which is that no rolling average is used. 
+#' @param interval Character Vector. The type of interval to be used for 
+#' calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
+#' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
+#' @export
+classifyPtsMarkov <- function(x, yr_roll, interval, conf_lvl, prediction){
+  
+  if(missing(interval)){interval <- 'confidence'}
+  if(missing(prediction)){prediction <- 'fit'}
+  if(missing(conf_lvl)){conf_lvl <- 0.95}
+  if(missing(yr_roll)){yr_roll <- 1}
+  
+  rolled <- avg(x, yr_roll)
+  modr2 <- lm(roll ~ FIRE_YEAR, data = rolled)
+  
+  gr <- data.frame(
+    # only operate on years within the rolling average.
+    FIRE_YEAR =  seq(min(rolled[!is.na(rolled$roll), 'FIRE_YEAR']),
+                     max(rolled$FIRE_YEAR))
+  )
+  
+  
+  pred_help <- function(y, lvl, gr){
+    mod_pred <- data.frame(
+      FIRE_YEAR = gr, 
+      predict.lm(
+        y, gr, interval = 'confidence', level = lvl)
+    )
+    return(mod_pred)
+  }
+  
+  p <- pred_help(modr2, lvl = conf_lvl, gr) 
+  p$observed <- x$TotalArea_Acre
+  
+  return(p)
+}
+

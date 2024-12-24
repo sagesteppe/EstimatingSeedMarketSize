@@ -5,19 +5,15 @@ date: "2024-12-20"
 output: html_document
 ---
 
-
-
 ```{r}
 library(tidyverse)
 library(extRemes)
+source('functions.R')
 ```
-
-
 
 ```{r Import Fire data}
 annual <- read.csv('../data/processed/NoFires-TotalArea_byDOIRegion.csv')
 ```
-
 
 Both the frequency and size of very large fires appears to be increasing over time, as illustrated by plots made in the SCRIPT NAME. 
 These expectations are aligned with our both our experience of working in public lands for over a decade, and reports by the media. 
@@ -31,24 +27,18 @@ While non-stationary data are more commonly used with the GP distribution, the G
 We will use the GEV distribution, because GP does not lend itself to single annual values. 
 
 
-```{r}
-
+```{r Calculate Fire Return Intervals}
 regs <- split(annual, f = annual$REG_NAME)
-lapply(regs[1], CalculateReturnIntervals)
+lapply(regs, CalculateReturnIntervals)
 
+png_files <- list.files(
+  '../results/Plots/FireReturnIntervals', 
+  pattern = ".*png$", full.names = TRUE
+  )
 
-log(regs[[1]]$TotalArea_Acre) # -inf on missing data. 
-
-log(regs[[10]]$TotalArea_Acre) 
-
-# 1, 4, 10 are problematic 
-
-fevd( log1p(c(0:10)) )
-
-ak <- filter(annual, REG_NAME == 'Upper Colorado Basin' & NoFire > 0)
-
-# generate a plot showing the computed return intervals. 
-CalculateReturnIntervals(ak)
-
+gifski::gifski(
+  png_files, 
+  gif_file = '~/Documents/assoRted/SeedMarketSizingTalk/images/FireReturnInterval.gif', 
+  width = 800, height = 600, delay = 2)
 ```
 
