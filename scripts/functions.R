@@ -231,17 +231,34 @@ AreaDeficitSummary <- function(x, rolled, prediction){
 #' type = 'geometric'. The geometric mean is calculated using spatstat.utils::harmonicmean
 #' wrapped within data.table::frollapply. 
 #' @param x Data.frame. A data frame of values
-#' @param y Numeric. The rolling window to use for the calculation. Defaults to 3. 
-#' @param type Character. One of 'arithematic' or 'geometric'. Defaults to arithmetic. 
-avg <- function(x, y, type){
-
-  if(missing(y)){y <- 3}
-  if(missing(type)){type <- 'arithematic'}
+#' @param colname. Character. A Column to calculate the values on. No default, will exit function.
+#' @param w Numeric. The rolling window to use for the calculation. Defaults to 3. 
+#' @param type Character. One of 'a' for arithematic or 'g' for geometric. Defaults to arithmetic. 
+#' @param returns Data.frame x, with a column added with a prefix 'roll_' and the type abbreviation and
+#' the window size. For example if using the arithematic mean with a window of 3, 'roll_g3'
+#' @examples
+#' arith <- data.frame(
+#'   Value = 1:10, 
+#'   Observation = LETTERS[1:10]
+#' )
+#'
+#' geo <- data.frame(
+#'   Value = exp(1:10), 
+#'   Observation = LETTERS[1:10]
+#' )
+#'
+#' avg(arith, colname = 'Value')
+#' avg(geo, colname = 'Value', type = 'g', w = 4)
+s#' @export 
+avg <- function(x, colname, w, type){
+  if(missing(w)){w <- 3}
+  if(missing(type)){type <- 'a'}
+  outname <- paste0('roll_', type, w)
   
-  if(type == 'arithmetic'){
-    x$roll <- data.table::frollmean(x$TotalArea_Acre, y)
+  if(type == 'a'){
+    x[[outname]] <- data.table::frollmean(x[[colname]], w)
   } else {
-    x$roll <- frollapply(x$TotalArea_Acre, y, FUN = spatstat.utils::harmonicmean)
+    x[[outname]]  <- frollapply(x[[colname]], w, FUN = spatstat.utils::harmonicmean)
   }
   return(x)
   
