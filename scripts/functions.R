@@ -568,11 +568,11 @@ pred_help <- function(y, lv, gr){
 #' calculating distance between, defaults to 'confidence' the other option is 'prediction'. 
 #' @param conf_lvl Numeric. The confidence level to calculate the confidence limits at, defaults to 0.95 for a 95% confidence interval. 
 #' @param save Boolean. Whether to save objects to disk or just return locally. Defaults to TRUE. 
+#' @param ... Further arguments passed on to `rseedneed::avg`, colname is required. 
 #' @export 
-classifyPtsMarkov <- function(x, w, interval, conf_lvl, prediction, type, save, ...){
+classifyPtsMarkov <- function(x, w, interval, conf_lvl, type, save, ...){
   
   if(missing(interval)){interval <- 'confidence'}
-  if(missing(prediction)){prediction <- 'fit'}
   if(missing(save)){save <- TRUE}
   if(missing(conf_lvl)){conf_lvl <- 0.95}
   
@@ -646,7 +646,7 @@ classifyPtsMarkov <- function(x, w, interval, conf_lvl, prediction, type, save, 
     )
   )
   
-  write.csv()
+ # write.csv()
   
 }
 
