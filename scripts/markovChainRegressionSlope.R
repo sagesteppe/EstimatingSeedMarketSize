@@ -11,7 +11,7 @@ annual <- split(annual, f = annual$REG_NAME)
 
 x <- classifyPtsMarkov(ann_cgb, colname = 'TotalArea_Acre', w = 1, type = 'g')
 output <- lapply(annual, classifyPtsMarkov, w = 1, colname = 'TotalArea_Acre' )
- 
+s 
 dia_wrapper(
   output$Alaska, node_clrs = node_clrs, edge_clrs = edge_clrs,
   title = 'Alaska',
