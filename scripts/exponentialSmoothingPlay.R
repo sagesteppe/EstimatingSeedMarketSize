@@ -113,48 +113,20 @@ forecasts_eval <- forecasts |>
   arrange(-MASE) |>
   select(.model, RMSE:MASE)
 
-
 # this identifies the top model as selected using MASE
-
+forecasts_eval$.model[1]
 
 # now get point estimates for each step in the prediction time period
 preds_lvls <- forecasts |>
-  filter( .model == forecasts_eval$.model[1]) |>
+  filter(.model == forecasts_eval$.model[1]) |>
   fabletools::hilo(level = c(80, 95)) |>
   fabletools::unpack_hilo(c("80%", "95%"))
-
-
-ggplot() + 
-  geom_line(data = x, aes(x = FIRE_YEAR, y = TotalArea_Acre)) + 
-  xlim(min(x$FIRE_YEAR), max(x$FIRE_YEAR)+10) + 
-  geom_ribbon(data = preds_lvls, alpha= 0.2, fill = 'blue',
-              aes(ymin = `80%_lower`, ymax = `80%_upper`, x = FIRE_YEAR))
-
-preds |> # plot the original time series and forecast predictions 
-  autoplot(x)
-
-ob
 
 # White noise 	ARIMA(0,0,0) with no constant
 # Random walk 	ARIMA(0,1,0) with no constant
 # Random walk with drift 	ARIMA(0,1,0) with a constant
 # Autoregression 	ARIMA(p,0,0)
 # Moving average 	ARIMA(0,0,q)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-str(x)
 
 model <- x |>
   stretch_tsibble(.init = 10) |>
@@ -165,7 +137,7 @@ model <- x |>
   fabletools::hilo(level = c(80, 95)) |>
   fabletools::unpack_hilo(c("80%", "95%"))
 
-exp <- model  %>%
+exp <- preds_lvls  %>%
   group_by(.id,.model) %>%
   mutate(h = row_number()) %>%
   filter(h %in% c(1, 5, 10)) %>%
@@ -174,18 +146,44 @@ exp <- model  %>%
   # set predictions below 0 to zero 
   mutate(across(where(is.double), ~ if_else(. < 0, 0, .)))
 
+
+
+
+# Plotting the Results 
+
+cols <- c("Observed"="#0A0908","Forecast"="#C8553D")
+ribs <- c('95% CI' = '#A0BCCF', '80% CI' = '#008FCC')
+
 exp %>%
-  ggplot(aes(x = FIRE_YEAR, y = .mean)) +
-  geom_line(color = 'red') +
-  geom_point(color = 'red') + 
-  geom_line(data = x, aes(x = FIRE_YEAR, y = TotalArea_Acre)) + 
-  geom_point(data = x, aes(x = FIRE_YEAR, y = TotalArea_Acre)) + 
-  geom_ribbon(aes(ymin = `80%_lower`, ymax = `80%_upper`), alpha = 0.2, fill = 'blue') + 
-  geom_ribbon(aes(ymin = `95%_lower`, ymax = `95%_upper`), alpha = 0.2, fill = 'blue') + 
+  ggplot(aes(x = FIRE_YEAR, y = .mean, color = 'Forecast')) + 
+  geom_ribbon(aes(ymin = `95%_lower`, ymax = `95%_upper`, fill = '95% CI'), color = NA) + 
+  geom_ribbon(aes(ymin = `80%_lower`, ymax = `80%_upper`, fill = '80% CI'), color = NA) + 
+  
+  geom_line(data = x, aes(y = TotalArea_Acre, color = 'Observed'), lwd = 0.75) + 
+  geom_point(data = x, aes(y = TotalArea_Acre, color = 'Observed')) + 
+  
+  geom_line(lwd = 0.85) + 
+  geom_point() + 
+  
+  scale_fill_manual(
+    name = 'Confidence\nInterval', 
+    values = ribs, 
+    drop = FALSE
+    ) +  
+  scale_colour_manual(
+    name="Observed &\nForecast",
+    values= cols, 
+    guide = guide_legend(override.aes=aes(fill=NA))
+    ) + 
+  
   theme_minimal() + 
   labs(
-    y = 'Total Area Burned (Acres)', 
+    y = 'Total Burned Area (Acres)', 
     x = 'Year',
-    title = paste0(exp$REG_NAME[1], ' fire predictions (h = ', exp$h[1], ')')
+    title = paste0(exp$REG_NAME[1], ' fire forecasts')
   ) + 
-  facet_wrap(~ h, ncol = 1)
+  facet_wrap(
+    ~ h, ncol = 1, scales= 'free_y'
+    ) + 
+  scale_y_continuous(labels = scales::comma) 
+
