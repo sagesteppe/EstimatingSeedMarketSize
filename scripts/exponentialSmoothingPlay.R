@@ -8,12 +8,18 @@ annual <- read.csv('../data/processed/NoFires-TotalArea_byDOIRegion.csv')
 
 # each area needs to have the same steps taken with it. 
 
-x <- filter(annual, REG_NAME == 'Missouri Basin') |>
-#  mutate(TotalArea_Acre = log(TotalArea_Acre)) |>
-  as_tsibble(key = REG_NAME, index = FIRE_YEAR)
+x <- filter(annual, REG_NAME == 'North Atlantic-Appalachian')
+
+x <- tsibble::as_tsibble(x, key = REG_NAME, index = FIRE_YEAR)
+  
+
+### perform ARIMA modelling ###
+# all other methods are very simple to compute, ARIMA has a few steps, so we'll
+# perform this first, and then compare the best ARIMA model to the simpler models
+# which serve as benchmarks (which ARIMA seldom outperforms with messy fire data).
+
 # 1) determine if the data are stationary or not. 
 
-  
 # the null hypothesis of the kwiattkowsi-phillips-schmidt-shin (kpss) test is that
 # the data are stationary. p. values of < 0.05  indicate the data deviate
 # from this assumption, and differencing is required. 
@@ -37,14 +43,10 @@ if(kpss$kpss_pvalue < 0.05){
   
 }
 
-x |>
-  autoplot(TotalArea_Acre) +
-  labs(title="Total Areas Acre (burned)", y="Acres")
-
 x_fit <- x |>
   model(
-        stepwise = ARIMA(TotalArea_Acre),
-        search = ARIMA(TotalArea_Acre, stepwise=FALSE)
+        stepwise = fable::ARIMA(TotalArea_Acre),
+        search = fable::ARIMA(TotalArea_Acre, stepwise=FALSE)
         )
 
 x_fit |>
@@ -98,29 +100,27 @@ x_fit |> # plot the diagnostics from the top model
 
 # these need to be recomputed for each time period, 1, 5, and 10 year prediction. 
 forecasts <- x |>
-  stretch_tsibble(.init = 10) |>
+  tsibble::stretch_tsibble(.init = 10) |>
   model(
-    mean = MEAN(TotalArea_Acre),
-    ets = ETS(TotalArea_Acre),
-    arima = ARIMA(TotalArea_Acre), 
-    naive = NAIVE(TotalArea_Acre),
-    drift = RW(TotalArea_Acre ~ drift())
+    mean = fable::MEAN(TotalArea_Acre),
+    ets = fable::ETS(TotalArea_Acre),
+    arima = fable::ARIMA(TotalArea_Acre), 
+    naive = fable::NAIVE(TotalArea_Acre),
+    drift = fable::RW(TotalArea_Acre ~ drift())
   ) |> 
-  forecast(h = 10) 
+  fabletools::forecast(h = 10) 
 
+# evaluate the different methods
 forecasts_eval <- forecasts |>
-  accuracy(x) |> 
-  arrange(-MASE) |>
-  select(.model, RMSE:MASE)
-
-# this identifies the top model as selected using MASE
-forecasts_eval$.model[1]
+  fabletools::accuracy(x) |> 
+  dplyr::arrange(MASE) |>
+  dplyr::select(.model, RMSE:MAE, MAPE:MASE)
 
 # now get point estimates for each step in the prediction time period
 preds_lvls <- forecasts |>
-  filter(.model == forecasts_eval$.model[1]) |>
-  fabletools::hilo(level = c(80, 95)) |>
-  fabletools::unpack_hilo(c("80%", "95%"))
+  dplyr::filter(.model == forecasts_eval$.model[1]) |> 
+  fabletools::hilo(level = c(80, 95)) |> 
+  fabletools::unpack_hilo(c("80%", "95%")) 
 
 # White noise 	ARIMA(0,0,0) with no constant
 # Random walk 	ARIMA(0,1,0) with no constant
@@ -128,62 +128,90 @@ preds_lvls <- forecasts |>
 # Autoregression 	ARIMA(p,0,0)
 # Moving average 	ARIMA(0,0,q)
 
-model <- x |>
-  stretch_tsibble(.init = 10) |>
-  model(
-    drift = RW(TotalArea_Acre ~ drift())
-  ) |> 
-  forecast(h = "10 years")  |>
-  fabletools::hilo(level = c(80, 95)) |>
-  fabletools::unpack_hilo(c("80%", "95%"))
-
-exp <- preds_lvls  %>%
-  group_by(.id,.model) %>%
-  mutate(h = row_number()) %>%
-  filter(h %in% c(1, 5, 10)) %>%
-  ungroup() %>% 
+exp <- preds_lvls |> 
+  dplyr::group_by(.id,.model) |> 
+  dplyr::mutate(h = row_number()) |> 
+  dplyr::filter(h %in% c(1, 5, 10)) |> 
+  dplyr::ungroup() |> 
   
   # set predictions below 0 to zero 
-  mutate(across(where(is.double), ~ if_else(. < 0, 0, .)))
+  dplyr::mutate(
+    dplyr::across(
+      dplyr::where(is.double), ~ dplyr::if_else(. < 0, 0, .)
+      )
+    ) 
 
 
+############ Table comparing the different methods ###########################
+library(gt)
+
+forecasts_eval |>
+  dplyr::rename(Model = '.model') |>
+  gt::gt() |>
+  gt::tab_header(
+    title = md("**Top Performing Model**"),
+    subtitle = exp$REG_NAME[1]) |>
+  gt::data_color(
+    columns = 2:5,
+    method = "factor",
+    palette = c('#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'),
+    reverse = TRUE
+  ) |>
+  gt::tab_source_note(
+    source_note = 
+      md("*Models ranked soley by mean absolute scaled error (MASE).*")
+    ) |>
+  tab_options(
+    table.background.color = "#FFFFFF00") |>
+  gtsave(
+    paste0('../results/Plots/Forecasts/Model-', gsub(' ', '_', exp$REG_NAME[1]), '.png'), 
+    expand = 5)
+
+paste0('../results/Forecasts/Model-', gsub(' ', '_', exp$REG_NAME[1]), '.png') 
 
 
-# Plotting the Results 
+##################### Plotting the Results  ####################################
+################################################################################
 
 cols <- c("Observed"="#0A0908","Forecast"="#C8553D")
 ribs <- c('95% CI' = '#A0BCCF', '80% CI' = '#008FCC')
 
-exp %>%
-  ggplot(aes(x = FIRE_YEAR, y = .mean, color = 'Forecast')) + 
-  geom_ribbon(aes(ymin = `95%_lower`, ymax = `95%_upper`, fill = '95% CI'), color = NA) + 
-  geom_ribbon(aes(ymin = `80%_lower`, ymax = `80%_upper`, fill = '80% CI'), color = NA) + 
+exp |>
+  ggplot2::ggplot(
+    aes(x = FIRE_YEAR, y = .mean, color = 'Forecast')) + 
+  ggplot2::geom_ribbon(
+    aes(ymin = `95%_lower`, ymax = `95%_upper`, fill = '95% CI'), color = NA) + 
+  ggplot2::geom_ribbon(
+    aes(ymin = `80%_lower`, ymax = `80%_upper`, fill = '80% CI'), color = NA) + 
   
-  geom_line(data = x, aes(y = TotalArea_Acre, color = 'Observed'), lwd = 0.75) + 
-  geom_point(data = x, aes(y = TotalArea_Acre, color = 'Observed')) + 
+  ggplot2::geom_line(data = x, 
+            aes(y = TotalArea_Acre, color = 'Observed'), lwd = 0.75) + 
+  ggplot2::geom_point(data = x, 
+             aes(y = TotalArea_Acre, color = 'Observed')) + 
   
-  geom_line(lwd = 0.85) + 
-  geom_point() + 
+  ggplot2::geom_line(lwd = 0.85) + 
+  ggplot2::geom_point() + 
   
-  scale_fill_manual(
+  ggplot2::scale_fill_manual(
     name = 'Confidence\nInterval', 
     values = ribs, 
     drop = FALSE
     ) +  
-  scale_colour_manual(
+  ggplot2::scale_colour_manual(
     name="Observed &\nForecast",
     values= cols, 
     guide = guide_legend(override.aes=aes(fill=NA))
     ) + 
   
-  theme_minimal() + 
-  labs(
+  ggplot2::theme_minimal() + 
+  ggplot2::labs(
+    subtitle = paste0('method: ', exp$.model[1]),
     y = 'Total Burned Area (Acres)', 
     x = 'Year',
     title = paste0(exp$REG_NAME[1], ' fire forecasts')
   ) + 
-  facet_wrap(
+  ggplot2::facet_wrap(
     ~ h, ncol = 1, scales= 'free_y'
     ) + 
-  scale_y_continuous(labels = scales::comma) 
+  ggplot2::scale_y_continuous(labels = scales::comma) 
 
