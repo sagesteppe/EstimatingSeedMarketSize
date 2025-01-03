@@ -640,6 +640,7 @@ classifyPtsMarkov <- function(x, w, interval, conf_lvl, type, save, ...){
   
   return(
     list(
+      REG_NAME = x$REG_NAME[1],
       chain = fire_chain, 
       steadyStates = markovchain::steadyStates(fire_chain),
       markov_simulations = markov_sim
@@ -728,6 +729,13 @@ dia_wrapper <- function(x, node_clrs, edge_clrs, ...){
   
   DiagrammeR::export_graph(
     a_graph, 
-    ... 
+    ...,
+    title = x[['REG_NAME']][1], 
+    file_name = file.path(
+      '..', 'results', 'Plots', 'MarkovChain',
+      paste0(gsub(' ', '_', x[['REG_NAME']][1]), '.png'))
   )
 }
+
+
+?export_graph
