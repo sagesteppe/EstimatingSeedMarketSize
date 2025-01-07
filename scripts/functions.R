@@ -737,5 +737,3 @@ dia_wrapper <- function(x, node_clrs, edge_clrs, ...){
   )
 }
 
-
-?export_graph
