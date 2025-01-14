@@ -75,6 +75,8 @@ sd_redirect(
 )
 ```
 
+In order to avoid having multiple respondents duplicating information about areas treated we ask that your responses per region  
+
 ```{r respondent DOI region}
 sd_question(
   type   = 'mc_buttons',
@@ -98,7 +100,8 @@ sd_question(
 )
 ```
 
-Before heading to your DOI regions survey you may want to take a quick glimpse at the Multi-Resolution Land Characteristics Consortium data set for NLCD... Using the small 'i' button on the upper left of the map you can identify a pixels class, we'll associate these numbers with their names in the coming pages. 
+Before heading to your DOI regions survey you may want to take a quick glimpse at the Multi-Resolution Land Characteristics Consortium data set for NLCD... Using the small 'i' button on the upper left of the map you can identify a pixels' class, we'll associate these numbers with their names in the coming pages. 
+
 ```{r MRLC link 1}
 sd_redirect(
   id     = "redirect",
