@@ -1,0 +1,102 @@
+---
+title: "Tabulate Land Cover"
+author: "Reed Clark Benkendorf"
+date: "2025-01-14"
+output: html_document
+---
+
+For the purposes of the restoration ecologist survey, and fire size simulations, we are interested in tabulating a variety of metrics which relate to the amount of National Land Cover Database (NLCD) cover class area by Department of Interior (DOI) region. 
+In an effort to make the survey as concise as possible respondents will only interact with combinations of cover class and slopes which make up >90% of the surface area in their regions. 
+
+```{r load libraries, echo = F}
+library(terra)
+library(tidyverse)
+sp <- file.path('..', 'data', 'geospatial', 'NLCD')
+```
+
+The formats of NLCD data have changed over the years. 
+Older data sets utilize '.img' files, these have three bands (red, blue, green) running from 0 to 255 bits, and the three combinations of the bits in each band become the land cover class. 
+I assume these are derived from a simple classification of RGB images, and the values not written over into a new raster. 
+Newer data sets utilize a '.tif' file format where a single raster band is present; it results the output classifying the three bands to a land cover type. 
+
+The NLCD data products we use span a variety of years, and all were downloaded from https://www.mrlc.gov/ in early January of 2025. 
+The product from Alaska is from 2016. 
+Because the growing season in Alaska is very short, and it is generally cloudy, it takes multiple years of satellite imagery to obtain a new set of mosaic images which can be used to generate a new cover class feature. 
+Hawaii has swapped from a 30m resolution product to a 1m resolution product. 
+While this is nice for many applications, it is simply unnecessary for ours, and why the producers do not also offer a more moderate resolution data set is puzzling. 
+Because we know that the pacific islands have the fewest fires or our DOI regions, and that no new product has been developed since the 2023 fires, we will use a product at 30m resolution from 2006. 
+For Puerto Rico we will use the 2001 data set; this is the only year which is available for Puerto Rico. 
+My interpretation of the metadata is that because PR has never had a ground verification campaign to verify the accuracy of this inaugural product, new products have not been made which incorporate the feedback from a ground campaign. 
+The data set used for the Continental United States is the most recent, from 2023. 
+This data set is updated annually. 
+
+Note that the 'img' data sets are - well antiquated - it's considerably easier to use (`gdal_translate`)[https://gdal.org/en/stable/programs/gdal_translate.html] on the command line to convert them to .tif and then read those into R and reprocess them from there. 
+Essentially the `terra` R package offers less support for esoteric file types than it's predecessor the `raster` package, and relies more on `GDAL` to interface with them. 
+
+```{sh convert img files to tif for easy import to rstudio, eval = F}
+# note running things on the terminal from Rstdio, never really works well for me... 
+# but if you cd into the dir with these data on the real command line, this should
+# work no problemo. I think the stand alone GDAL is installed with an install of
+# terra in R now. if not, well down the linux rabbit hole you go. I would expect
+# the gdal r package to have this support too.... But always feel that isn't superbly
+# maintained to the rockstar status stand alone GDAL is. 
+cd ~/Documents/EstimatingSeedMarketSize/data/geospatial/NLCD
+
+# simplify the out filenames down to just tif... 
+gdal_translate -of GTiff  HI_landcover_wimperv_9-30-08_se5/hi_landcover_wimperv_9-30-08_se5.img HI_landcover_wimperv_9-30-08_se5/HI_NLCD-raw.tif
+gdal_translate -of GTiff  NLCD_2016_Land_Cover_AK_20200724/NLCD_2016_Land_Cover_AK_20200724.img NLCD_2016_Land_Cover_AK_20200724/AK_NLCD-raw.tif
+gdal_translate -of GTiff  PR_landcover_wimperv_10-28-08_se5/pr_landcover_wimperv_10-28-08_se5.img PR_landcover_wimperv_10-28-08_se5/PR_NLCD-raw.tif
+```
+
+```{r Simplify the NLCD data which was converted from img, eval = F}
+# we will import these 'raw' tifs and convert them into more general tif formats. 
+# each will become a single layer, and 'background' cells in this case ocean 
+# will be cast and the info for all the RGB channels will be dropped. 
+fp <- file.path(sp,
+  c(
+    file.path('HI_landcover_wimperv_9-30-08_se5', 'HI_NLCD-raw.tif'),
+    file.path('PR_landcover_wimperv_10-28-08_se5', 'PR_NLCD-raw.tif'),
+    file.path('NLCD_2016_Land_Cover_AK_20200724', 'AK_NLCD-raw.tif')
+  )
+)
+
+toTif <- function(x){
+  terra::rast(x) |> 
+    droplevels() |> 
+    as.numeric() |>
+    terra::writeRaster(gsub('-raw.tif', '.tif', x))
+}
+
+lapply(fp, toTif)
+```
+
+The raster sets will now be reduced into two sets, one will cover North America i.e. Alaska, CONUS, and Puerto Rico.
+These data will be in the Albers Equal Area Conic projection for North America (epsg 102008). 
+
+```{r}
+ak <- rast(file.path(
+  sp, 'NLCD_2016_Land_Cover_AK_20200724', 'AK_NLCD.tif')
+)
+conus <- rast(file.path(sp, 'Annual_NLCD_LndCov_2023_CU_C1V0.tif'))
+
+p <- mosaic(ak, conus)
+```
+
+We will use the Protected Areas of the United States Database (PAD-US) to create a `mask' of terrestrial surfaces. 
+The areas in each raster which do not overlap public lands will be replaced with 0 - essentially deleted via the masking process. 
+
+```{r}
+
+p <- file.path('..', 'data', 'geospatial', 'PADUS4_0Geodatabase', 'PADUS4_0_Geodatabase.gdb')
+padus <- sf::st_read(
+    dsn = p, quiet = TRUE,
+    layer = 'PADUS4_0Fee')  |>
+    dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat)  |>
+    sf::st_cast('MULTIPOLYGON') 
+
+doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'USBR', 'BIA'))
+
+doi_conus <- fasterize::fasterize(doi, conus, field = 'Mang_Name', fun = 'any')
+
+```
+

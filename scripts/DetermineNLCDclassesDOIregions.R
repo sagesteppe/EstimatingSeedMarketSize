@@ -1,3 +1,8 @@
+# For the purposes of the survey and simulations we are interested in tabulating 
+# the following values. 
+# 1) 
+
+
 library(terra)
 setwd('~/Documents/assoRted/EstimatingSeedMarketSize/scripts')
 sp <- file.path('..', 'data', 'geospatial', 'NLCD')
@@ -33,3 +38,8 @@ pr1 <- ifel(pr$`Land Cover Class`, ! pr$`Land Cover Class` %in%
          'Mixed Forest', 'Shrub/Scrub', 'Herbaceuous', 'Hay/Pasture', 'Woody Wetlands', 
          'Emergent Herbaceuous Wetlands'), 0, pr$`Land Cover Class`, 
        filename = 'Pr.tif')
+
+
+
+# mask each NLCD data set to DOI land 
+
