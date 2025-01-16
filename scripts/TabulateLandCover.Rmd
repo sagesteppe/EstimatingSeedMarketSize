@@ -168,6 +168,20 @@ slope <- vrt(file.path(slopeP, list.files(slopeP, recursive = TRUE)))
 nlcd <- vrt(list.files(file.path(p, 'tiles'), full.names = TRUE))
 
 slope <- crop(slope, nlcd, filename = file.path(slopeP, 'NAslope.tif'))
+resample(slope, nlcd, filename = file.path(slopeP, 'NAslope-resamp.tif'), method = 'max')
+mask(
+  rast(file.path(slopeP, 'NAslope-resamp.tif')),
+  nlcd,
+  filename = file.path(slopeP, 'NAslope-resamp-mask.tif')
+)
+
+makeTiles(
+  rast(file.path(slopeP, 'NAslope-resamp-mask.tif')),
+  tiles,
+  file.path(p, 'tiles/slope/slope.tif'),
+  na.rm = TRUE
+)
+
 ```
 
 
