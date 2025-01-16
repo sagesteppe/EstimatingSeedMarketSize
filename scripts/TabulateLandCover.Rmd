@@ -72,6 +72,77 @@ lapply(fp, toTif)
 
 The raster sets will now be reduced into two sets, one will cover North America i.e. Alaska, CONUS, and Puerto Rico.
 These data will be in the Albers Equal Area Conic projection for North America (epsg 102008). 
+The other data set will be for Hawaii, and represent the Pacific Islands region. 
+
+Given the size of the first set, it will be set up as 'tiles', where each individual piece of the raster are written as separate files (tiles) to disk. 
+They can then be loaded as a virtual raster tile (VRT) data set. 
+
+```{r Create tiles }
+
+pr <- project(
+  rast(
+    file.path(sp, 'PR_landcover_wimperv_10-28-08_se5', 'PR_NLCD-raw.tif')), "epsg:4326",
+    method = 'mode', # small file, threads would likely slow it down. 
+    filename = file.path(sp, 'PR_landcover_wimperv_10-28-08_se5', 'PR_NLCD-WGS84.tif')
+  )
+
+ak <- project(
+  rast(
+    file.path(sp, 'NLCD_2016_Land_Cover_AK_20200724', 'AK_NLCD-raw.tif')), "epsg:4326",
+    threads = TRUE, method = 'mode',
+    filename = file.path(sp, 'NLCD_2016_Land_Cover_AK_20200724', 'AK_NLCD-WGS84.tif')
+  )
+
+conus <- project(
+  rast(file.path(sp, 'Annual_NLCD_LndCov_2023_CU_C1V0.tif')), "epsg:4326",
+  threads = TRUE, method = 'mode',
+  filename = file.path(sp, 'CONUS_NLCD-WGS84.tif')
+  )
+
+
+conus <- rast(file.path(sp, 'CONUS_NLCD-WGS84.tif'))
+ak <- rast(file.path(sp, 'NLCD_2016_Land_Cover_AK_20200724', 'AK_NLCD-WGS84.tif'))
+pr <- rast(file.path(sp, 'PR_landcover_wimperv_10-28-08_se5', 'PR_NLCD-WGS84.tif'))
+
+#' convert an extent into a spatVector
+recoverVect <- function(x, epsg){
+  
+  terra::as.polygons(terra::ext(x), crs = epsg) |> 
+    terra::svc() |> 
+    terra::vect()
+}
+
+exts <- vect(
+  lapply(list(conus, ak, pr), recoverVect, 'epsg:4326')
+) |> ext()
+
+exts[2]
+exts[2] <- -66.5 # alaska is at the edge of the eastern hemisphere too, we'll skip that for now
+# we'll use Quoddy point Maine
+
+extend(conus, exts,
+       filename = '/media/steppe/hdd/SeedMarketSizeTemplates/NorthAmerica_NLCD-template.tif', 
+       overwrite = FALSE, fill = NA)
+```
+
+```{r, eval = F}
+# now we need to add the values from the puerto rico and alaska rasters to this template
+temp <- rast('/media/steppe/hdd/SeedMarketSizeTemplates/NorthAmerica_NLCD-template.tif')
+
+pr <- resample(pr, temp, method = 'mode', threads = TRUE)
+temp1 <- cover(
+  temp, pr, 
+  filename = '/media/steppe/hdd/SeedMarketSizeTemplates/NorthAmerica_NLCD-CONUS-PR.tif')
+```
+
+```{r}
+temp1 <- rast('/media/steppe/hdd/SeedMarketSizeTemplates/NorthAmerica_NLCD-CONUS-PR.tif')
+ak <- resample(ak, temp1, method = 'mode', threads = TRUE)
+temp2 <- cover(
+  temp1, ak, 
+  filename = '/media/steppe/hdd/SeedMarketSizeTemplates/NorthAmerica_NLCD-CONUS-FULL.tif')
+```
+
 
 ```{r}
 ak <- rast(file.path(
@@ -79,7 +150,7 @@ ak <- rast(file.path(
 )
 conus <- rast(file.path(sp, 'Annual_NLCD_LndCov_2023_CU_C1V0.tif'))
 
-p <- mosaic(ak, conus)
+# p <- mosaic(ak, conus)
 ```
 
 We will use the Protected Areas of the United States Database (PAD-US) to create a `mask' of terrestrial surfaces. 
@@ -95,8 +166,8 @@ padus <- sf::st_read(
     sf::st_cast('MULTIPOLYGON') 
 
 doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'USBR', 'BIA'))
+conus <- mask(conus, vect(doi))
 
-doi_conus <- fasterize::fasterize(doi, conus, field = 'Mang_Name', fun = 'any')
 
 ```
 
