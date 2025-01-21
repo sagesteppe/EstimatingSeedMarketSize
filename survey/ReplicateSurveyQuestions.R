@@ -17,9 +17,9 @@ sink("outfile.txt")
 for(i in 1:length(region_name)){
   cat(
     paste0(
-      ################# QUESTION ON XXXX IS HERE
+      ################# QUESTION ON AMOUNT OF AREA TREATED BY LIFEFORM IS HERE
       "::: {#", region_name[i], "_lifeform_area .sd-page} \n",
-      "### Region ", i, " ", region_name[i], " - Growth Forms \n",
+      "### Region ", i, " ", region_name[i], " - Lifeforms by Area \n",
       "\n",
       question[1], "\n",
       "\n",
@@ -37,14 +37,14 @@ for(i in 1:length(region_name)){
       "```\n",
       ":::\n",
       "\n",
-      ############## QUESTION ON XXXX IS HERE
+      ############## QUESTION ON PROPORTION OF LIFEFORM IN THE SEED MIX IS HERE
       "::: {#", region_name[i], "_lifeform_prop .sd-page}\n",
       "\n",
-      "### ", region_name[i], " - Growth Form\n",
+      "### ", region_name[i], " - Lifeforms by Seed Mix\n",
       "\n",
       question[2], "\n",
       "\n",
-      "```{r Lifeforms by Proportions - ", region_name[i],"}\n",
+      "```{r Lifeforms by Seed Mix - ", region_name[i],"}\n",
       "#| column: screen-inset-shaded\n",
       "#| layout-ncol: 3\n", # NCOL NEEDS TO BE DYNAMIC BY THE AMOUNT OF HABITAT WE ASK THEM ABOUT.
       "#| layout-nrow: 4\n",
@@ -67,7 +67,7 @@ for(i in 1:length(region_name)){
       "\n",
       "```{r ", region_name[i], " Common Species}\n",
       "#| column: screen-inset-shaded",
-      "#| layout-nrow: 4\n", # MAYBE HARD WIRED BUT NO CLUE RANGE YET.
+      "#| layout-nrow: 4\n", # MAYBE HARD CODED BUT NO CLUE ON RANGE YET.
       "#| layout-ncol: 4\n",
       '\n',
       "# ALL THE SPECIES QUESTIONS GO HERE...\n",

@@ -1,6 +1,10 @@
 ---
 echo: false
 warning: false
+format:
+  html:
+    theme: styles.css
+barposition: top 
 ---
 
 ```{r}
@@ -75,7 +79,7 @@ sd_redirect(
 )
 ```
 
-In order to avoid having multiple respondents duplicating information about areas treated we ask that your responses per region  
+In order to avoid having multiple respondents duplicating information about areas treated we ask that your responses per region 
 
 ```{r respondent DOI region}
 sd_question(
@@ -120,7 +124,8 @@ sd_next(label = 'Head to my regions survey')
 
 
 ::: {#Alaska_lifeform_area .sd-page}
-### Region 11 - Alaska - Growth Forms
+
+### Region 11 - Alaska - Lifeforms by Area
 
 ```{r}
 region <- 12
@@ -161,11 +166,11 @@ sd_next(next_page = 'Alaska_lifeform_prop')
 
 ::: {#Alaska_lifeform_prop .sd-page} 
 
-### Alaska - Growth Form 
+### Region 11 - Alaska - Lifeforms by Seed Mix
 
 When using these lifeforms in a restoration what proportion of a seed mix do they make up? 
 
-```{r Lifeforms by Proportions }
+```{r Lifeforms by Seed Mix}
 #| column: screen-inset-shaded
 #| layout-ncol: 3
 #| layout-nrow: 4
@@ -197,33 +202,32 @@ sd_next(next_page = 'Alaska_species')
 
 ::: {#Alaska_species .sd-page} 
 
-### Alaska - Common Species 
+### Region 11 - Alaska - Species 
 
-How much of these species do you use? 
+When species the species is the EC to the SPP
 
-```{r Alaska Common Species}
-#| column: screen-inset-shaded
-#| layout-ncol: 3
-#| layout-nrow: 4
+::: {.column .text-col width="100%"}
 
-sd_question(type  = "numeric", id = paste0("Dryas octopetala", region, '-', nlcd[1], "area"), label = "Forbs:")
-sd_question(type  = "numeric", id = paste0("Elymus elymoides", region, '-', nlcd[2], "area"), label = "Forbs:")
+```{r}
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Trees:")
 ```
-
 
 :::
 
 ```{r}
 sd_next(next_page = 'end')
 ```
+
 ::: 
 
-
 ::: {#end .sd-page}
+
 ## End
+
 This it the last page in the survey. Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length. 
 
 ```{r}
 sd_close("Exit Survey")
 ```
+
 ::: 
