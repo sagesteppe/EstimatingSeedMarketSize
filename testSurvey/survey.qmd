@@ -3,7 +3,10 @@ echo: false
 warning: false
 format:
   html:
-    theme: styles.css
+    theme: [flatly, styles.css]
+    grid: 
+      sidebar-width: 100px
+      margin-width: 100px
 barposition: top 
 ---
 
@@ -13,26 +16,65 @@ region <- 12
 nlcd <- c(42, 52, 68)
 ```
 
-::: {#species .sd-page} 
+::: {#welcome .sd-page}
+# Welcome to our survey!
+We would like to know a little bit about you so that we only ask questions relevant to your expertise.  
 
-::: {.column .species-col width="100%"}
+```{r respondent name}
+sd_question(
+  type  = "text",
+  id    = "FirstName",
+  label = "What is your first name?"
+)
 
-```{r Lifeforms by Area}
+sd_question(
+  type  = "text",
+  id    = "LastName",
+  label = "And your last name?"
+)
+
+```
+
+```{r}
+sd_next(next_page = 'species')
+```
+
+:::
+
+:::: {#species .sd-page} 
+### Species 
+::: {.column .text-col width="100%"}
+
+| fruit  | price  |  alpha  |
+|--------|--------|---------|
+| apple  | 2.05   |   A     |
+| pear   | 1.37   |    B    |
+| orange | 3.09   |    C    |
+
+
+#### What percent area in each NLCD is this species applied? 
+
+```{r Species By Area}
 #| column: screen-inset-shaded
 #| layout-ncol: 3
-#| layout-nrow: 4
+#| layout-nrow: 2
 
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[1], "area"), 
-            label = paste0(nlcd[1], "\nGraminoids:"))
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[2], "area"), 
-            label = paste0(nlcd[2], "\nGraminoids:"))
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[3], "area"),
-            label = paste0(nlcd[3], "\nGraminoids:"))
+sd_question("numeric", id = paste0("Graminoid", region, '-', nlcd[1], "area"),  label = paste0(nlcd[1], " Current"))
+sd_question("numeric", id = paste0("Graminoid", region, '-', nlcd[2], "area"), label = paste0(nlcd[2], " Current:"))
+sd_question("numeric", id = paste0("Graminoid", region, '-', nlcd[3], "area"), label = paste0(nlcd[3], " Current:"))
 
 sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[1], "area"), label = "Forbs:")
 sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[2], "area"), label = "Forbs:")
 sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[3], "area"), label = "Forbs:")
+```
 
+#### When used, what percent of a seed mix does it constitute?  
+
+```{r Species by Seed Mix}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 2
+#| 
 sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[1], "area"), label = "Shrubs:")
 sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[2], "area"), label = "Shrubs:")
 sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[3], "area"), label = "Shrubs:")
@@ -43,5 +85,4 @@ sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[3], "area"
 ```
 
 :::
-
-:::
+::::

@@ -3,7 +3,7 @@ echo: false
 warning: false
 format:
   html:
-    theme: styles.css
+    theme: [flatly, styles.css]
 barposition: top 
 ---
 

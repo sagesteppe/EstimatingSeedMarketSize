@@ -1,20 +1,20 @@
 # ! JUST READ - don't change the content of this file
 # Question structure extracted from survey.html
+FirstName:
+  type: text
+  label: What is your first name?
+LastName:
+  type: text
+  label: And your last name?
 Graminoid12-42area:
   type: numeric
-  label: |-
-    42
-    Graminoids:
+  label: 42 Current
 Graminoid12-52area:
   type: numeric
-  label: |-
-    52
-    Graminoids:
+  label: '52 Current:'
 Graminoid12-68area:
   type: numeric
-  label: |-
-    68
-    Graminoids:
+  label: '68 Current:'
 Forbs12-42area:
   type: numeric
   label: 'Forbs:'
