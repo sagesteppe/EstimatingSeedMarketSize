@@ -129,7 +129,7 @@ nlcd <- c(42, 52, 68)
 
 Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to? 
 
-```{r Matrix for Lifeforms}
+```{r Lifeforms by Area}
 #| column: screen-inset-shaded
 #| layout-ncol: 3
 #| layout-nrow: 4
@@ -165,7 +165,7 @@ sd_next(next_page = 'Alaska_lifeform_prop')
 
 When using these lifeforms in a restoration what proportion of a seed mix do they make up? 
 
-```{r}
+```{r Lifeforms by Proportions }
 #| column: screen-inset-shaded
 #| layout-ncol: 3
 #| layout-nrow: 4
@@ -191,9 +191,33 @@ sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[3], "area"
 ```
 
 ```{r}
+sd_next(next_page = 'Alaska_species')
+```
+::: 
+
+::: {#Alaska_species .sd-page} 
+
+### Alaska - Common Species 
+
+How much of these species do you use? 
+
+```{r Alaska Common Species}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+sd_question(type  = "numeric", id = paste0("Dryas octopetala", region, '-', nlcd[1], "area"), label = "Forbs:")
+sd_question(type  = "numeric", id = paste0("Elymus elymoides", region, '-', nlcd[2], "area"), label = "Forbs:")
+```
+
+
+:::
+
+```{r}
 sd_next(next_page = 'end')
 ```
 ::: 
+
 
 ::: {#end .sd-page}
 ## End

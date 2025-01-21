@@ -1,5 +1,86 @@
-### I don't want to write the survey questions by hand. Here we generate them using functions. 
+### I don't want to write the survey questions by hand. Here we generate them using functions.
 
-# We can generate each of the 12 slides using the same process. Basically copy and paste with some incrementing of numbers in the code. 
+# We can generate each of the 12 slides using the same process. Basically copy and paste with some increment of numbers in the code.
 
 
+setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
+
+
+region_name <- c('Alaska')
+question <- c(
+  "Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?",
+  "When using these lifeforms in a restoration what proportion of a seed mix do they make up?"
+)
+
+sink("outfile.txt")
+
+for(i in 1:length(region_name)){
+  cat(
+    paste0(
+      ################# QUESTION ON XXXX IS HERE
+      "::: {#", region_name[i], "_lifeform_area .sd-page} \n",
+      "### Region ", i, " ", region_name[i], " - Growth Forms \n",
+      "\n",
+      question[1], "\n",
+      "\n",
+      "```{r Lifeforms by Area - ", region_name[i],"}\n",
+      "#| column: screen-inset-shaded\n",
+      "#| layout-ncol: 3\n",  # NCOL NEEDS TO BE DYNAMIC BY THE AMOUNT OF HABITAT WE ASK THEM ABOUT.
+      "#| layout-nrow: 4\n",
+      "\n",
+      "# ALL THE LIFEFORM QUESTIONS GO HERE...\n",
+      "\n",
+      "```\n",
+      "\n",
+      "```{r}\n",
+      "sd_next(next_page = '", region_name[i], "_lifeform_prop')\n",
+      "```\n",
+      ":::\n",
+      "\n",
+      ############## QUESTION ON XXXX IS HERE
+      "::: {#", region_name[i], "_lifeform_prop .sd-page}\n",
+      "\n",
+      "### ", region_name[i], " - Growth Form\n",
+      "\n",
+      question[2], "\n",
+      "\n",
+      "```{r Lifeforms by Proportions - ", region_name[i],"}\n",
+      "#| column: screen-inset-shaded\n",
+      "#| layout-ncol: 3\n", # NCOL NEEDS TO BE DYNAMIC BY THE AMOUNT OF HABITAT WE ASK THEM ABOUT.
+      "#| layout-nrow: 4\n",
+      '\n',
+      "# ALL THE LIFEFORM PROP QUESTIONS GO HERE...\n",
+      "\n",
+      "```\n",
+      "\n",
+      "```{r}\n",
+      "sd_next(next_page = '", region_name[i], "_species')\n",
+      "```\n",
+      ":::\n",
+      "\n",
+      ################### QUESTIONS ON SPECIES ARE HERE.
+      "::: {#", region_name[i], "_species .sd-page}\n",
+      "\n",
+      "### ", region_name[i], " - Common Species\n",
+      "\n",
+      "How much of these species do you use?\n",
+      "\n",
+      "```{r ", region_name[i], " Common Species}\n",
+      "#| column: screen-inset-shaded",
+      "#| layout-nrow: 4\n", # MAYBE HARD WIRED BUT NO CLUE RANGE YET.
+      "#| layout-ncol: 4\n",
+      '\n',
+      "# ALL THE SPECIES QUESTIONS GO HERE...\n",
+      "\n",
+      "```\n",
+      "\n",
+      "```{r}\n",
+      "sd_next(next_page = end)\n",
+      "```\n",
+      ":::\n",
+      "\n"
+    )
+  )
+}
+
+sink()

@@ -1,0 +1,58 @@
+::: {#Alaska_lifeform_area .sd-page} 
+### Region 1 Alaska - Growth Forms 
+
+Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?
+
+```{r Lifeforms by Area - Alaska}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+# ALL THE LIFEFORM QUESTIONS GO HERE...
+
+```
+
+```{r}
+sd_next(next_page = 'Alaska_lifeform_prop')
+```
+:::
+
+::: {#Alaska_lifeform_prop .sd-page}
+
+### Alaska - Growth Form
+
+When using these lifeforms in a restoration what proportion of a seed mix do they make up?
+
+```{r Lifeforms by Proportions - Alaska}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+# ALL THE LIFEFORM PROP QUESTIONS GO HERE...
+
+```
+
+```{r}
+sd_next(next_page = 'Alaska_species')
+```
+:::
+
+::: {#Alaska_species .sd-page}
+
+### Alaska - Common Species
+
+How much of these species do you use?
+
+```{r Alaska Common Species}
+#| column: screen-inset-shaded#| layout-nrow: 4
+#| layout-ncol: 4
+
+# ALL THE SPECIES QUESTIONS GO HERE...
+
+```
+
+```{r}
+sd_next(next_page = end)
+```
+:::
+
