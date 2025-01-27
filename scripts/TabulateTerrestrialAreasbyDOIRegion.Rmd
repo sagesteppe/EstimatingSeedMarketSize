@@ -1,3 +1,13 @@
+---
+title: "Tabulate Terrestrial Areas by DOI Region"
+author: "Reed Clark Benkendorf"
+date: "2025-01-27"
+output: pdf_document
+---
+
+To estimate the amount of native seed required by each DOI region via the simulations several constants are required. 
+These constants largely reflect the amount of terrestrial area per DOI region, and how these surfaces are parsed between administrative agencies. 
+
 # For the purposes of the survey and simulations we are interested in tabulating 
 # the following values. 
 # 1) The total amount of terrestrial area administered by the DOI per each DOI region 
