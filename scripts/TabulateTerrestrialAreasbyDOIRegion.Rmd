@@ -5,19 +5,25 @@ date: "2025-01-27"
 output: pdf_document
 ---
 
-To estimate the amount of native seed required by each DOI region via the simulations several constants are required. 
-These constants largely reflect the amount of terrestrial area per DOI region, and how these surfaces are parsed between administrative agencies. 
+To estimate the amount of native seed required by each Department of Interior (DOI) region via the simulations several constants are required. 
+These constants largely reflect the amount of terrestrial area per DOI region, and how these surfaces are allocated between administrative agencies. 
+These calculations are performed in this document these values are then utilized for all subsequent analyses and products. 
 
-# For the purposes of the survey and simulations we are interested in tabulating 
-# the following values. 
-# 1) The total amount of terrestrial area administered by the DOI per each DOI region 
-# 2) The total amount of terrestrial area per DOI agency by each DOI region
-# 3) The total amount of 
+Here we calculate the following values,
+1) The sum of terrestrial area administered by each DOI agency
+2) The sum of terrestrial area administered in each DOI region  
+3) The sum of terrestrial area administered by each DOI agency in each DOI region 
+4) The sum of National Land Cover Data (NLCD) classes, on DOI agency administered land by DOI region
+5) The sum of NLCD classes by each DOI agency by DOI region
 
+```{r load libraries}
 library(tidyverse)
 library(terra)
 library(sf)
-setwd('~/Documents/assoRted/EstimatingSeedMarketSize/scripts')
+```
+
+
+```{r}
 sp <- file.path('..', 'data', 'geospatial', 'NLCD')
 
 hi <- rast(
@@ -38,7 +44,6 @@ pr <- terra::droplevels(pr)
 z <- as.numeric(pr)
 
 rast(z) <- cover(z)
-
 z1 <- raster::getValues(pr)
 
 msk <- ifel(z, z %in% values, z, 0)
@@ -50,6 +55,7 @@ pr1 <- ifel(pr$`Land Cover Class`, ! pr$`Land Cover Class` %in%
          'Mixed Forest', 'Shrub/Scrub', 'Herbaceuous', 'Hay/Pasture', 'Woody Wetlands', 
          'Emergent Herbaceuous Wetlands'), 0, pr$`Land Cover Class`, 
        filename = 'Pr.tif')
+```
 
 
 
@@ -74,7 +80,3 @@ padus <- sf::st_read(
 
 p2nlcd <- '/media/steppe/hdd/SeedMarketSizeTemplates/tiles/nlcd'
 
-padWritR <- function(x){
-  
-  
-}
