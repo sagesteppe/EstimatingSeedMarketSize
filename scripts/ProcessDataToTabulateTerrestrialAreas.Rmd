@@ -205,17 +205,60 @@ padus <- sf::st_read(
     dsn = p, quiet = TRUE,
     layer = 'PADUS4_0Fee')  |>
   dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat)  |>
-  sf::st_cast('MULTIPOLYGON') |>
-  sf::st_make_valid()
+  sf::st_cast('MULTIPOLYGON') 
 
 doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'TRIB', 'USBR'))
+st_write(doi, file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadministeredAreas.shp'))
+
+rm(padus, doi)
 ```
+
+Some of the areas in the PADUS database cross the antimeridian, or the line defining the Eastern and Western hemispheres. 
+When these polygons are treated in most projections, they become invalid, because the softwares do not 
+wrap them around the actual spheroid model of the earth. 
+We can simply split them into two pieces on the hemisphere. 
+Theoretically we may lose a tiny tiny tiny sliver of land, but this is a marine preserve and will actually be inconsequential for our downstream calculations. 
+
+```{r Subset PAD to terrestrial}
+
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadministeredAreas.shp')
+padus <- st_read(file.path(p), quiet = TRUE) 
+
+antimeridian <- data.frame(
+  x = c(-180, -180), 
+  y = c(0, 90)
+) |>
+  sf::st_as_sf(coords = c('x', 'y'), crs = 4326) |>  
+  sf::st_union() |> 
+  sf::st_cast('LINESTRING') |> 
+  sf::st_transform(st_crs(padus))
+
+indx <- st_intersects(padus, antimeridian) |> lengths()
+x_antimeridian <- padus[which(indx==TRUE),]
+padus_1hemisphere <- padus[which(indx==FALSE),] 
+
+pad_split <- lwgeom::st_split(crosses, x_antimeridian) |>
+  st_collection_extract('POLYGON')
+
+padus <- bind_rows(padus_1hemisphere, pad_split) |>
+  sf::st_make_valid()
+
+any(st_is_valid(padus)==TRUE)
+
+st_write(
+  padus,
+  file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadministeredAreas.shp'),
+  append = FALSE)
+
+rm(antimeridian, x_antimeridian, padus_1hemisphere, pad_split, indx)
+```
+
 
 PADUS includes both terrestrial and aquatic, especially deep water, areas. 
 These will need to be removed from our analysis as they will not be treated by vascular plant seeding efforts. 
 
 For terrestrial surface we use the [GADM](https://gadm.org/about.html), which has excellent resolution for the CONUS coastlines, islands off Alaska, and the Pacific Islands. 
-I have visually compared the GADM and natural earth products and can conclusively state that the GADM product more accurately maps coastal areas. 
+I have visually compared the GADM and natural earth products and can conclusively state that the GADM product more accurately documents coastal areas. 
 However, while GADM does not include coastal areas in it's data, which the TIGER line files do, it still includes portions of the Great Lakes. 
 To remove those we will use the highest resolution [NaturalEarth](https://www.naturalearthdata.com/) data set; while I am not a fan of using this data set as it has not been reviewed nor is an official government product, the Great Lakes are relatively topographically simple compared to coastal features, and any distortions will be minimized. 
 
@@ -223,28 +266,17 @@ To remove those we will use the highest resolution [NaturalEarth](https://www.na
 
 p <- file.path('..', 'data', 'geospatial', 'TerrestrialAreas', 'GADM')
 
-greatlakes <- rnaturalearth::ne_download(
+lakes <- rnaturalearth::ne_download(
   category = 'physical', type = 'lakes', scale = 10) |>
   select(name)|>
-  sf::st_make_valid() 
-lakes <- rnaturalearth::ne_download(
-  category = 'physical', type = 'lakes_north_america', scale = 10) |>
-  select(name) |>
-  sf::st_make_valid() 
-
-lakes <- bind_rows(greatlakes, lakes) |>
-  sf::st_make_valid() 
-
-# one lake is irredeemable and inconsequential for our purposes 
-lakes <- filter(lakes, st_is_valid(lakes))
-lakes <- lakes |>
+  sf::st_make_valid() |>
   st_union() |>
   st_make_valid()
 
 # now we will erase the lakes from the land surfaces. 
 minorIslands <- st_read(file.path(p, 'gadm41_UMI.gpkg'), quiet = TRUE)
 us <- st_read(file.path(p, 'gadm41_USA.gpkg'), quiet = TRUE) |>
-  sf::st_make_valid()
+  sf::st_make_valid() 
 us <- bind_rows(us, minorIslands) |>
   sf::st_make_valid() 
 
@@ -252,8 +284,28 @@ us <- st_difference(us, lakes) |>
   st_transform(4326) |>
   select(COUNTRY) 
 
-st_write(us, file.path(p, 'gadm41_USA-land.gpkg'))
+st_write(us, file.path(p, 'gadm41_USA-land.gpkg'), append = FALSE)
 
-rm(greatlakes, minorIslands, p, us, lakes)
+rm(minorIslands, p, us, lakes)
+```
+
+Finally we can subset all DOI administered areas in the PADUS database just those which are terrestrial. 
+
+```{r Subset PAD to terrestrial}
+
+p1 <- file.path('..', 'data', 'geospatial', 'DOIadministered')
+padus <- st_read(file.path(p1, 'DOIadministeredAreas.shp'))
+
+p2 <- file.path('..', 'data', 'geospatial', 'TerrestrialAreas', 'GADM')
+us <- st_read(file.path(p2, 'gadm41_USA-land.gpkg'), quiet = TRUE) |>
+  sf::st_transform(st_crs(padus)) |>
+  st_union()
+
+spadus_terrestrial <- st_intersection(padus, us)
+
+sf::st_write(
+  spadus_terrestrial, 
+  file.path(p1, 'DOIterrestrial.gpkg'), append = FALSE
+)
 ```
 
