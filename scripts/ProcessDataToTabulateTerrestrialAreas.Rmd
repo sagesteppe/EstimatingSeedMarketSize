@@ -1,18 +1,22 @@
 ---
 title: "Tabulate Land Cover"
-author: "Reed Clark Benkendorf"
+author: "Reed Benkendorf"
 date: "2025-01-14"
-output: html_document
+output: pdf_document
 ---
 
 For the purposes of the restoration ecologist survey, and fire size simulations, we are interested in tabulating a variety of metrics which relate to the amount of National Land Cover Database (NLCD) cover class area by Department of Interior (DOI) region. 
+These metrics are calculated in the script "TabulateTerrestrialAreasbyDOIRegion", while here we focus on cleaning and processing the data sets so that the values of interested can be calculated there without further processing. 
 In an effort to make the survey as concise as possible respondents will only interact with combinations of cover class and slopes which make up >90% of the surface area in their regions. 
 
 ```{r load libraries, echo = F}
 library(terra)
 library(tidyverse)
+library(sf)
 sp <- file.path('..', 'data', 'geospatial', 'NLCD')
 ```
+
+# 1 Clean NLCD data 
 
 The formats of NLCD data have changed over the years. 
 Older data sets utilize '.img' files, these have three bands (red, blue, green) running from 0 to 255 bits, and the three combinations of the bits in each band become the land cover class. 
@@ -156,6 +160,9 @@ makeTiles(
 
 ```
 
+
+# Resample slope to NLCD pixels 
+
 To create combinations of NLCD cover classes and slopes we will use Geomorpho90m data set. 
 As the name implies these data were generated at 90m (or 3 arc second) resolution, or roughly 1/3 the resolution of the NLCD data set. 
 While we could technically compute a new slope data set based on 30m elevation products, this would require a good amount of compute. 
@@ -184,33 +191,69 @@ makeTiles(
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
 We will use the Protected Areas of the United States Database (PAD-US) to create a `mask' of terrestrial surfaces. 
 The areas in each raster which do not overlap public lands will be replaced with 0 - essentially deleted via the masking process. 
 
-```{r}
+# Process Land Administration Surfaces. 
 
+The protected areas of the United States Database ([PADUS](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview)) serves as the definitive documentation for all lands administered by the US Federal Agencies. 
+The name PADUS is a misnomer, while historically the product focused on lands managed for preservation ('protected'), it was grown to include all government lands. 
+
+```{r Subset PADUS to relevant agencies}
 p <- file.path('..', 'data', 'geospatial', 'PADUS4_0Geodatabase', 'PADUS4_0_Geodatabase.gdb')
 padus <- sf::st_read(
     dsn = p, quiet = TRUE,
     layer = 'PADUS4_0Fee')  |>
-    dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat)  |>
-    sf::st_cast('MULTIPOLYGON') 
+  dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat)  |>
+  sf::st_cast('MULTIPOLYGON') |>
+  sf::st_make_valid()
 
-doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'USBR', 'BIA'))
-conus <- mask(conus, vect(doi))
+doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'TRIB', 'USBR'))
+```
 
+PADUS includes both terrestrial and aquatic, especially deep water, areas. 
+These will need to be removed from our analysis as they will not be treated by vascular plant seeding efforts. 
 
+For terrestrial surface we use the [GADM](https://gadm.org/about.html), which has excellent resolution for the CONUS coastlines, islands off Alaska, and the Pacific Islands. 
+I have visually compared the GADM and natural earth products and can conclusively state that the GADM product more accurately maps coastal areas. 
+However, while GADM does not include coastal areas in it's data, which the TIGER line files do, it still includes portions of the Great Lakes. 
+To remove those we will use the highest resolution [NaturalEarth](https://www.naturalearthdata.com/) data set; while I am not a fan of using this data set as it has not been reviewed nor is an official government product, the Great Lakes are relatively topographically simple compared to coastal features, and any distortions will be minimized. 
+
+```{r Subset PADUS to terrestrial areas}
+
+p <- file.path('..', 'data', 'geospatial', 'TerrestrialAreas', 'GADM')
+
+greatlakes <- rnaturalearth::ne_download(
+  category = 'physical', type = 'lakes', scale = 10) |>
+  select(name)|>
+  sf::st_make_valid() 
+lakes <- rnaturalearth::ne_download(
+  category = 'physical', type = 'lakes_north_america', scale = 10) |>
+  select(name) |>
+  sf::st_make_valid() 
+
+lakes <- bind_rows(greatlakes, lakes) |>
+  sf::st_make_valid() 
+
+# one lake is irredeemable and inconsequential for our purposes 
+lakes <- filter(lakes, st_is_valid(lakes))
+lakes <- lakes |>
+  st_union() |>
+  st_make_valid()
+
+# now we will erase the lakes from the land surfaces. 
+minorIslands <- st_read(file.path(p, 'gadm41_UMI.gpkg'), quiet = TRUE)
+us <- st_read(file.path(p, 'gadm41_USA.gpkg'), quiet = TRUE) |>
+  sf::st_make_valid()
+us <- bind_rows(us, minorIslands) |>
+  sf::st_make_valid() 
+
+us <- st_difference(us, lakes) |>
+  st_transform(4326) |>
+  select(COUNTRY) 
+
+st_write(us, file.path(p, 'gadm41_USA-land.gpkg'))
+
+rm(greatlakes, minorIslands, p, us, lakes)
 ```
 
