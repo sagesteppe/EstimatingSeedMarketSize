@@ -1,0 +1,45 @@
+# ! JUST READ - don't change the content of this file
+# Question structure extracted from survey.html
+FirstName:
+  type: text
+  label: What is your first name?
+LastName:
+  type: text
+  label: And your last name?
+Graminoid12-42area:
+  type: numeric
+  label: 42 Current
+Graminoid12-52area:
+  type: numeric
+  label: '52 Current:'
+Graminoid12-68area:
+  type: numeric
+  label: '68 Current:'
+Forbs12-42area:
+  type: numeric
+  label: 'Forbs:'
+Forbs12-52area:
+  type: numeric
+  label: 'Forbs:'
+Forbs12-68area:
+  type: numeric
+  label: 'Forbs:'
+Shrubs12-42area:
+  type: numeric
+  label: 'Shrubs:'
+Shrubs12-52area:
+  type: numeric
+  label: 'Shrubs:'
+Shrubs12-68area:
+  type: numeric
+  label: 'Shrubs:'
+Trees12-42area:
+  type: numeric
+  label: 'Trees:'
+Trees12-52area:
+  type: numeric
+  label: 'Trees:'
+Trees12-68area:
+  type: numeric
+  label: 'Trees:'
+

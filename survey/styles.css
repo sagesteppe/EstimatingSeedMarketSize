@@ -1,0 +1,13 @@
+/*-- scss:defaults --*/
+
+.text-col {
+  background-color: red;
+  padding:25px;
+  box-sizing: border-box;
+}
+
+.species-row {
+  background-color: red;
+  padding:25px;
+  box-sizing: border-box;
+}
