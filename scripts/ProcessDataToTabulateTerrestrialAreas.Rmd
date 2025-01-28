@@ -161,7 +161,7 @@ makeTiles(
 ```
 
 
-# Resample slope to NLCD pixels 
+## Resample slope to NLCD pixels 
 
 To create combinations of NLCD cover classes and slopes we will use Geomorpho90m data set. 
 As the name implies these data were generated at 90m (or 3 arc second) resolution, or roughly 1/3 the resolution of the NLCD data set. 
@@ -291,7 +291,7 @@ rm(minorIslands, p, us, lakes)
 
 Finally we can subset all DOI administered areas in the PADUS database just those which are terrestrial. 
 
-```{r Subset PAD to terrestrial}
+```{r Subset PAD to terrestrial, eval = F}
 
 p1 <- file.path('..', 'data', 'geospatial', 'DOIadministered')
 padus <- st_read(file.path(p1, 'DOIadministeredAreas.shp'))
@@ -307,5 +307,122 @@ sf::st_write(
   spadus_terrestrial, 
   file.path(p1, 'DOIterrestrial.gpkg'), append = FALSE
 )
+```
+
+
+# Derive NLCD x Slope tiles
+
+For all natural areas which are administered by the DOI agencies we want to have a single product which contains both the NLCD type, and slope of the area. 
+
+```{r slope categories, eval = F}
+p <- '/media/steppe/hdd/SeedMarketSizeTemplates/tiles'
+fp <- file.path(p, 'slope')
+
+slope <- file.path(fp, list.files(fp))
+
+for (i in 1:length(slope)){
+  
+  r <- terra::rast(slope[i])
+  r <- ifel(r < 10, 0, 10)
+  writeRaster(
+    r, 
+    file.path(p, 'slope_cat', 
+              paste0('slope_cat', gsub('[^0-9]', '', basename(slope[i])), '.tif')
+              )
+    )
+}
+
+
+```
+
+A product which selectively contains only non-developed, areas is developed. 
+Note that this also includes areas used for pasture, but not for intensive agriculture. 
+
+```{r Subset NLCD tp natural areas}
+
+want <- c(31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 90, 95)
+
+p <- '/media/steppe/hdd/SeedMarketSizeTemplates/tiles'
+fp <- file.path(p, 'nlcd')
+
+nlcd <- file.path(fp, list.files(fp))
+
+for (i in 1:length(nlcd)){
+  
+  r <- terra::rast(nlcd[i])
+  r <- ifel(r %in% want, r, NA)
+  writeRaster(
+    r, 
+    file.path(p, 'natural_nlcd', 
+              paste0('natural_nlcd', gsub('[^0-9]', '', basename(nlcd[i])), '.tif'))
+    )
+}
+
+```
+
+Finally we will subset a product of the NLCD classes to just areas administered by DOI agencies. 
+
+```{r DOI administered areas}
+
+p <- '/media/steppe/hdd/SeedMarketSizeTemplates/tiles'
+fp <- file.path(p, 'natural_nlcd')
+nlcd <- file.path(fp, list.files(fp))
+nlcd1 <- rast(nlcd[1])
+
+p1 <- file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadministeredAreas.shp')
+doi_admin <- st_read(file.path(p), quiet = TRUE) 
+doi_admin <- vect(doi_admin)
+doi_admin <- project(doi_admin, crs(nlcd1))
+
+for (i in 1:length(nlcd)){
+  
+  r <- terra::rast(nlcd[i])
+  r <- terra::mask(r, doi_admin)
+  
+  writeRaster(
+    r, 
+    file.path(p, 'nlcd_DOI', 
+              paste0('nlcd_DOI', gsub('[^0-9]', '', basename(nlcd[i])), '.tif'))
+    )
+}
+
+```
+
+Finally both the NLCD classes, and the slope of the areas are combined. 
+
+```{r DOI administered areas}
+
+rcl_df_nlcd <- data.frame(
+  level = c(31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 90, 95),
+  class = c('Barren Land', 'Deciduous Forest', 'Evergreen Forest', 'Mixed Forest',
+  'Dwarf Scrub', 'Shrub/Scrub', 'Grassland/Herbaceous', 'Sedge/Herbaceous', 
+  'Lichens', 'Moss', 'Pasture/Hay', 'Woodly Wetlands', 
+  'Emergent Herbaceous Wetlands')
+)
+
+p <- '/media/steppe/hdd/SeedMarketSizeTemplates/tiles'
+fp <- file.path(p, 'nlcd_DOI')
+nlcd <- file.path(fp, list.files(fp))
+
+fp <- file.path(p, 'slope_cat')
+rcl_df_slope <- data.frame(level = 0:1, cat = c('low', 'high'))
+slope_cat <- file.path(fp, list.files(fp))
+
+for (i in 1:length(nlcd)){
+  
+  nlcd_r <- terra::rast(nlcd[i])
+  levels(nlcd_r) <- rcl_df_nlcd
+  
+  slope_r <- terra::rast(slope_cat[i])
+  levels(slope_r) <- rcl_df_slope
+  outR <- concats(nlcd_r, slope_r)
+  
+  writeRaster(
+    outR, 
+    file.path(p, 'nlcd_slope', 
+              paste0('nlcd_slope', gsub('[^0-9]', '', basename(nlcd[i])), '.tif'))
+    )
+}
+
 ```
 
