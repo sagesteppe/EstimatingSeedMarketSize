@@ -22,10 +22,61 @@ library(terra)
 library(sf)
 ```
 
+# 1, 2, & 3 Total sums of terrestrial area managed by DOI agencies
+
+```{r Import Data}
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIterrestrial.gpkg')
+padus <- st_read(file.path(p), quiet = TRUE) |>
+  # we are dealing with areas over significant curvature of the earth
+  # and many high latitude areas so will need to calculate our areas on 
+  # the geoid
+  sf::st_transform(4326) |>
+  sf::st_make_valid()
+
+p <- file.path('..', 'data', 'geospatial', 'AdministrativeUnits', 'DOIRegions', 'DOI_12_Unified_Regions_20180801.shp')
+regions <- st_read(file.path(p), quiet = TRUE) |>
+  sf::st_transform(4326) |>
+  sf::st_make_valid()
+```
+
+The sum of terrestrial area administered by each DOI agency can be calculated by simply summing over the entire PADUS data set, which we have subset to the relevant agencies. 
+
+```{r terrestrial land by agency}
+
+indx <- sf::st_is_valid(padus)
+which(indx == FALSE)
+plot(padus[1800,1])
+
+OB <- st_collection_extract(padus[which(indx == FALSE),], 'POLYGON')
+OB <- st_make_valid(OB)
+
+OBCast <- st_cast(OB, 'POLYGON')
+st_is_valid(OBCast)
+OBCast <- st_union(OBCast) 
+
+bind_cols(
+  st_drop_geometry(OB), 
+  geometry = OBCast
+)
+
+st_is_valid()
+
+areas_rough <- data.frame(
+  areas = units::set_units(sf::st_area(padus), ha),
+  agency = padus$Mang_Name
+) |>
+  group_by(agency) |>
+  summarise(Total_area = as.numeric(sum(areas)*2.471051565))
+
+areas_rough
+```
+
+```{r terrestrial land by doi region}
+
+```
 
 
+```{r land by doi region x agency}
 
-# For terrestrial surface we use the GADM, which has excellent resolution for the CONUS coastlines, islands off Alaska, and the Pacific Islands. 
-# However it also draws land ownership over the Great Lakes. 
-# We will use Natural Earth data to remove this coverage. 
+```
 

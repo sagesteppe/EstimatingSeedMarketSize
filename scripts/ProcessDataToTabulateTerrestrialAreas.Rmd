@@ -301,14 +301,64 @@ us <- st_read(file.path(p2, 'gadm41_USA-land.gpkg'), quiet = TRUE) |>
   sf::st_transform(st_crs(padus)) |>
   st_union()
 
-spadus_terrestrial <- st_intersection(padus, us)
+padus_terrestrial <- st_intersection(padus, us)
 
 sf::st_write(
-  spadus_terrestrial, 
+  padus_terrestrial, 
   file.path(p1, 'DOIterrestrial.gpkg'), append = FALSE
 )
 ```
 
+We will also make a copy of this data set and save it in an unprojected, or geographic coordinate system. 
+This set will be used when we need to make area calculations across large areas, e.g. from Puero Rico to Alaska. 
+
+```{r Save as geographic CRS, eval = F}
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIterrestrial.gpkg')
+padus <- st_read(file.path(p), quiet = TRUE) |>
+  # we are dealing with areas over significant curvature of the earth
+  # and many high latitude areas so will need to calculate our areas on 
+  # the geoid
+  sf::st_transform(4326) 
+
+# when we do this we find out some of our geometries have a problem... 
+indx <- st_is_valid(padus)
+which(indx==FALSE)
+
+# notice we have a ton of multipolygons, what we will find is that it's 
+# usually a single polygon within these objects which is the problem
+
+indx <- sf::st_is_valid(padus)
+invalid <- padus[which(indx == FALSE),]
+invalidCast <- st_cast(invalid, 'POLYGON')
+
+castval <- sf::st_is_valid(invalidCast)
+
+# we will show here that these are weirdos; somehow polygons but not anything there
+# we will just disregard them. 
+bad_pieces <- invalid[ which(castval==FALSE), ]
+st_area(bad_pieces)
+
+# knowing that the areas covered by these bad polygons sum to < 1m^2 we can just 
+# dump them. Let's recombine all of the good polygons back into a multipolygon. 
+now_valid <- invalidCast |>
+  filter(st_is_valid(invalidCast)) |>
+  group_by(Unit_Nm) |>
+  mutate(geom = st_union(geom)) |>
+  distinct(Unit_Nm, .keep_all = TRUE)
+
+# now we can just recombine these fixed geometries back onto our data. 
+
+fixed <- bind_cols(
+  st_drop_geometry(invalid), 
+  geom = invalidCast
+) |>
+  st_as_sf()
+
+bind_rows(
+  padus, 
+  fixed
+)
+```
 
 # Derive NLCD x Slope tiles
 
@@ -331,8 +381,6 @@ for (i in 1:length(slope)){
               )
     )
 }
-
-
 ```
 
 A product which selectively contains only non-developed, areas is developed. 
