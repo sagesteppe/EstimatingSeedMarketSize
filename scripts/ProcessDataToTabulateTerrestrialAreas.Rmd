@@ -14,6 +14,14 @@ library(terra)
 library(tidyverse)
 library(sf)
 sp <- file.path('..', 'data', 'geospatial', 'NLCD')
+
+antimeridian <- data.frame(
+  x = c(-180, -180), 
+  y = c(0, 90)
+) |>
+  sf::st_as_sf(coords = c('x', 'y'), crs = 4326) |>  
+  sf::st_union() |> 
+  sf::st_cast('LINESTRING') 
 ```
 
 # 1 Clean NLCD data 
@@ -224,13 +232,7 @@ Theoretically we may lose a tiny tiny tiny sliver of land, but this is a marine 
 p <- file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadministeredAreas.shp')
 padus <- st_read(file.path(p), quiet = TRUE) 
 
-antimeridian <- data.frame(
-  x = c(-180, -180), 
-  y = c(0, 90)
-) |>
-  sf::st_as_sf(coords = c('x', 'y'), crs = 4326) |>  
-  sf::st_union() |> 
-  sf::st_cast('LINESTRING') |> 
+antimeridian <- antimeridian |> 
   sf::st_transform(st_crs(padus))
 
 indx <- st_intersects(padus, antimeridian) |> lengths()
@@ -324,10 +326,12 @@ padus <- st_read(file.path(p), quiet = TRUE) |>
 indx <- st_is_valid(padus)
 which(indx==FALSE)
 
+
+
+
+
 # notice we have a ton of multipolygons, what we will find is that it's 
 # usually a single polygon within these objects which is the problem
-
-indx <- sf::st_is_valid(padus)
 invalid <- padus[which(indx == FALSE),]
 invalidCast <- st_cast(invalid, 'POLYGON')
 
@@ -340,11 +344,41 @@ st_area(bad_pieces)
 
 # knowing that the areas covered by these bad polygons sum to < 1m^2 we can just 
 # dump them. Let's recombine all of the good polygons back into a multipolygon. 
+
 now_valid <- invalidCast |>
-  filter(st_is_valid(invalidCast)) |>
-  group_by(Unit_Nm) |>
-  mutate(geom = st_union(geom)) |>
-  distinct(Unit_Nm, .keep_all = TRUE)
+  filter(st_is_valid(invalidCast))
+
+# one of these groups is real bad... We need to proceed piece wise
+
+units <- split(now_valid, f = now_valid$Unit_Nm)
+
+# ah ha ! here it is- the problem is the refuge that crosses the antimeridian!
+# unsure how it hasn't triggered an issue before now. 
+
+# let's use st_split on this puppy first to ensure any island on the anti get's
+# sliced in two and reconstituted.
+
+antimeridian <- antimeridian |> 
+  sf::st_transform(st_crs(padus))
+
+proj2geoid_antimerid <- function(x){
+
+  tryCatch(
+    expr = {
+          pieces <- lwgeom::st_split(x, antimeridian)
+          whole <- summarize(pieces, geom = st_union(geom))
+          whole <- st_make_valid(whole)
+          }, error = function(e){return(NA)}
+    )
+}
+
+c(1:2, 4:7)
+
+# what is wrong with 3 and 7? 7 CONFIRMED WEIRDO. 
+
+plot(units[[7]])
+
+units1 <- lapply(units[8], proj2geoid_antimerid)
 
 # now we can just recombine these fixed geometries back onto our data. 
 
