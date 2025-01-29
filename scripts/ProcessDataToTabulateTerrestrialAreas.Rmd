@@ -211,18 +211,49 @@ The name PADUS is a misnomer, while historically the product focused on lands ma
 p <- file.path('..', 'data', 'geospatial', 'PADUS4_0Geodatabase', 'PADUS4_0_Geodatabase.gdb')
 padus <- sf::st_read(
     dsn = p, quiet = TRUE,
-    layer = 'PADUS4_0Fee')  #|>
-  dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat)  |>
+    layer = 'PADUS4_0Fee')  |>
+  dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat, SHAPE_Area)  |>
   sf::st_cast('MULTIPOLYGON') 
 
-mn <-  dplyr::filter(padus, Mang_Name=='BLM')
-sum(mn$SHAPE_Area)
-  
 doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'TRIB', 'USBR'))
 st_write(doi, file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadministeredAreas.shp'))
 
 rm(padus, doi)
 ```
+
+```{r INVESTIGATE MISMATCH}
+areas <- as.numeric(sf::st_area(doi))
+
+mod <- lm(areas ~ doi$SHAPE_Area)
+summary(mod)$r.squared
+
+plot(doi$SHAPE_Area, areas)
+
+indx <- doi$Mang_Name=='BLM'
+
+official <- sum (sf::st_drop_geometry(doi)[indx,'SHAPE_Area'] )
+official * 0.00001 * 2.45705
+#/  sum(areas[indx])
+
+
+blm <- filter(doi, Mang_Name == 'BLM')
+
+blm_geo <- sf::st_transform(blm, 4326)
+blm_geo <- st_make_valid(blm)
+areas_geo <- as.numeric(sf::st_area(blm_geo))
+
+mod_geo <- lm(areas_geo ~ doi$SHAPE_Area[indx])
+summary(mod_geo)$r.squared
+
+areas_planar <- as.numeric(sf::st_area(blm))
+mod_plan <- lm(areas_planar ~ doi$SHAPE_Area[indx])
+summary(mod_plan)$r.squared
+
+prettyNum(sum(doi$SHAPE_Area[indx]) * 0.0001 * 2.45705, ',')
+prettyNum(sum(areas_geo) * 0.0001 * 2.45705, ',')
+prettyNum(sum(areas_planar) * 0.0001 * 2.45705, ',')
+```
+
 
 Some of the areas in the PADUS database cross the antimeridian, or the line defining the Eastern and Western hemispheres. 
 When these polygons are treated in most projections, they become invalid, because the softwares do not 
@@ -377,7 +408,7 @@ areas2 <- data.frame(
 
 
 
-(979436675900 * 0.0001) * 2.547
+(979436675900 * 0.0001) * 2.47
 ```
 
 
