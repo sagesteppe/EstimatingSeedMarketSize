@@ -211,10 +211,13 @@ The name PADUS is a misnomer, while historically the product focused on lands ma
 p <- file.path('..', 'data', 'geospatial', 'PADUS4_0Geodatabase', 'PADUS4_0_Geodatabase.gdb')
 padus <- sf::st_read(
     dsn = p, quiet = TRUE,
-    layer = 'PADUS4_0Fee')  |>
+    layer = 'PADUS4_0Fee')  #|>
   dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat)  |>
   sf::st_cast('MULTIPOLYGON') 
 
+mn <-  dplyr::filter(padus, Mang_Name=='BLM')
+sum(mn$SHAPE_Area)
+  
 doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'TRIB', 'USBR'))
 st_write(doi, file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadministeredAreas.shp'))
 
@@ -312,7 +315,7 @@ sf::st_write(
 ```
 
 We will also make a copy of this data set and save it in an unprojected, or geographic coordinate system. 
-This set will be used when we need to make area calculations across large areas, e.g. from Puero Rico to Alaska. 
+This set will be used when we need to make area calculations across large areas, e.g. from Puerto Rico to Alaska. 
 
 ```{r Save as geographic CRS, eval = F}
 p <- file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIterrestrial.gpkg')
@@ -326,73 +329,58 @@ padus <- st_read(file.path(p), quiet = TRUE) |>
 indx <- st_is_valid(padus)
 which(indx==FALSE)
 
-
-
-
-
 # notice we have a ton of multipolygons, what we will find is that it's 
 # usually a single polygon within these objects which is the problem
 invalid <- padus[which(indx == FALSE),]
-invalidCast <- st_cast(invalid, 'POLYGON')
+padus <- padus[which(indx == TRUE),]
 
-castval <- sf::st_is_valid(invalidCast)
+# most of these can actually be fixed. 
+invalid_fixed <- sf::st_make_valid(invalid)
 
-# we will show here that these are weirdos; somehow polygons but not anything there
-# we will just disregard them. 
-bad_pieces <- invalid[ which(castval==FALSE), ]
-st_area(bad_pieces)
+# however 1 remains problematic, we will cast the multi* to polygons
+# and re-union those. 
+invalid_fixed_problem <- invalid_fixed[!sf::st_is_valid(invalid_fixed),]
+invalid_fixed_problem <- sf::st_cast(invalid_fixed_problem, 'POLYGON')
+iso_fix_pro <- sf::st_union(invalid_fixed_problem)
 
-# knowing that the areas covered by these bad polygons sum to < 1m^2 we can just 
-# dump them. Let's recombine all of the good polygons back into a multipolygon. 
-
-now_valid <- invalidCast |>
-  filter(st_is_valid(invalidCast))
-
-# one of these groups is real bad... We need to proceed piece wise
-
-units <- split(now_valid, f = now_valid$Unit_Nm)
-
-# ah ha ! here it is- the problem is the refuge that crosses the antimeridian!
-# unsure how it hasn't triggered an issue before now. 
-
-# let's use st_split on this puppy first to ensure any island on the anti get's
-# sliced in two and reconstituted.
-
-antimeridian <- antimeridian |> 
-  sf::st_transform(st_crs(padus))
-
-proj2geoid_antimerid <- function(x){
-
-  tryCatch(
-    expr = {
-          pieces <- lwgeom::st_split(x, antimeridian)
-          whole <- summarize(pieces, geom = st_union(geom))
-          whole <- st_make_valid(whole)
-          }, error = function(e){return(NA)}
-    )
-}
-
-c(1:2, 4:7)
-
-# what is wrong with 3 and 7? 7 CONFIRMED WEIRDO. 
-
-plot(units[[7]])
-
-units1 <- lapply(units[8], proj2geoid_antimerid)
-
-# now we can just recombine these fixed geometries back onto our data. 
-
-fixed <- bind_cols(
-  st_drop_geometry(invalid), 
-  geom = invalidCast
+# now we can combine these problem data geometries which we have fixed. 
+iso_fix_pro <- bind_cols(
+  sf::st_drop_geometry(invalid_fixed_problem)[1,],
+  geom = iso_fix_pro
 ) |>
-  st_as_sf()
+  sf::st_as_sf()
 
-bind_rows(
-  padus, 
+rm(invalid_fixed_problem, invalid)
+
+# this contains the easily fixed, and the not so easily fixed geometries. 
+# now we can add them back to the geometries which were valid
+fixed <- bind_rows(
+  filter(invalid_fixed, st_is_valid(invalid_fixed)), 
+  iso_fix_pro
+)
+
+rm(invalid_fixed, iso_fix_pro)
+# and finally combine all the data back together as one valid data set. 
+padus2 <- bind_rows(
+  padus,
   fixed
 )
+
+all(sf::st_is_valid(padus2) == TRUE) # we want the TRUE - the whole TRUE and # nothing but the TRUE
+
+areas2 <- data.frame(
+  st_drop_geometry(padus2), 
+  Area = units::set_units(sf::st_area(padus2), ha)
+) |> 
+  group_by(Mang_Name) |>
+  summarize(Total = sum(Area))
+
+
+
+(979436675900 * 0.0001) * 2.547
 ```
+
+
 
 # Derive NLCD x Slope tiles
 
