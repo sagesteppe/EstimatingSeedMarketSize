@@ -389,6 +389,7 @@ padus <- bind_rows(fixed, vp_units, padus)
 
 padus[38,] <- sf::st_make_valid(padus[38,])
 indx <- sf::st_is_valid(padus)
+padus <- select(padus, -Valid)
 
 st_write(padus,
    file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIterrestrial-geographic.gpkg')
@@ -397,39 +398,55 @@ st_write(padus,
 rm(vp_units, fixed, tug, wenatchee, problem_units, invalid, indx)
 ```
 
-```{r}
+There is minor irregularity in this GAP table, that a considerable amount of the FWS land was listed twice. 
+This is likely just due to different administrative practices, but is something which I overlooked and resulted in us getting estimates of Fish administrative areas roughly 2x the true value. 
+
+We will deal with that event her, and save out the data, over writing the temp products we just saved. 
+
+```{r Remove duplicated areas in the FWS product}
 p <- file.path('..', 'data', 'geospatial', 'DOIadministered')
 
-padus_geo <- st_read(file.path(p, 'DOIterrestrial-geographic.gpkg'))
+padus_geo <- st_read(file.path(p, 'DOIterrestrial-geographic.gpkg')) 
 padus_plan <- st_read(file.path(p, 'DOIterrestrial.gpkg'))
 
-areas2 <- data.frame(
-  st_drop_geometry(padus_geo), 
-  Area = as.numeric(units::set_units(sf::st_area(padus_geo), ha)*2.4710538146717)
-) |> 
-  group_by(Mang_Name) |>
-  summarize(Total = sum(Area))
+groupR <- function(x){
+  
+  fields <- sf::st_drop_geometry(x) |>
+    mutate(Loc_Mang = str_to_title(Loc_Mang))
+  geom <- x |>
+    reframe(geom = st_union(geom)) |>
+    sf::st_as_sf()
+  geom <- sf::st_make_valid(geom)
+  geom <- geom[!st_is_empty(geom),]
+  out <- bind_cols(fields[1,], geom) |>
+    sf::st_as_sf()
+  
+}
 
+fws_anom <- filter(padus_geo, Mang_Name == 'FWS')
+fws_units <- split(fws_anom, f = fws_anom$Unit_Nm)
 
+not_fish <- filter(padus_geo, Mang_Name != 'FWS')
+fws <- bind_rows(lapply(fws_units, groupR))
 
+padus_geo <- bind_rows(not_fish, fws)
+st_write(padus_geo, file.path(p, 'DOIterrestrial-geographic.gpkg'), append = FALSE) 
 
-fws_is_fck <- filter(padus, Mang_Name == 'FWS')
-fck_areas <- st_area(fws_is_fck)
+# repeat the process for the planar data set. 
 
-fws_is_fck[ order(fck_areas, decreasing = TRUE), 'Unit_Nm']
+padus_plan <- st_read(file.path(p, 'DOIterrestrial.gpkg'))
 
-anwr <- filter(fws_is_fck, Unit_Nm=='Arctic National Wildlife Refuge') |>
-  rownames_to_column()
+fws_anom <- filter(padus_plan, Mang_Name == 'FWS')
+fws_units <- split(fws_anom, f = fws_anom$Unit_Nm)
 
-anwr2 <- sf::st_union(anwr) |>
-  st_as_sf() |>
-  rownames_to_column()
+not_fish <- filter(padus_plan, Mang_Name != 'FWS')
+fws <- bind_rows(lapply(fws_units, groupR))
 
-ggplot() + 
-  geom_sf(data = anwr2, aes(fill = rowname), alpha = 0.5) +
-  facet_grid(~ rowname)
+padus_plan <- bind_rows(not_fish, fws)
+st_write(padus_plan, file.path(p, 'DOIterrestrial.gpkg'), append = FALSE) 
+
+rm(padus_plan, not_fish, fws)
 ```
-
 
 ## Compare our area estimates to the official values
 I went around various sources to see the amount of land the agencies officially administer. 
@@ -489,6 +506,13 @@ data.frame(
   geoid = c(), 
   planar = c()
 )
+
+areas2 <- data.frame(
+  st_drop_geometry(padus_geo), 
+  Area = as.numeric(units::set_units(sf::st_area(padus_geo), ha)*2.4710538146717)
+) |> 
+  group_by(Mang_Name) |>
+  summarize(Total = sum(Area))
 ```
 
 
