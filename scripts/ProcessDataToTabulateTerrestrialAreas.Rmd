@@ -403,7 +403,7 @@ This is likely just due to different administrative practices, but is something 
 
 We will deal with that event her, and save out the data, over writing the temp products we just saved. 
 
-```{r Remove duplicated areas in the FWS product}
+```{r Remove duplicated areas in the FWS product, eval = F}
 p <- file.path('..', 'data', 'geospatial', 'DOIadministered')
 
 padus_geo <- st_read(file.path(p, 'DOIterrestrial-geographic.gpkg')) 
@@ -454,7 +454,7 @@ Two reports by the Congressional Research Service match the numbers which I am a
 These are a report from early 2020 (["Federal Land Ownership: Overview and Data"](https://crsreports.congress.gov/product/pdf/r/r42346)), which is comprehensive for the big 5 agencies, and a more recent report from February 2023 (["Federal Lands and Related Resources: Overview and Selected Issues for the 118th Congress"](https://crsreports.congress.gov/product/pdf/R/R43429)) which has virtually identical total values. 
 Given the similarity in the reports, and that while federal lands often change management *styles* they rarely increase by millions of acres, we will use the latter report as our baseline.  
 
-```{r investigate mismatch between PADUS database and official products}
+```{r investigate mismatch between PADUS database and official products, eval = F}
 
 p <- file.path('..', 'data', 'geospatial', 'PADUS4_0Geodatabase', 'PADUS4_0_Geodatabase.gdb')
 padus <- sf::st_read(
@@ -498,23 +498,34 @@ prettyNum(sum(areas_planar) * 0.0001 * 2.45705, ',')
 What this indicates is that our calculations match the PAD-US teams calculations. 
 Our final values, where remove deep water habitat from these agencies terrestrial land sums may however differ. 
 
-```{r}
-data.frame(
-  agency = c('BLM', 'FWS', 'NPS'),
-  crs_area = c(244391312, 89230772, 79972531),
-  pad_est = c(),
-  geoid = c(), 
-  planar = c()
+```{r Estimate accuracy of products}
+
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered')
+padus_geo <- st_read(file.path(p, 'DOIterrestrial-geographic.gpkg')) 
+padus_plan <- st_read(file.path(p, 'DOIterrestrial.gpkg'))
+
+Areas <- data.frame(
+  Mang_Name = padus_geo$Mang_Name,
+  Geographic = as.numeric(units::set_units(st_area(padus_geo), ha)),
+  Planar = as.numeric(units::set_units(st_area(padus_plan), ha))
+) 
+Areas[,2:3] <- apply(Areas[,2:3], MARGIN = 2, \(x) x* 2.4710538146717)
+Areas <- Areas |> 
+  group_by(Mang_Name) |>
+  summarize(
+    Total_g = sum(Geographic),
+    Total_p = sum(Planar))
+
+comparision <- data.frame(
+  Mang_Name = c('BLM', 'FWS', 'NPS'),
+  Stated = c(244391312, 89230772, 79972531)
 )
 
-areas2 <- data.frame(
-  st_drop_geometry(padus_geo), 
-  Area = as.numeric(units::set_units(sf::st_area(padus_geo), ha)*2.4710538146717)
-) |> 
-  group_by(Mang_Name) |>
-  summarize(Total = sum(Area))
-```
+comparision1 <- left_join(comparision, Areas, by = 'Mang_Name')
+knitr::kable(comparision1, format.args = list(big.mark = ","))
 
+rm(padus_geo, padus_plan, p, Areas)
+```
 
 # Derive NLCD x Slope tiles
 
