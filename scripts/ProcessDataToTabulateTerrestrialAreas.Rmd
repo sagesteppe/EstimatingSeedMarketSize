@@ -221,40 +221,6 @@ st_write(doi, file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIadmin
 rm(padus, doi)
 ```
 
-```{r INVESTIGATE MISMATCH}
-areas <- as.numeric(sf::st_area(doi))
-
-mod <- lm(areas ~ doi$SHAPE_Area)
-summary(mod)$r.squared
-
-plot(doi$SHAPE_Area, areas)
-
-indx <- doi$Mang_Name=='BLM'
-
-official <- sum (sf::st_drop_geometry(doi)[indx,'SHAPE_Area'] )
-official * 0.00001 * 2.45705
-#/  sum(areas[indx])
-
-
-blm <- filter(doi, Mang_Name == 'BLM')
-
-blm_geo <- sf::st_transform(blm, 4326)
-blm_geo <- st_make_valid(blm)
-areas_geo <- as.numeric(sf::st_area(blm_geo))
-
-mod_geo <- lm(areas_geo ~ doi$SHAPE_Area[indx])
-summary(mod_geo)$r.squared
-
-areas_planar <- as.numeric(sf::st_area(blm))
-mod_plan <- lm(areas_planar ~ doi$SHAPE_Area[indx])
-summary(mod_plan)$r.squared
-
-prettyNum(sum(doi$SHAPE_Area[indx]) * 0.0001 * 2.45705, ',')
-prettyNum(sum(areas_geo) * 0.0001 * 2.45705, ',')
-prettyNum(sum(areas_planar) * 0.0001 * 2.45705, ',')
-```
-
-
 Some of the areas in the PADUS database cross the antimeridian, or the line defining the Eastern and Western hemispheres. 
 When these polygons are treated in most projections, they become invalid, because the softwares do not 
 wrap them around the actual spheroid model of the earth. 
@@ -358,59 +324,172 @@ padus <- st_read(file.path(p), quiet = TRUE) |>
 
 # when we do this we find out some of our geometries have a problem... 
 indx <- st_is_valid(padus)
-which(indx==FALSE)
 
 # notice we have a ton of multipolygons, what we will find is that it's 
 # usually a single polygon within these objects which is the problem
 invalid <- padus[which(indx == FALSE),]
-padus <- padus[which(indx == TRUE),]
+padus <- mutate(padus, Valid = indx)
 
-# most of these can actually be fixed. 
-invalid_fixed <- sf::st_make_valid(invalid)
+# however, sometimes these polygons are duplicates of another large polygon
+# i.e. a refuge may have 5 multipolygons, and three of these contain redundant
+# information! This probably relates to some kind of administrative duties which 
+# differ across the areas. 
 
-# however 1 remains problematic, we will cast the multi* to polygons
-# and re-union those. 
-invalid_fixed_problem <- invalid_fixed[!sf::st_is_valid(invalid_fixed),]
-invalid_fixed_problem <- sf::st_cast(invalid_fixed_problem, 'POLYGON')
-iso_fix_pro <- sf::st_union(invalid_fixed_problem)
+problem_units <- filter(padus, Unit_Nm %in% invalid$Unit_Nm) 
+problem_units <- st_make_valid(problem_units)
+problem_units <- mutate(problem_units, Valid = st_is_valid(problem_units))
 
-# now we can combine these problem data geometries which we have fixed. 
-iso_fix_pro <- bind_cols(
-  sf::st_drop_geometry(invalid_fixed_problem)[1,],
-  geom = iso_fix_pro
-) |>
-  sf::st_as_sf()
+# these units have some more serious issues with their geometries
+# we will cast all of them to polygon and work on fixing them one at a time. 
+vp_units <- problem_units %>% 
+  group_by(Unit_Nm) %>% 
+  filter(any(Valid == FALSE))
 
-rm(invalid_fixed_problem, invalid)
+vp_units <- sf::st_cast(vp_units, 'POLYGON')
+vp_units <- sf::st_make_valid(vp_units)
 
-# this contains the easily fixed, and the not so easily fixed geometries. 
-# now we can add them back to the geometries which were valid
-fixed <- bind_rows(
-  filter(invalid_fixed, st_is_valid(invalid_fixed)), 
-  iso_fix_pro
+vp_units <- vp_units %>% 
+  group_by(Unit_Nm) %>% 
+  summarize(geom = st_union(geom))
+
+wenatchee <- vp_units[1,'geom']
+tug <- vp_units[2,]
+tug <- st_cast(tug, 'POLYGON')
+
+tug <- st_make_valid(tug) 
+tug <- st_combine(tug) |> 
+  st_make_valid() |> 
+  sf::st_as_sf() |>
+  rename(geom = x)
+
+vp_units <- bind_cols(
+  sf::st_drop_geometry(vp_units), 
+  bind_rows(wenatchee, tug)
 )
 
-rm(invalid_fixed, iso_fix_pro)
-# and finally combine all the data back together as one valid data set. 
-padus2 <- bind_rows(
-  padus,
-  fixed
+fixed <- problem_units %>% 
+  group_by(Unit_Nm) %>% 
+  filter(all(Valid == TRUE))
+
+vp_units <- problem_units %>% 
+  group_by(Unit_Nm) %>% 
+  filter(any(Valid == FALSE) & str_detect(Loc_Mang, 'TOGIAK', negate = TRUE)) |>
+  sf::st_drop_geometry() |>
+  right_join(vp_units, by = 'Unit_Nm')
+
+# these are all of the areas we did not reprocess. 
+padus <- padus %>% 
+  group_by(Unit_Nm) |>
+  filter(all(Valid==TRUE)) |>
+  select(-Valid)
+
+padus <- bind_rows(fixed, vp_units, padus)
+# now we suspect that individual units have been duplicated by some other 
+# process. We will 
+
+padus[38,] <- sf::st_make_valid(padus[38,])
+indx <- sf::st_is_valid(padus)
+
+st_write(padus,
+   file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIterrestrial-geographic.gpkg')
 )
 
-all(sf::st_is_valid(padus2) == TRUE) # we want the TRUE - the whole TRUE and # nothing but the TRUE
+rm(vp_units, fixed, tug, wenatchee, problem_units, invalid, indx)
+```
+
+```{r}
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered')
+
+padus_geo <- st_read(file.path(p, 'DOIterrestrial-geographic.gpkg'))
+padus_plan <- st_read(file.path(p, 'DOIterrestrial.gpkg'))
 
 areas2 <- data.frame(
-  st_drop_geometry(padus2), 
-  Area = units::set_units(sf::st_area(padus2), ha)
+  st_drop_geometry(padus_geo), 
+  Area = as.numeric(units::set_units(sf::st_area(padus_geo), ha)*2.4710538146717)
 ) |> 
   group_by(Mang_Name) |>
   summarize(Total = sum(Area))
 
 
 
-(979436675900 * 0.0001) * 2.47
+
+fws_is_fck <- filter(padus, Mang_Name == 'FWS')
+fck_areas <- st_area(fws_is_fck)
+
+fws_is_fck[ order(fck_areas, decreasing = TRUE), 'Unit_Nm']
+
+anwr <- filter(fws_is_fck, Unit_Nm=='Arctic National Wildlife Refuge') |>
+  rownames_to_column()
+
+anwr2 <- sf::st_union(anwr) |>
+  st_as_sf() |>
+  rownames_to_column()
+
+ggplot() + 
+  geom_sf(data = anwr2, aes(fill = rowname), alpha = 0.5) +
+  facet_grid(~ rowname)
 ```
 
+
+## Compare our area estimates to the official values
+I went around various sources to see the amount of land the agencies officially administer. 
+Two reports by the Congressional Research Service match the numbers which I am able to calculate, but which differ from widely circulated and un-cited values. 
+These are a report from early 2020 (["Federal Land Ownership: Overview and Data"](https://crsreports.congress.gov/product/pdf/r/r42346)), which is comprehensive for the big 5 agencies, and a more recent report from February 2023 (["Federal Lands and Related Resources: Overview and Selected Issues for the 118th Congress"](https://crsreports.congress.gov/product/pdf/R/R43429)) which has virtually identical total values. 
+Given the similarity in the reports, and that while federal lands often change management *styles* they rarely increase by millions of acres, we will use the latter report as our baseline.  
+
+```{r investigate mismatch between PADUS database and official products}
+
+p <- file.path('..', 'data', 'geospatial', 'PADUS4_0Geodatabase', 'PADUS4_0_Geodatabase.gdb')
+padus <- sf::st_read(
+    dsn = p, quiet = TRUE,
+    layer = 'PADUS4_0Fee')  |>
+  dplyr::select(Mang_Name, Mang_Type, Loc_Mang, Unit_Nm, IUCN_Cat, SHAPE_Area)  |>
+  sf::st_cast('MULTIPOLYGON') 
+
+doi <- filter(padus, Mang_Name %in% c('BLM', 'FWS', 'NPS', 'TRIB', 'USBR'))
+areas <- as.numeric(sf::st_area(doi))
+
+mod <- lm(areas ~ doi$SHAPE_Area)
+summary(mod)$r.squared
+plot(doi$SHAPE_Area, areas)
+indx <- doi$Mang_Name=='USBR'
+official <- sum (sf::st_drop_geometry(doi)[indx,'SHAPE_Area'] )
+official * 0.00001 * 2.45705
+
+sum(areas[indx])
+blm <- filter(doi, Mang_Name == 'USBR')
+blm_geo <- sf::st_transform(blm, 4326)
+blm_geo <- st_make_valid(blm)
+
+areas_geo <- as.numeric(sf::st_area(blm_geo))
+mod_geo <- lm(areas_geo ~ doi$SHAPE_Area[indx])
+summary(mod_geo)$r.squared
+
+areas_planar <- as.numeric(sf::st_area(blm))
+mod_plan <- lm(areas_planar ~ doi$SHAPE_Area[indx])
+summary(mod_plan)$r.squared
+
+# NPS TRACKS OUR NUMBER IS VIRTUALLY INDISTINGUISHABLE FROM THERE 
+# ESTIMATED LAND 84,000,000 and 4,502,644 aquatic 
+
+# BLM WE ARE 1.2% OFF THE VALUES WHICH THE AGENCY SHARES. 
+prettyNum(sum(doi$SHAPE_Area[indx]) * 0.0001 * 2.45705, ',')
+prettyNum(sum(areas_geo) * 0.0001 * 2.45705, ',')
+prettyNum(sum(areas_planar) * 0.0001 * 2.45705, ',')
+```
+
+What this indicates is that our calculations match the PAD-US teams calculations. 
+Our final values, where remove deep water habitat from these agencies terrestrial land sums may however differ. 
+
+```{r}
+data.frame(
+  agency = c('BLM', 'FWS', 'NPS'),
+  crs_area = c(244391312, 89230772, 79972531),
+  pad_est = c(),
+  geoid = c(), 
+  planar = c()
+)
+```
 
 
 # Derive NLCD x Slope tiles
