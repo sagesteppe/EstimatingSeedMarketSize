@@ -1,13 +1,13 @@
 /*-- scss:defaults --*/
 
-.text-col {
-  background-color: #18BC9C;
+.text-col-1 {
+  background-color: #D6CA98;
   padding:25px;
   box-sizing: border-box;
 }
 
-.text-row {
-  background-color: #18BC9C;
+.text-col-2 {
+  background-color: #AB92BF;
   padding:25px;
   box-sizing: border-box;
 }

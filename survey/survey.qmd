@@ -206,19 +206,51 @@ sd_next(next_page = 'Alaska_species')
 
 When species the species is the EC to the SPP
 
-::: {.column .text-col width="100%"}
+::: {.text-col-1 width = "100%"}
+
+SPECIES NAME RIGHT HERE BOYO 
+
+::: {.text-col-3 width = "100"}
 
 ```{r}
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Trees:")
+#| column: screen-inset-shaded
+#| layout-ncol: 2
+#| layout-nrow: 2
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area?:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix?:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area WANT?:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix? WANT:")
 ```
+
+:::
+:::
+
+::: {.text-col-3 width = "100"}
+:::
+
+::: {.text-col-2 width = "100"}
+
+DIFFERENT SPECIES NAME RIGHT HERR 
+
+::: {.text-col-3 width = "100"}
+```{r}
+#| column: screen-inset-shaded
+#| layout-ncol: 2
+#| layout-nrow: 2
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area?:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix?:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area WANT?:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix? WANT:")
+```
+
+:::
 
 :::
 
 ```{r}
 sd_next(next_page = 'end')
 ```
-
-::: 
+:::
 
 ::: {#end .sd-page}
 
