@@ -24,15 +24,7 @@ library(sf)
 
 # 1, 2, & 3 Total sums of terrestrial area managed by DOI agencies
 
-```{r Import Data}
-p <- file.path('..', 'data', 'geospatial', 'DOIadministered', 'DOIterrestrial.gpkg')
-padus <- st_read(file.path(p), quiet = TRUE) |>
-  # we are dealing with areas over significant curvature of the earth
-  # and many high latitude areas so will need to calculate our areas on 
-  # the geoid
-  sf::st_transform(4326) |>
-  sf::st_make_valid()
-
+```{r Import DOI regions data}
 p <- file.path('..', 'data', 'geospatial', 'AdministrativeUnits', 'DOIRegions', 'DOI_12_Unified_Regions_20180801.shp')
 regions <- st_read(file.path(p), quiet = TRUE) |>
   sf::st_transform(4326) |>
@@ -41,38 +33,65 @@ regions <- st_read(file.path(p), quiet = TRUE) |>
 
 The sum of terrestrial area administered by each DOI agency can be calculated by simply summing over the entire PADUS data set, which we have subset to the relevant agencies. 
 
-```{r terrestrial land by agency}
-
-indx <- sf::st_is_valid(padus)
-which(indx == FALSE)
-plot(padus[1800,1])
-
-OB <- st_collection_extract(padus[which(indx == FALSE),], 'POLYGON')
-OB <- st_make_valid(OB)
-
-OBCast <- st_cast(OB, 'POLYGON')
-st_is_valid(OBCast)
-OBCast <- st_union(OBCast) 
-
-bind_cols(
-  st_drop_geometry(OB), 
-  geometry = OBCast
-)
-
-st_is_valid()
-
-areas_rough <- data.frame(
-  areas = units::set_units(sf::st_area(padus), ha),
-  agency = padus$Mang_Name
-) |>
-  group_by(agency) |>
-  summarise(Total_area = as.numeric(sum(areas)*2.471051565))
-
-areas_rough
+```{r import terrestrial management surfaces data}
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered')
+padus_geo <- st_read(file.path(p, 'DOIterrestrial-geographic.gpkg'), quiet = TRUE) 
+padus_plan <- st_read(file.path(p, 'DOIterrestrial.gpkg'), quiet = TRUE)
+rm(p)
 ```
 
-```{r terrestrial land by doi region}
+A difference exists between the true total area managed by each agency, and the amount of mapped GIS acres for each agency. 
+It appears Protected Areas Database of the United States (PADUS) version 4 has around 98-99% of all areas mapped, mapping areas is a long process and has not been completed for all parcels yet. 
+We have confirmed that our calculations match the PADUS teams GIS acres calculations precisely, and have ruled out all other sources of error. 
+Note that we have also removed very large bodies of water, and some totally barrn playas from the area estimates, hence each agency comes in 'beneath' their official estimates of GIS acres as well. 
 
+```{r calculate total terrestrial area managed by each agency}
+
+Areas <- data.frame(
+  Mang_Name = padus_geo$Mang_Name,
+  Geographic = as.numeric(units::set_units(st_area(padus_geo), ha)),
+  Planar = as.numeric(units::set_units(st_area(padus_plan), ha))
+) 
+
+Areas[,2:3] <- apply(Areas[,2:3], MARGIN = 2, \(x) x* 2.4710538146717)
+Areas <- Areas |> 
+  group_by(Mang_Name) |>
+  summarize(
+    Total_g = sum(Geographic),
+    Total_p = sum(Planar))
+
+knitr::kable(
+  Areas, 
+  col.names = c('Agency', 'Area (Geographic)', 'Area (Planar)'),
+  digits = 0, 
+  format.args = list(big.mark = ',')
+  )
+
+# total DOI area, around 410,000,000 (that is million) acres. 
+sum(Areas$Total_g)
+sum(Areas$Total_p)
+```
+
+The amount of land managed by each agency varies considerably. 
+
+```{r create data set of terrestrial land by doi region}
+
+padus_geo_regions <- padus_geo |>
+  select(Mang_Name) |>
+  st_cast('POLYGON') 
+
+ints <- st_intersection(regions, padus_geo_regions)
+
+ # lwgeom::st_split(st_cast(regions, 'MULTILINESTRING')) |>
+  st_join( 
+    select(regions, REG_NAME))
+
+padus_plan_regions <- padus_plan |>
+  select(Mang_Name)|>
+  st_join( 
+    select(regions, REG_NAME))
+
+st_write(padus_geo_regions, 'test-region-join.gpkg')
 ```
 
 
