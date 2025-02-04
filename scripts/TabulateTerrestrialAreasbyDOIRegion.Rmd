@@ -75,27 +75,48 @@ sum(Areas$Total_p)
 The amount of land managed by each agency varies considerably. 
 
 ```{r create data set of terrestrial land by doi region}
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered')
+padus_geo_regions <- st_read(file.path(p, 'DOIterrestrial-geographic-Regions.gpkg'), quiet = TRUE) 
+padus_geo_regions <- sf::st_make_valid(padus_geo_regions)
 
-padus_geo_regions <- padus_geo |>
-  select(Mang_Name) |>
-  st_cast('POLYGON') 
+padus_planar_regions <- st_read(file.path(p, 'DOIterrestrial-planar-Regions.gpkg'), quiet = TRUE)
 
-ints <- st_intersection(regions, padus_geo_regions)
+areas <- as.numeric(units::set_units(st_area(padus_planar_regions), ha))* 2.4710538146717
+all_areas <- padus_planar_regions %>% 
+  st_drop_geometry() %>% 
+  mutate(AREA_ACRES = areas)
 
- # lwgeom::st_split(st_cast(regions, 'MULTILINESTRING')) |>
-  st_join( 
-    select(regions, REG_NAME))
+areas <- as.numeric(units::set_units(st_area(padus_geo_regions), ha))* 2.4710538146717
+padus_geo_regions <- padus_geo_regions %>% 
+  st_drop_geometry() %>% 
+  mutate(AREA_ACRES = areas) 
+```
 
-padus_plan_regions <- padus_plan |>
-  select(Mang_Name)|>
-  st_join( 
-    select(regions, REG_NAME))
+```{r area administered in each DOI region}
 
-st_write(padus_geo_regions, 'test-region-join.gpkg')
+all_areas <- padus_planar_regions %>% 
+  st_drop_geometry() %>% 
+  mutate(AREA_ACRES = areas) %>% 
+  group_by(REG_NAME) %>% 
+  summarize(Total_Area = sum(AREA_ACRES))
+
+padus_geo_regions <- padus_geo_regions %>% 
+  group_by(REG_NAME) %>% 
+  summarize(Total_Area = sum(AREA_ACRES))
+
+ac_region <- padus_geo_regions$Total_Area
+
+knitr::kable(
+  all_areas, 
+  col.names = c('Region', 'Area (Planar)', 'Area (Geographic)'),
+  digits = 0, 
+  format.args = list(big.mark = ',')
+  )
+
 ```
 
 
-```{r land by doi region x agency}
+```{r area by each DOI agency in each DOI region}
 
 ```
 

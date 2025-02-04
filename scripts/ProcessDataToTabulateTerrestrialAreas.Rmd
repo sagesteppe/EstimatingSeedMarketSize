@@ -448,6 +448,27 @@ st_write(padus_plan, file.path(p, 'DOIterrestrial.gpkg'), append = FALSE)
 rm(padus_plan, not_fish, fws)
 ```
 
+We will also intersect our data to the DOI regions.
+
+```{r create data set of terrestrial land by doi region}
+
+padus_geo_regions <- padus_geo |>
+  select(Mang_Name) |>
+  st_cast('POLYGON') 
+
+ints <- st_intersection(regions, padus_geo_regions)
+p <- file.path('..', 'data', 'geospatial', 'DOIadministered')
+st_write(ints, file.path(p, 'DOIterrestrial-geographic-Regions.gpkg'), quiet = TRUE) 
+
+
+padus_plan_regions <- padus_plan |>
+  select(Mang_Name)
+regions <- st_transform(regions, st_crs(padus_plan_regions))
+ints <- st_intersection(regions, padus_plan_regions)
+
+st_write(ints, file.path(p, 'DOIterrestrial-planar-Regions.gpkg'), quiet = TRUE) 
+```
+
 ## Compare our area estimates to the official values
 I went around various sources to see the amount of land the agencies officially administer. 
 Two reports by the Congressional Research Service match the numbers which I am able to calculate, but which differ from widely circulated and un-cited values. 
