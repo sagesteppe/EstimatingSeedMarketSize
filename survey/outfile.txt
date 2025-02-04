@@ -1,5 +1,5 @@
 ::: {#Alaska_lifeform_area .sd-page} 
-### Region 1 Alaska - Growth Forms 
+### Region 1 Alaska - Lifeforms by Area 
 
 Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?
 
@@ -19,11 +19,11 @@ sd_next(next_page = 'Alaska_lifeform_prop')
 
 ::: {#Alaska_lifeform_prop .sd-page}
 
-### Alaska - Growth Form
+### Alaska - Lifeforms by Seed Mix
 
 When using these lifeforms in a restoration what proportion of a seed mix do they make up?
 
-```{r Lifeforms by Proportions - Alaska}
+```{r Lifeforms by Seed Mix - Alaska}
 #| column: screen-inset-shaded
 #| layout-ncol: 3
 #| layout-nrow: 4
