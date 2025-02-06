@@ -141,24 +141,18 @@ Across all area that you have treated in this region in your career, what percen
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[1], "area"), 
-            label = paste0(nlcd[1], "\nGraminoids:"))
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[2], "area"), 
-            label = paste0(nlcd[2], "\nGraminoids:"))
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[3], "area"),
-            label = paste0(nlcd[3], "\nGraminoids:"))
 
-sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[1], "area"), label = "Forbs:")
-sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[2], "area"), label = "Forbs:")
-sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[3], "area"), label = "Forbs:")
+life <- c('Graminoids', 'Forbs', 'Shrubs', 'Trees')
 
-sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[1], "area"), label = "Shrubs:")
-sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[2], "area"), label = "Shrubs:")
-sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[3], "area"), label = "Shrubs:")
+for (form in 1:length(life_forms)){
+  for (class in 1:length(nlcd)){
+    print(
+      paste0(
+        "sd_question('numeric', paste0('", life[form], "', '", region[i], "-", 
+        nlcd[class], "', 'area'), ", "paste0('", nlcd[class], "'\n'", life[form], "'))"))
+  }
+}
 
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Trees:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[2], "area"), label = "Trees:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[3], "area"), label = "Trees:")
 ```
 
 ```{r}
@@ -177,24 +171,14 @@ When using these lifeforms in a restoration what proportion of a seed mix do the
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[1], "area"), 
-            label = paste0(nlcd[1], "\nGraminoids:"))
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[2], "area"), 
-            label = paste0(nlcd[2], "\nGraminoids:"))
-sd_question(type  = "numeric", id = paste0("Graminoid", region, '-', nlcd[3], "area"),
-            label = paste0(nlcd[3], "\nGraminoids:"))
-
-sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[1], "area"), label = "Forbs:")
-sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[2], "area"), label = "Forbs:")
-sd_question(type  = "numeric", id = paste0("Forbs", region, '-', nlcd[3], "area"), label = "Forbs:")
-
-sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[1], "area"), label = "Shrubs:")
-sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[2], "area"), label = "Shrubs:")
-sd_question(type  = "numeric", id = paste0("Shrubs", region, '-', nlcd[3], "area"), label = "Shrubs:")
-
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Trees:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[2], "area"), label = "Trees:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[3], "area"), label = "Trees:")
+for (form in 1:length(life_forms)){
+  for (class in 1:length(nlcd)){
+    print(
+      paste0(
+        "sd_question('numeric', paste0('", life[form], "', '", region[i], "-",
+        nlcd[class], "', 'mix'), ", "paste0('", nlcd[class], ",", life[form], "'))"))
+  }
+}
 ```
 
 ```{r}
