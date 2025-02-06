@@ -26,7 +26,7 @@ respondentAgency:
     Other: other
 respondentAgency_other:
   type: text
-  label: 'If you selected ‘other’ above, please specify the agency you work for:'
+  label: 'If you selected Other above, please specify the agency you work for:'
 respondent_DOI_region:
   type: mc_buttons
   label: Which DOI region is your office primarily located in?
@@ -40,49 +40,103 @@ respondent_DOI_region:
     7 Upper Colorado Basin: '7'
     8 Lower Colorado Basin: '8'
     9 Columbia-Pacific Northwest: '9'
-    10 California-Great-Basin: '9'
+    10 California-Great-Basin: '10'
     11 Alaska: '11'
     12 Pacific Islands: '12'
-Graminoid12-42area:
+Graminoids12-51area:
   type: numeric
-  label: |-
-    42
-    Graminoids:
-Graminoid12-52area:
+  label: 51 Graminoids
+Graminoids12-71area:
   type: numeric
-  label: |-
-    52
-    Graminoids:
-Graminoid12-68area:
+  label: 71 Graminoids
+Graminoids12-81area:
   type: numeric
-  label: |-
-    68
-    Graminoids:
-Forbs12-42area:
+  label: 81 Graminoids
+Forbs12-51area:
   type: numeric
-  label: 'Forbs:'
-Forbs12-52area:
+  label: 51 Forbs
+Forbs12-71area:
   type: numeric
-  label: 'Forbs:'
-Forbs12-68area:
+  label: 71 Forbs
+Forbs12-81area:
   type: numeric
-  label: 'Forbs:'
-Shrubs12-42area:
+  label: 81 Forbs
+Shrubs12-51area:
   type: numeric
-  label: 'Shrubs:'
-Shrubs12-52area:
+  label: 51 Shrubs
+Shrubs12-71area:
   type: numeric
-  label: 'Shrubs:'
-Shrubs12-68area:
+  label: 71 Shrubs
+Shrubs12-81area:
   type: numeric
-  label: 'Shrubs:'
-Trees12-42area:
+  label: 81 Shrubs
+Trees12-51area:
+  type: numeric
+  label: 51 Trees
+Trees12-71area:
+  type: numeric
+  label: 71 Trees
+Trees12-81area:
+  type: numeric
+  label: 81 Trees
+Graminoids12-51proportion:
+  type: numeric
+  label: 51 Graminoids
+Graminoids12-71proportion:
+  type: numeric
+  label: 71 Graminoids
+Graminoids12-81proportion:
+  type: numeric
+  label: 81 Graminoids
+Forbs12-51proportion:
+  type: numeric
+  label: 51 Forbs
+Forbs12-71proportion:
+  type: numeric
+  label: 71 Forbs
+Forbs12-81proportion:
+  type: numeric
+  label: 81 Forbs
+Shrubs12-51proportion:
+  type: numeric
+  label: 51 Shrubs
+Shrubs12-71proportion:
+  type: numeric
+  label: 71 Shrubs
+Shrubs12-81proportion:
+  type: numeric
+  label: 81 Shrubs
+Trees12-51proportion:
+  type: numeric
+  label: 51 Trees
+Trees12-71proportion:
+  type: numeric
+  label: 71 Trees
+Trees12-81proportion:
+  type: numeric
+  label: 81 Trees
+Linnaea_borealis-12-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Linnaea_borealis-12-realized-prop:
   type: numeric
   label: Proportion of Seedmix?
-Trees12-52area:
+Linnaea_borealis-12-desired-area:
   type: numeric
-  label: 'Trees:'
-Trees12-68area:
+  label: Proportion of Area?
+Linnaea_borealis-12-desired-prop:
   type: numeric
-  label: 'Trees:'
+  label: Proportion of Seedmix?
+Pumpkin_eater-12-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Pumpkin_eater-12-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Pumpkin_eater-12-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Pumpkin_eater-12-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
 

@@ -11,14 +11,7 @@ library(surveydown)
 # database table. See the documentation for details:
 # https://surveydown.org/store-data
 
-db <- sd_database(
-  host   = "",
-  dbname = "",
-  port   = "",
-  user   = "",
-  table  = "",
-  ignore = TRUE
-)
+db <- sd_db_connect()
 
 
 # Server setup
@@ -42,7 +35,7 @@ server <- function(input, output, session) {
 
   # Define any conditional display logic here (show a question if a condition is true)
   sd_show_if(
-    input$respondentAgency == "other" ~ "respondentAgency_other", 
+    input$respondentAgency == "other" ~ "respondentAgency_other",
     input$email_followup == 'Yes' ~ "respondent_email_address"
   )
 
