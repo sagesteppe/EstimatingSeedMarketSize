@@ -1,0 +1,111 @@
+::: {#Alaska_lifeform_area .sd-page} 
+### Region 1 Alaska - Lifeforms by Area 
+
+Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?
+
+```{r Lifeforms by Area - Alaska}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+# ALL THE LIFEFORM QUESTIONS GO HERE...
+
+```
+
+```{r}
+sd_next(next_page = 'Alaska_lifeform_prop')
+```
+:::
+
+::: {#Alaska_lifeform_prop .sd-page}
+
+### Alaska - Lifeforms by Seed Mix
+
+When using these lifeforms in a restoration what proportion of a seed mix do they make up?
+
+```{r Lifeforms by Seed Mix - Alaska}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+# ALL THE LIFEFORM PROP QUESTIONS GO HERE...
+
+```
+
+```{r}
+sd_next(next_page = 'Alaska_species')
+```
+:::
+
+::: {#Alaska_species .sd-page}
+
+### Alaska - Common Species
+
+For each of the following species please. DO STUFF
+:::: {.column .species-odd width='98%'}
+
+<center>Linnaea borealis</center>
+
+::: {.column .species-numbers width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question(type  = 'numeric', id = paste0('Linnaea_borealis', '-', 12, '-realized-area'), label = 'Proportion of Area?')
+sd_question(type  = 'numeric', id = paste0('Linnaea_borealis', '-', 12, '-realized-prop'), label = 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-numbers width='49%'}
+<center>Desired</center>
+```{r}
+sd_question(type  = 'numeric', id = paste0('Linnaea_borealis', '-', 12, '-desired-area'), label = 'Proportion of Area?')
+sd_question(type  = 'numeric', id = paste0('Linnaea_borealis', '-', 12, '-desired-prop'), label = 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+:::: {.column .species-odd width='98%'}
+
+<center>Pumpkin eater</center>
+
+::: {.column .species-numbers width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question(type  = 'numeric', id = paste0('Pumpkin eater', '-', NA, '-realized-area'), label = 'Proportion of Area?')
+sd_question(type  = 'numeric', id = paste0('Pumpkin eater', '-', NA, '-realized-prop'), label = 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-numbers width='49%'}
+<center>Desired</center>
+```{r}
+sd_question(type  = 'numeric', id = paste0('Pumpkin eater', '-', NA, '-desired-area'), label = 'Proportion of Area?')
+sd_question(type  = 'numeric', id = paste0('Pumpkin eater', '-', NA, '-desired-prop'), label = 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+```{r}
+sd_next(next_page = 'end')
+```
+
+:::
+
+::: {#end .sd-page}
+
+##End
+
+Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length.
+
+```{r}
+sd_close('Exit Survey')
+```
+
+```
+:::

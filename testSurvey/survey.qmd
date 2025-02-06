@@ -17,7 +17,9 @@ nlcd <- c(42, 52, 68)
 ```
 
 ::: {#welcome .sd-page}
+
 # Welcome to our survey!
+
 We would like to know a little bit about you so that we only ask questions relevant to your expertise.  
 
 ```{r respondent name}
@@ -43,14 +45,6 @@ sd_next(next_page = 'species')
 
 :::: {#species .sd-page} 
 ### Species 
-::: {.column .text-col width="100%"}
-
-| fruit  | price  |  alpha  |
-|--------|--------|---------|
-| apple  | 2.05   |   A     |
-| pear   | 1.37   |    B    |
-| orange | 3.09   |    C    |
-
 
 #### What percent area in each NLCD is this species applied? 
 
@@ -88,46 +82,66 @@ sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[3], "area"
 sd_next(next_page = 'Alaska_species')
 ```
 
-:::
 ::::
 
-
-::: {#Alaska_species .sd-page} 
+::::: {#Alaska_species .sd-page} 
 
 ### Region 11 - Alaska - Species 
 
 When species the species is the EC to the SPP
 
-::: {.column .text-col-1 width = "100%"}
+:::: {.column .species-odd width="98%"} 
 
-SPECIES NAME RIGHT HERE BOYO 
+<center>SPECIES 1 NAME GOES HERE.</center>   
 
+::: {.column .species-numbers width="49%"} 
+
+<center>Realized</center>
 ```{r}
-#| column: screen-inset-shaded
-#| layout-ncol: 2
-#| layout-nrow: 2
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area?:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix?:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area WANT?:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix? WANT:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
 ```
 
 :::
 
-::: {.column .text-col-2 width = "100%"}
+::: {.column .species-numbers width="49%"} 
 
-DIFFERENT SPECIES NAME RIGHT HERR 
-
+<center>Desired</center>
 ```{r}
-#| column: screen-inset-shaded
-#| layout-ncol: 2
-#| layout-nrow: 2
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area?:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix?:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of Area WANT?:")
-sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "What proportion of a Seedmix? WANT:")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
 ```
 
 :::
 
-::: {#end .sd-page}
+::::
+
+:::: {.column .species-even width="98%"} 
+
+<center>SPECIES 2 NAME7  </center>
+
+::: {.column .species-numbers width="49%"} 
+
+<center>Realized</center>
+```{r}
+sd_question(type  = "numeric", id = paste0("SPP-realized", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("SPP-realized", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
+```
+
+:::
+
+::: {.column .species-numbers width="49%"} 
+
+<center>Desired</center>  
+```{r}
+sd_question(type  = "numeric", id = paste0("SPP-desired", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("SPP-desired", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
+```
+
+:::
+
+::::
+
+:::::
+
+

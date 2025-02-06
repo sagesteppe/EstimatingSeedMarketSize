@@ -35,7 +35,7 @@ Shrubs12-68area:
   label: 'Shrubs:'
 Trees12-42area:
   type: numeric
-  label: 'What proportion of a Seedmix? WANT:'
+  label: Proportion of Seedmix?
 Trees12-52area:
   type: numeric
   label: 'Trees:'

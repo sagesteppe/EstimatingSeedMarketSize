@@ -1,13 +1,30 @@
 /*-- scss:defaults --*/
 
-.text-col-1 {
-  background-color: #D6CA98;
-  padding:25px;
-  box-sizing: border-box;
+.species-odd {
+  border-radius: 20px;
+  background: #A5F3E4;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom:10px;
 }
 
-.text-col-2 {
-  background-color: #AB92BF;
-  padding:25px;
+.species-numbers {
+  border-radius: 15px;
+  padding:15px;
+  background: #ecf0f1;
   box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
 }
+
+.species-even {
+  border-radius: 20px;
+  background: #FAD79E;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom:10px;
+}
+

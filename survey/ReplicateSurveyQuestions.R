@@ -5,14 +5,15 @@
 
 setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
-
 region_name <- c('Alaska')
+region_no <- 12
+species <- c('Linnaea_borealis', 'Pumpkin eater')
 question <- c(
   "Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?",
   "When using these lifeforms in a restoration what proportion of a seed mix do they make up?"
 )
 
-sink("outfile.txt")
+sink("outfile.qmd")
 
 for(i in 1:length(region_name)){
   cat(
@@ -58,29 +59,73 @@ for(i in 1:length(region_name)){
       "```\n",
       ":::\n",
       "\n",
-      ################### QUESTIONS ON SPECIES ARE HERE.
+      ################### QUESTIONS ON SPECIES ARE HERE. #####################3
       "::: {#", region_name[i], "_species .sd-page}\n",
       "\n",
       "### ", region_name[i], " - Common Species\n",
       "\n",
-      "How much of these species do you use?\n",
-      "\n",
-      "```{r ", region_name[i], " Common Species}\n",
-      "#| column: screen-inset-shaded",
-      "#| layout-nrow: 4\n", # MAYBE HARD CODED BUT NO CLUE ON RANGE YET.
-      "#| layout-ncol: 4\n",
-      '\n',
-      "# ALL THE SPECIES QUESTIONS GO HERE...\n",
-      "\n",
-      "```\n",
-      "\n",
-      "```{r}\n",
-      "sd_next(next_page = end)\n",
-      "```\n",
-      ":::\n",
-      "\n"
+      "For each of the following species please. DO STUFF\n"
     )
   )
+
+      ### ENGAGE A NESTED LOOP TO WRITE OUT THE CONTENTS FOR EACH
+
+      for(i in 1:length(species)){
+        cat(
+          paste0(
+        ":::: {.column .species-odd width='98%'}\n",
+        "\n",
+        "<center>", gsub('_', ' ', species[i]), "</center>\n",
+        "\n",
+        "::: {.column .species-numbers width='49%'}\n",
+        "\n",
+        "<center>Realized</center>\n",
+        "```{r}\n",
+        "sd_question(type  = 'numeric', id = paste0('", species[i], "', '-', ", region_no[i], ", '-realized-area'), label = 'Proportion of Area?')\n",
+        "sd_question(type  = 'numeric', id = paste0('", species[i], "', '-', ", region_no[i], ", '-realized-prop'), label = 'Proportion of Seedmix?')\n",
+        "```\n",
+        "\n",
+        ":::\n",
+        "\n",
+        "::: {.column .species-numbers width='49%'}\n",
+        "<center>Desired</center>\n",
+        "```{r}\n",
+        "sd_question(type  = 'numeric', id = paste0('", species[i], "', '-', ", region_no[i], ", '-desired-area'), label = 'Proportion of Area?')\n",
+        "sd_question(type  = 'numeric', id = paste0('", species[i], "', '-', ", region_no[i], ", '-desired-prop'), label = 'Proportion of Seedmix?')\n",
+        "```\n",
+        "\n",
+        ":::\n",
+        "\n",
+        "::::\n"
+          )
+        )
+      }
 }
+
+cat(
+  paste0(
+  "\n",
+  "```{r}\n",
+  "sd_next(next_page = 'end')\n",
+  "```\n",
+  "\n",
+  ":::\n",
+  "\n",
+  "::: {#end .sd-page}\n",
+  "\n",
+  "##End\n",
+  "\n",
+  "Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length.\n",
+  "\n",
+  "```{r}\n",
+  "sd_close('Exit Survey')\n",
+  "```\n",
+  "\n",
+  "```\n",
+  ":::\n"
+  )
+)
+
+
 
 sink()
