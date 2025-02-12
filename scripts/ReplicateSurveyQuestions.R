@@ -12,7 +12,7 @@ nlcd_tab <- data.frame(
 )
 
 species_tab <- read.csv('TopTenSpecies.csv') 
-species_tab$species <- paste(species_tab$genus, species_tab$species)
+species_tab$species <- paste0(species_tab$genus, '_', species_tab$species)
 species_tab <- species_tab[,c('REG_NAME', 'species')]
 
 life <- c('Graminoids', 'Forbs', 'Shrubs', 'Trees')
@@ -296,8 +296,4 @@ cat(
   )
 )
 
-
 sink()
-
-
-

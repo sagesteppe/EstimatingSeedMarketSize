@@ -1,9 +1,10 @@
 # remotes::install_github("surveydown-dev/surveydown", force = TRUE)
+# remotes::install_github('sagesteppe/surveydown')
 library(surveydown)
 #setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
 # Database setup
-db <- sd_db_connect(
+db <- surveydown::sd_db_connect(
   gssencmode = NULL
 )
 
@@ -27,13 +28,13 @@ server <- function(input, output, session) {
 #  )
 
   # Define any conditional display logic here (show a question if a condition is true)
-  sd_show_if(
+  surveydown::sd_show_if(
     input$respondentAgency == "other" ~ "respondentAgency_other",
     input$email_followup == 'Yes' ~ "respondent_email_address"
   )
 
   # Database designation and other settings
-  sd_server(
+  surveydown::sd_server(
     db = db, 
     use_cookies = FALSE, 
     rate_survey = TRUE

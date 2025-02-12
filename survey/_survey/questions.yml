@@ -1,0 +1,298 @@
+# ! JUST READ - don't change the content of this file
+# Question structure extracted from survey.html
+FirstName:
+  type: text
+  label: What is your first name?
+LastName:
+  type: text
+  label: And your last name?
+email_followup:
+  type: mc_buttons
+  label: Can we follow up with you on any questions we may have regarding the survey?
+  options:
+    'Yes': 'Yes'
+    'No': 'No'
+respondent_email_address:
+  type: text
+  label: What is your email address?
+respondentAgency:
+  type: mc_buttons
+  label: Which agency do you currently work for?
+  options:
+    BIA: BIA
+    BLM: BLM
+    NPS: NPS
+    USFWS: USFWS
+    Other: other
+respondentAgency_other:
+  type: text
+  label: 'If you selected Other above, please specify the agency you work for:'
+respondent_DOI_region:
+  type: mc_buttons
+  label: Which DOI region is your office primarily located in?
+  options:
+    1 North Atlantic-Appalachian: '1'
+    2 South Atlantic-Gulf: '2'
+    3 Great Lakes: '3'
+    4 Mississippi Basin: '4'
+    5 Missouri Basin: '5'
+    6 Arkansas-Rio Grande-Texas-Gulf: '6'
+    7 Upper Colorado Basin: '7'
+    8 Lower Colorado Basin: '8'
+    9 Columbia-Pacific Northwest: '9'
+    10 California-Great-Basin: '10'
+    11 Alaska: '11'
+    12 Pacific Islands: '12'
+Graminoids7-51area:
+  type: numeric
+  label: 51 Graminoids
+Graminoids7-71area:
+  type: numeric
+  label: 71 Graminoids
+Graminoids7-81area:
+  type: numeric
+  label: 81 Graminoids
+Forbs7-51area:
+  type: numeric
+  label: 51 Forbs
+Forbs7-71area:
+  type: numeric
+  label: 71 Forbs
+Forbs7-81area:
+  type: numeric
+  label: 81 Forbs
+Shrubs7-51area:
+  type: numeric
+  label: 51 Shrubs
+Shrubs7-71area:
+  type: numeric
+  label: 71 Shrubs
+Shrubs7-81area:
+  type: numeric
+  label: 81 Shrubs
+Trees7-51area:
+  type: numeric
+  label: 51 Trees
+Trees7-71area:
+  type: numeric
+  label: 71 Trees
+Trees7-81area:
+  type: numeric
+  label: 81 Trees
+Graminoids7-51proportion:
+  type: numeric
+  label: 51 Graminoids
+Graminoids7-71proportion:
+  type: numeric
+  label: 71 Graminoids
+Graminoids7-81proportion:
+  type: numeric
+  label: 81 Graminoids
+Forbs7-51proportion:
+  type: numeric
+  label: 51 Forbs
+Forbs7-71proportion:
+  type: numeric
+  label: 71 Forbs
+Forbs7-81proportion:
+  type: numeric
+  label: 81 Forbs
+Shrubs7-51proportion:
+  type: numeric
+  label: 51 Shrubs
+Shrubs7-71proportion:
+  type: numeric
+  label: 71 Shrubs
+Shrubs7-81proportion:
+  type: numeric
+  label: 81 Shrubs
+Trees7-51proportion:
+  type: numeric
+  label: 51 Trees
+Trees7-71proportion:
+  type: numeric
+  label: 71 Trees
+Trees7-81proportion:
+  type: numeric
+  label: 81 Trees
+Achnatherum_hymneoides-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Achnatherum_hymneoides-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Achnatherum_hymneoides-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Achnatherum_hymneoides-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Pascopyrum_smithii-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Pascopyrum_smithii-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Pascopyrum_smithii-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Pascopyrum_smithii-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Poa_secunda-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Poa_secunda-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Poa_secunda-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Poa_secunda-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Elymus_elymoides-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Elymus_elymoides-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Elymus_elymoides-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Elymus_elymoides-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Pseudoroegneria_spicata-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Pseudoroegneria_spicata-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Pseudoroegneria_spicata-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Pseudoroegneria_spicata-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Sporobolus_cryptandrus-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Sporobolus_cryptandrus-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Sporobolus_cryptandrus-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Sporobolus_cryptandrus-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Elymus_lanceolatus-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Elymus_lanceolatus-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Elymus_lanceolatus-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Elymus_lanceolatus-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Elymus_trachycaulus-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Elymus_trachycaulus-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Elymus_trachycaulus-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Elymus_trachycaulus-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Bouteloua_gracilis-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Bouteloua_gracilis-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Bouteloua_gracilis-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Bouteloua_gracilis-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Hesperostipa_comata-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Hesperostipa_comata-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Hesperostipa_comata-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Hesperostipa_comata-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Achillea_millefolium-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Achillea_millefolium-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Achillea_millefolium-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Achillea_millefolium-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Machaeranthera_canescens-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Machaeranthera_canescens-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Machaeranthera_canescens-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Machaeranthera_canescens-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Heterotheca_villosa-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Heterotheca_villosa-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Heterotheca_villosa-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Heterotheca_villosa-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Linum_lewisii-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Linum_lewisii-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Linum_lewisii-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Linum_lewisii-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Penstemon_linarioides-7-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Penstemon_linarioides-7-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Penstemon_linarioides-7-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Penstemon_linarioides-7-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+
