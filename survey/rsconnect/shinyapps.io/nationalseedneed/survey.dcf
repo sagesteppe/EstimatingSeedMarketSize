@@ -1,0 +1,12 @@
+name: survey
+title: survey
+username: nationalseedneed
+account: nationalseedneed
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13980236
+bundleId: 9789530
+url: https://nationalseedneed.shinyapps.io/survey/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

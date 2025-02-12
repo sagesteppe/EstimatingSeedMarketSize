@@ -43,100 +43,100 @@ respondent_DOI_region:
     10 California-Great-Basin: '10'
     11 Alaska: '11'
     12 Pacific Islands: '12'
-Graminoids12-51area:
+Graminoids11-51area:
   type: numeric
   label: 51 Graminoids
-Graminoids12-71area:
+Graminoids11-71area:
   type: numeric
   label: 71 Graminoids
-Graminoids12-81area:
+Graminoids11-81area:
   type: numeric
   label: 81 Graminoids
-Forbs12-51area:
+Forbs11-51area:
   type: numeric
   label: 51 Forbs
-Forbs12-71area:
+Forbs11-71area:
   type: numeric
   label: 71 Forbs
-Forbs12-81area:
+Forbs11-81area:
   type: numeric
   label: 81 Forbs
-Shrubs12-51area:
+Shrubs11-51area:
   type: numeric
   label: 51 Shrubs
-Shrubs12-71area:
+Shrubs11-71area:
   type: numeric
   label: 71 Shrubs
-Shrubs12-81area:
+Shrubs11-81area:
   type: numeric
   label: 81 Shrubs
-Trees12-51area:
+Trees11-51area:
   type: numeric
   label: 51 Trees
-Trees12-71area:
+Trees11-71area:
   type: numeric
   label: 71 Trees
-Trees12-81area:
+Trees11-81area:
   type: numeric
   label: 81 Trees
-Graminoids12-51proportion:
+Graminoids11-51proportion:
   type: numeric
   label: 51 Graminoids
-Graminoids12-71proportion:
+Graminoids11-71proportion:
   type: numeric
   label: 71 Graminoids
-Graminoids12-81proportion:
+Graminoids11-81proportion:
   type: numeric
   label: 81 Graminoids
-Forbs12-51proportion:
+Forbs11-51proportion:
   type: numeric
   label: 51 Forbs
-Forbs12-71proportion:
+Forbs11-71proportion:
   type: numeric
   label: 71 Forbs
-Forbs12-81proportion:
+Forbs11-81proportion:
   type: numeric
   label: 81 Forbs
-Shrubs12-51proportion:
+Shrubs11-51proportion:
   type: numeric
   label: 51 Shrubs
-Shrubs12-71proportion:
+Shrubs11-71proportion:
   type: numeric
   label: 71 Shrubs
-Shrubs12-81proportion:
+Shrubs11-81proportion:
   type: numeric
   label: 81 Shrubs
-Trees12-51proportion:
+Trees11-51proportion:
   type: numeric
   label: 51 Trees
-Trees12-71proportion:
+Trees11-71proportion:
   type: numeric
   label: 71 Trees
-Trees12-81proportion:
+Trees11-81proportion:
   type: numeric
   label: 81 Trees
-Linnaea_borealis-12-realized-area:
+Linnaea_borealis-11-realized-area:
   type: numeric
   label: Proportion of Area?
-Linnaea_borealis-12-realized-prop:
+Linnaea_borealis-11-realized-prop:
   type: numeric
   label: Proportion of Seedmix?
-Linnaea_borealis-12-desired-area:
+Linnaea_borealis-11-desired-area:
   type: numeric
   label: Proportion of Area?
-Linnaea_borealis-12-desired-prop:
+Linnaea_borealis-11-desired-prop:
   type: numeric
   label: Proportion of Seedmix?
-Pumpkin_eater-12-realized-area:
+Pumpkin_eater-11-realized-area:
   type: numeric
   label: Proportion of Area?
-Pumpkin_eater-12-realized-prop:
+Pumpkin_eater-11-realized-prop:
   type: numeric
   label: Proportion of Seedmix?
-Pumpkin_eater-12-desired-area:
+Pumpkin_eater-11-desired-area:
   type: numeric
   label: Proportion of Area?
-Pumpkin_eater-12-desired-prop:
+Pumpkin_eater-11-desired-prop:
   type: numeric
   label: Proportion of Seedmix?
 

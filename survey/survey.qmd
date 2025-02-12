@@ -12,7 +12,7 @@ library(surveydown)
 ```
 
 ::: {#welcome .sd-page}
-# Welcome to our survey!
+# Welcome to the survey!
 
 We would like to know a little bit about you so that we only ask questions relevant to your expertise.
 
@@ -133,18 +133,18 @@ Across all area that you have treated in this region in your career, what percen
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question('numeric', paste0('Graminoids', '12-51', 'area'), paste('51', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '12-71', 'area'), paste('71', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '12-81', 'area'), paste('81', 'Graminoids'))
-sd_question('numeric', paste0('Forbs', '12-51', 'area'), paste('51', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '12-71', 'area'), paste('71', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '12-81', 'area'), paste('81', 'Forbs'))
-sd_question('numeric', paste0('Shrubs', '12-51', 'area'), paste('51', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '12-71', 'area'), paste('71', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '12-81', 'area'), paste('81', 'Shrubs'))
-sd_question('numeric', paste0('Trees', '12-51', 'area'), paste('51', 'Trees'))
-sd_question('numeric', paste0('Trees', '12-71', 'area'), paste('71', 'Trees'))
-sd_question('numeric', paste0('Trees', '12-81', 'area'), paste('81', 'Trees'))
+sd_question('numeric', paste0('Graminoids', '11-51', 'area'), paste('51', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '11-71', 'area'), paste('71', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '11-81', 'area'), paste('81', 'Graminoids'))
+sd_question('numeric', paste0('Forbs', '11-51', 'area'), paste('51', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '11-71', 'area'), paste('71', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '11-81', 'area'), paste('81', 'Forbs'))
+sd_question('numeric', paste0('Shrubs', '11-51', 'area'), paste('51', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '11-71', 'area'), paste('71', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '11-81', 'area'), paste('81', 'Shrubs'))
+sd_question('numeric', paste0('Trees', '11-51', 'area'), paste('51', 'Trees'))
+sd_question('numeric', paste0('Trees', '11-71', 'area'), paste('71', 'Trees'))
+sd_question('numeric', paste0('Trees', '11-81', 'area'), paste('81', 'Trees'))
 
 ```
 
@@ -164,18 +164,18 @@ When using these lifeforms in a restoration what proportion of a seed mix do the
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question('numeric', paste0('Graminoids', '12-51', 'proportion'), paste('51', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '12-71', 'proportion'), paste('71', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '12-81', 'proportion'), paste('81', 'Graminoids'))
-sd_question('numeric', paste0('Forbs', '12-51', 'proportion'), paste('51', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '12-71', 'proportion'), paste('71', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '12-81', 'proportion'), paste('81', 'Forbs'))
-sd_question('numeric', paste0('Shrubs', '12-51', 'proportion'), paste('51', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '12-71', 'proportion'), paste('71', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '12-81', 'proportion'), paste('81', 'Shrubs'))
-sd_question('numeric', paste0('Trees', '12-51', 'proportion'), paste('51', 'Trees'))
-sd_question('numeric', paste0('Trees', '12-71', 'proportion'), paste('71', 'Trees'))
-sd_question('numeric', paste0('Trees', '12-81', 'proportion'), paste('81', 'Trees'))
+sd_question('numeric', paste0('Graminoids', '11-51', 'proportion'), paste('51', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '11-71', 'proportion'), paste('71', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '11-81', 'proportion'), paste('81', 'Graminoids'))
+sd_question('numeric', paste0('Forbs', '11-51', 'proportion'), paste('51', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '11-71', 'proportion'), paste('71', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '11-81', 'proportion'), paste('81', 'Forbs'))
+sd_question('numeric', paste0('Shrubs', '11-51', 'proportion'), paste('51', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '11-71', 'proportion'), paste('71', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '11-81', 'proportion'), paste('81', 'Shrubs'))
+sd_question('numeric', paste0('Trees', '11-51', 'proportion'), paste('51', 'Trees'))
+sd_question('numeric', paste0('Trees', '11-71', 'proportion'), paste('71', 'Trees'))
+sd_question('numeric', paste0('Trees', '11-81', 'proportion'), paste('81', 'Trees'))
 
 ```
 
@@ -198,8 +198,10 @@ For each of the following species please. DO STUFF
 
 <center>Realized</center>
 ```{r}
-sd_question('numeric', paste0('Linnaea_borealis', '-', 12, '-realized-area'), 'Proportion of Area?')
-sd_question('numeric', paste0('Linnaea_borealis', '-', 12, '-realized-prop'), 'Proportion of Seedmix?')
+sd_question('numeric', paste0('Linnaea_borealis', '-', 11, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Linnaea_borealis', '-', 11, '-realized-prop'), 'Proportion of Seedmix?')
+
+?sd_server
 ```
 
 :::
@@ -207,15 +209,15 @@ sd_question('numeric', paste0('Linnaea_borealis', '-', 12, '-realized-prop'), 'P
 ::: {.column .species-number width='49%'}
 <center>Desired</center>
 ```{r}
-sd_question('numeric', paste0('Linnaea_borealis', '-', 12, '-desired-area'), 'Proportion of Area?')
-sd_question('numeric', paste0('Linnaea_borealis', '-', 12, '-desired-prop'), 'Proportion of Seedmix?')
+sd_question('numeric', paste0('Linnaea_borealis', '-', 11, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Linnaea_borealis', '-', 11, '-desired-prop'), 'Proportion of Seedmix?')
 ```
 
 :::
 
 ::::
 
-:::: {.column .species-odd width='98%'}
+:::: {.column .species-even width='98%'}
 
 <center>Pumpkin eater</center>
 
@@ -223,8 +225,8 @@ sd_question('numeric', paste0('Linnaea_borealis', '-', 12, '-desired-prop'), 'Pr
 
 <center>Realized</center>
 ```{r}
-sd_question('numeric', paste0('Pumpkin_eater', '-', 12, '-realized-area'), 'Proportion of Area?')
-sd_question('numeric', paste0('Pumpkin_eater', '-', 12, '-realized-prop'), 'Proportion of Seedmix?')
+sd_question('numeric', paste0('Pumpkin_eater', '-', 11, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Pumpkin_eater', '-', 11, '-realized-prop'), 'Proportion of Seedmix?')
 ```
 
 :::
@@ -232,8 +234,8 @@ sd_question('numeric', paste0('Pumpkin_eater', '-', 12, '-realized-prop'), 'Prop
 ::: {.column .species-number width='49%'}
 <center>Desired</center>
 ```{r}
-sd_question('numeric', paste0('Pumpkin_eater', '-', 12, '-desired-area'), 'Proportion of Area?')
-sd_question('numeric', paste0('Pumpkin_eater', '-', 12, '-desired-prop'), 'Proportion of Seedmix?')
+sd_question('numeric', paste0('Pumpkin_eater', '-', 11, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Pumpkin_eater', '-', 11, '-desired-prop'), 'Proportion of Seedmix?')
 ```
 
 :::

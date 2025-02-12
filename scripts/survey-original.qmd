@@ -1,0 +1,292 @@
+---
+echo: false
+warning: false
+format:
+  html:
+    theme: [flatly, styles.css]
+barposition: top 
+---
+
+```{r}
+library(surveydown)
+```
+
+::: {#welcome .sd-page}
+
+# Welcome to our survey!
+
+We would like to know a little bit about you so that we only ask questions relevant to your expertise.  
+
+```{r respondent name}
+sd_question(
+  type  = "text",
+  id    = "FirstName",
+  label = "What is your first name?"
+)
+
+sd_question(
+  type  = "text",
+  id    = "LastName",
+  label = "And your last name?"
+)
+
+sd_question(
+  type  = "mc_buttons",
+  id    = "email_followup",
+  label = "Can we follow up with you on any questions we may have regarding the survey?",
+    option = c(
+    "Yes"   = "Yes",
+    "No"   = "No"
+  )
+)
+
+sd_question(
+  type  = "text",
+  id    = "respondent_email_address",
+  label = "What is your email address?"
+)
+```
+
+```{r respondent agency}
+sd_question(
+  type   = 'mc_buttons',
+  id     = 'respondentAgency',
+  label  = "Which agency do you currently work for?",
+  option = c(
+    "BIA"   = "BIA",
+    "BLM"   = "BLM",
+    "NPS"   = "NPS",
+    "USFWS" = "USFWS",
+    "Other" = "other"
+  )
+)
+
+sd_question(
+  type  = "text",
+  id    = "respondentAgency_other", 
+  label = "If you selected 'other' above, please specify the agency you work for:"
+)
+```
+
+The next question will require some information on which DOI region you are in.
+If you don't know click the button below to view a map at doi.gov.
+
+```{r DOI region map}
+sd_redirect(
+  id     = "redirect",
+  url    = "https://www.doi.gov/sites/doi.gov/files/uploads/12-unified-regions-based-on-watersheds-17x11-250dpi-20191018.pdf",
+  label  = "DOI region",
+  button = TRUE,
+  newtab = TRUE
+)
+```
+
+In order to avoid having multiple respondents duplicating information about areas treated we ask that your responses per region 
+
+```{r respondent DOI region}
+sd_question(
+  type   = 'mc_buttons',
+  id     = 'respondent_DOI_region',
+  direction = 'vertical', 
+  label  = 'Which DOI region is your office primarily located in?',
+  option = c(
+    '1 North Atlantic-Appalachian' = 1,
+    '2 South Atlantic-Gulf' = 2,
+    '3 Great Lakes' = 3,
+    '4 Mississippi Basin' = 4,
+    '5 Missouri Basin' = 5,
+    '6 Arkansas-Rio Grande-Texas-Gulf' = 6,
+    '7 Upper Colorado Basin' = 7,
+    '8 Lower Colorado Basin' = 8,
+    '9 Columbia-Pacific Northwest' = 9,
+    '10 California-Great-Basin' = 9,
+    '11 Alaska' = 11,
+    '12 Pacific Islands' = 12
+  )
+)
+```
+
+Before heading to your DOI regions survey you may want to take a quick glimpse at the Multi-Resolution Land Characteristics Consortium data set for NLCD... Using the small 'i' button on the upper left of the map you can identify a pixels' class, we'll associate these numbers with their names in the coming pages. 
+
+```{r MRLC link 1}
+sd_redirect(
+  id     = "redirect",
+  url    = "https://www.mrlc.gov/viewer/",
+  label  = "https://www.mrlc.gov/viewer/",
+  button = TRUE,
+  newtab = TRUE
+)
+```
+
+```{r}
+sd_next(label = 'Head to my regions survey')
+```
+
+:::
+
+
+::: {#Alaska_lifeform_area .sd-page}
+
+### Region 11 - Alaska - Lifeforms by Area
+
+```{r}
+region <- 12
+nlcd <- c(42, 52, 68)
+```
+
+Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to? 
+
+```{r Lifeforms by Area}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+
+life <- c('Graminoids', 'Forbs', 'Shrubs', 'Trees')
+
+for (form in 1:length(life_forms)){
+  for (class in 1:length(nlcd)){
+    print(
+      paste0(
+        "sd_question('numeric', paste0('", life[form], "', '", region[i], "-", 
+        nlcd[class], "', 'area'), ", "paste0('", nlcd[class], "'\n'", life[form], "'))"))
+  }
+}
+
+```
+
+```{r}
+sd_next(next_page = 'Alaska_lifeform_prop')
+```
+:::
+
+::: {#Alaska_lifeform_prop .sd-page} 
+
+### Region 11 - Alaska - Lifeforms by Seed Mix
+
+When using these lifeforms in a restoration what proportion of a seed mix do they make up? 
+
+```{r Lifeforms by Seed Mix}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+for (form in 1:length(life_forms)){
+  for (class in 1:length(nlcd)){
+    print(
+      paste0(
+        "sd_question('numeric', paste0('", life[form], "', '", region[i], "-",
+        nlcd[class], "', 'mix'), ", "paste0('", nlcd[class], ",", life[form], "'))"))
+  }
+}
+```
+
+```{r}
+sd_next(next_page = 'Alaska_species')
+```
+
+::::: 
+
+::::: {#Alaska_species .sd-page} 
+
+### Region 11 - Alaska - Species 
+
+When species the species is the EC to the SPP
+
+:::: {.column .species-odd width="98%"} 
+
+<center>
+<font size="6">
+SPECIES NAME 
+</font>
+</center> 
+
+::: {.column .species-numbers width="49%"} 
+
+<center>
+<font size="5">
+Realized
+</font>
+</center>
+
+```{r}
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
+```
+
+:::
+
+::: {.column .species-numbers width="49%"} 
+
+<center>
+<font size="5">
+Desired
+</font>
+</center>
+
+```{r}
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
+```
+
+:::
+
+::::
+
+:::: {.column .species-even width="98%"} 
+
+<center>
+<font size="6">
+SPECIES NAME 
+</font>
+</center>
+
+::: {.column .species-numbers width="49%"} 
+
+<center>
+<font size="5">
+Realized
+</font>
+</center>
+
+```{r}
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
+```
+
+:::
+
+::: {.column .species-numbers width="49%"} 
+
+<center>
+<font size="5">
+Desired
+</font>
+</center>
+
+```{r}
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Area?")
+sd_question(type  = "numeric", id = paste0("Trees", region, '-', nlcd[1], "area"), label = "Proportion of Seedmix?")
+```
+
+:::
+
+::::
+
+```{r}
+sd_next(next_page = 'end')
+```
+
+:::::
+
+::: {#end .sd-page}
+
+## End
+
+This it the last page in the survey. Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length. 
+
+```{r}
+sd_close("Exit Survey")
+```
+
+::: 
