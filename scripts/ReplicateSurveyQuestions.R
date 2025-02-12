@@ -4,17 +4,16 @@
 
 setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
-region_name <- c('Alaska')
-region_no <- 11
+region_name <- c('UCB')
+region_no <- 7
 nlcd_tab <- data.frame(
-  REG_NAME = rep(c('Alaska', 'Mississippi Basin'), each = 3),
+  REG_NAME = rep(c('UCB', 'Mississippi Basin'), each = 3),
   NLCD = c(51, 71, 81, 12, 23, 45)
 )
 
-species_tab <- data.frame(
-  REG_NAME = rep(c('Alaska', 'Mississippi Basin'), each = 2),
-  species = c('Linnaea_borealis', 'Pumpkin_eater')
-)
+species_tab <- read.csv('TopTenSpecies.csv') 
+species_tab$species <- paste(species_tab$genus, species_tab$species)
+species_tab <- species_tab[,c('REG_NAME', 'species')]
 
 life <- c('Graminoids', 'Forbs', 'Shrubs', 'Trees')
 question <- c(

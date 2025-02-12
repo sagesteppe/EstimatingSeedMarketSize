@@ -1,0 +1,12 @@
+name: survey-test-no-skip
+title: survey-test-no-skip
+username: nationalseedneed
+account: nationalseedneed
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13981877
+bundleId: 9789954
+url: https://nationalseedneed.shinyapps.io/survey-test-no-skip/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

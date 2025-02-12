@@ -1,16 +1,16 @@
-genus, species, REG_NUM,NOTE
-Achnatherum,hymneoides,7,TRUE
-Pascopyrum,smithii,7,TRUE
-Poa,secunda,7,TRUE
-Elymus,elymoides,7,TRUE
-Pseudoroegneria,spicata,7,TRUE
-Sporobolus,cryptandrus,7,TRUE
-Elymus,lanceolatus,7,TRUE
-Elymus,trachycaulus,7,TRUE
-Bouteloua,gracilis,7,TRUE
-Hesperostipa,comata,7,TRUE
-Achillea,millefolium,7,FORB OVERFLOW
-Machaeranthera,canescens,7,FORB OVERFLOW
-Heterotheca,villosa,7,FORB OVERFLOW
-Linum,lewisii,7,FORB OVERFLOW
-Penstemon,linarioides,7,FORB OVERFLOW
+genus,species,REG_NAME,NOTE
+Achnatherum,hymneoides,UCB,TRUE
+Pascopyrum,smithii,UCB,TRUE
+Poa,secunda,UCB,TRUE
+Elymus,elymoides,UCB,TRUE
+Pseudoroegneria,spicata,UCB,TRUE
+Sporobolus,cryptandrus,UCB,TRUE
+Elymus,lanceolatus,UCB,TRUE
+Elymus,trachycaulus,UCB,TRUE
+Bouteloua,gracilis,UCB,TRUE
+Hesperostipa,comata,UCB,TRUE
+Achillea,millefolium,UCB,FORB OVERFLOW
+Machaeranthera,canescens,UCB,FORB OVERFLOW
+Heterotheca,villosa,UCB,FORB OVERFLOW
+Linum,lewisii,UCB,FORB OVERFLOW
+Penstemon,linarioides,UCB,FORB OVERFLOW

@@ -1,5 +1,6 @@
 # remotes::install_github("surveydown-dev/surveydown", force = TRUE)
 library(surveydown)
+#setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
 # Database setup
 db <- sd_db_connect(
@@ -10,7 +11,7 @@ db <- sd_db_connect(
 server <- function(input, output, session) {
 
   # Define any conditional skip logic here (skip to page if a condition is true)
-  sd_skip_if(
+#  sd_skip_if(
    # input$respondent_DOI_region == 1 ~ "NAA_lifeform_area",
   #  input$respondent_DOI_region == 2 ~ "SAG_lifeform_area",
   #  input$respondent_DOI_region == 3 ~ "GL_lifeform_area",
@@ -21,9 +22,9 @@ server <- function(input, output, session) {
   #  input$respondent_DOI_region == 8 ~ "LCB_lifeform_area",
   #  input$respondent_DOI_region == 9 ~ "CPN_lifeform_area",
   #  input$respondent_DOI_region == 10 ~ "CGB_lifeform_area",
-    input$respondent_DOI_region == 11 ~ "Alaska_lifeform_area"#,
+#    input$respondent_DOI_region == 11 ~ "Alaska_lifeform_area"#,
   #  input$respondent_DOI_region == 12 ~ "Pacific_lifeform_area"
-  )
+#  )
 
   # Define any conditional display logic here (show a question if a condition is true)
   sd_show_if(
@@ -37,7 +38,6 @@ server <- function(input, output, session) {
     use_cookies = FALSE, 
     rate_survey = TRUE
   )
-
 }
 
 # shinyApp() initiates your app - don't change it
