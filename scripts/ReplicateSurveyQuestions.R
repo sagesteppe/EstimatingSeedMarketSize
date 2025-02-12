@@ -23,7 +23,6 @@ question <- c(
 )
 
 
-
 ########### HERE IT IS #####################
 
 sink("survey.qmd")

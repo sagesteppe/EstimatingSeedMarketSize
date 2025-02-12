@@ -2,7 +2,9 @@
 library(surveydown)
 
 # Database setup
-db <- sd_db_connect()
+db <- sd_db_connect(
+  gssencmode = NULL
+)
 
 # Server setup
 server <- function(input, output, session) {

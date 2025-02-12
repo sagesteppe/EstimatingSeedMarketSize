@@ -200,8 +200,6 @@ For each of the following species please. DO STUFF
 ```{r}
 sd_question('numeric', paste0('Linnaea_borealis', '-', 11, '-realized-area'), 'Proportion of Area?')
 sd_question('numeric', paste0('Linnaea_borealis', '-', 11, '-realized-prop'), 'Proportion of Seedmix?')
-
-?sd_server
 ```
 
 :::
