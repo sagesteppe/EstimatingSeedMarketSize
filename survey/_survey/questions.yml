@@ -43,78 +43,78 @@ respondent_DOI_region:
     10 California-Great-Basin: '10'
     11 Alaska: '11'
     12 Pacific Islands: '12'
-Graminoids7-51area:
+Graminoids7-42area:
   type: numeric
-  label: 51 Graminoids
+  label: 42 Graminoids
+Graminoids7-52area:
+  type: numeric
+  label: 52 Graminoids
 Graminoids7-71area:
   type: numeric
   label: 71 Graminoids
-Graminoids7-81area:
+Forbs7-42area:
   type: numeric
-  label: 81 Graminoids
-Forbs7-51area:
+  label: 42 Forbs
+Forbs7-52area:
   type: numeric
-  label: 51 Forbs
+  label: 52 Forbs
 Forbs7-71area:
   type: numeric
   label: 71 Forbs
-Forbs7-81area:
+Shrubs7-42area:
   type: numeric
-  label: 81 Forbs
-Shrubs7-51area:
+  label: 42 Shrubs
+Shrubs7-52area:
   type: numeric
-  label: 51 Shrubs
+  label: 52 Shrubs
 Shrubs7-71area:
   type: numeric
   label: 71 Shrubs
-Shrubs7-81area:
+Trees7-42area:
   type: numeric
-  label: 81 Shrubs
-Trees7-51area:
+  label: 42 Trees
+Trees7-52area:
   type: numeric
-  label: 51 Trees
+  label: 52 Trees
 Trees7-71area:
   type: numeric
   label: 71 Trees
-Trees7-81area:
+Graminoids7-42proportion:
   type: numeric
-  label: 81 Trees
-Graminoids7-51proportion:
+  label: 42 Graminoids
+Graminoids7-52proportion:
   type: numeric
-  label: 51 Graminoids
+  label: 52 Graminoids
 Graminoids7-71proportion:
   type: numeric
   label: 71 Graminoids
-Graminoids7-81proportion:
+Forbs7-42proportion:
   type: numeric
-  label: 81 Graminoids
-Forbs7-51proportion:
+  label: 42 Forbs
+Forbs7-52proportion:
   type: numeric
-  label: 51 Forbs
+  label: 52 Forbs
 Forbs7-71proportion:
   type: numeric
   label: 71 Forbs
-Forbs7-81proportion:
+Shrubs7-42proportion:
   type: numeric
-  label: 81 Forbs
-Shrubs7-51proportion:
+  label: 42 Shrubs
+Shrubs7-52proportion:
   type: numeric
-  label: 51 Shrubs
+  label: 52 Shrubs
 Shrubs7-71proportion:
   type: numeric
   label: 71 Shrubs
-Shrubs7-81proportion:
+Trees7-42proportion:
   type: numeric
-  label: 81 Shrubs
-Trees7-51proportion:
+  label: 42 Trees
+Trees7-52proportion:
   type: numeric
-  label: 51 Trees
+  label: 52 Trees
 Trees7-71proportion:
   type: numeric
   label: 71 Trees
-Trees7-81proportion:
-  type: numeric
-  label: 81 Trees
 Achnatherum_hymneoides-7-realized-area:
   type: numeric
   label: Proportion of Area?
@@ -295,78 +295,78 @@ Penstemon_linarioides-7-desired-area:
 Penstemon_linarioides-7-desired-prop:
   type: numeric
   label: Proportion of Seedmix?
-Graminoids3-12area:
+Graminoids3-41area:
   type: numeric
-  label: 12 Graminoids
-Graminoids3-23area:
+  label: 41 Graminoids
+Graminoids3-42area:
   type: numeric
-  label: 23 Graminoids
-Graminoids3-45area:
+  label: 42 Graminoids
+Graminoids3-90area:
   type: numeric
-  label: 45 Graminoids
-Forbs3-12area:
+  label: 90 Graminoids
+Forbs3-41area:
   type: numeric
-  label: 12 Forbs
-Forbs3-23area:
+  label: 41 Forbs
+Forbs3-42area:
   type: numeric
-  label: 23 Forbs
-Forbs3-45area:
+  label: 42 Forbs
+Forbs3-90area:
   type: numeric
-  label: 45 Forbs
-Shrubs3-12area:
+  label: 90 Forbs
+Shrubs3-41area:
   type: numeric
-  label: 12 Shrubs
-Shrubs3-23area:
+  label: 41 Shrubs
+Shrubs3-42area:
   type: numeric
-  label: 23 Shrubs
-Shrubs3-45area:
+  label: 42 Shrubs
+Shrubs3-90area:
   type: numeric
-  label: 45 Shrubs
-Trees3-12area:
+  label: 90 Shrubs
+Trees3-41area:
   type: numeric
-  label: 12 Trees
-Trees3-23area:
+  label: 41 Trees
+Trees3-42area:
   type: numeric
-  label: 23 Trees
-Trees3-45area:
+  label: 42 Trees
+Trees3-90area:
   type: numeric
-  label: 45 Trees
-Graminoids3-12proportion:
+  label: 90 Trees
+Graminoids3-41proportion:
   type: numeric
-  label: 12 Graminoids
-Graminoids3-23proportion:
+  label: 41 Graminoids
+Graminoids3-42proportion:
   type: numeric
-  label: 23 Graminoids
-Graminoids3-45proportion:
+  label: 42 Graminoids
+Graminoids3-90proportion:
   type: numeric
-  label: 45 Graminoids
-Forbs3-12proportion:
+  label: 90 Graminoids
+Forbs3-41proportion:
   type: numeric
-  label: 12 Forbs
-Forbs3-23proportion:
+  label: 41 Forbs
+Forbs3-42proportion:
   type: numeric
-  label: 23 Forbs
-Forbs3-45proportion:
+  label: 42 Forbs
+Forbs3-90proportion:
   type: numeric
-  label: 45 Forbs
-Shrubs3-12proportion:
+  label: 90 Forbs
+Shrubs3-41proportion:
   type: numeric
-  label: 12 Shrubs
-Shrubs3-23proportion:
+  label: 41 Shrubs
+Shrubs3-42proportion:
   type: numeric
-  label: 23 Shrubs
-Shrubs3-45proportion:
+  label: 42 Shrubs
+Shrubs3-90proportion:
   type: numeric
-  label: 45 Shrubs
-Trees3-12proportion:
+  label: 90 Shrubs
+Trees3-41proportion:
   type: numeric
-  label: 12 Trees
-Trees3-23proportion:
+  label: 41 Trees
+Trees3-42proportion:
   type: numeric
-  label: 23 Trees
-Trees3-45proportion:
+  label: 42 Trees
+Trees3-90proportion:
   type: numeric
-  label: 45 Trees
+  label: 90 Trees
 Andropogon_gerardii-3-realized-area:
   type: numeric
   label: Proportion of Area?

@@ -125,7 +125,7 @@ sd_next(label = 'Head to my regions survey')
 
 ::: {#Upper_Colorado_Basin_lifeform_area .sd-page}
 
-### Region 1 Upper Colorado Basin - Lifeforms by Area 
+### Region 7 Upper Colorado Basin - Lifeforms by Area 
 
 Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?
 
@@ -134,20 +134,24 @@ Across all area that you have treated in this region in your career, what percen
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question('numeric', paste0('Graminoids', '7-51', 'area'), paste('51', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '7-42', 'area'), paste('42', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '7-52', 'area'), paste('52', 'Graminoids'))
 sd_question('numeric', paste0('Graminoids', '7-71', 'area'), paste('71', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '7-81', 'area'), paste('81', 'Graminoids'))
-sd_question('numeric', paste0('Forbs', '7-51', 'area'), paste('51', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '7-42', 'area'), paste('42', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '7-52', 'area'), paste('52', 'Forbs'))
 sd_question('numeric', paste0('Forbs', '7-71', 'area'), paste('71', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '7-81', 'area'), paste('81', 'Forbs'))
-sd_question('numeric', paste0('Shrubs', '7-51', 'area'), paste('51', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '7-42', 'area'), paste('42', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '7-52', 'area'), paste('52', 'Shrubs'))
 sd_question('numeric', paste0('Shrubs', '7-71', 'area'), paste('71', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '7-81', 'area'), paste('81', 'Shrubs'))
-sd_question('numeric', paste0('Trees', '7-51', 'area'), paste('51', 'Trees'))
+sd_question('numeric', paste0('Trees', '7-42', 'area'), paste('42', 'Trees'))
+sd_question('numeric', paste0('Trees', '7-52', 'area'), paste('52', 'Trees'))
 sd_question('numeric', paste0('Trees', '7-71', 'area'), paste('71', 'Trees'))
-sd_question('numeric', paste0('Trees', '7-81', 'area'), paste('81', 'Trees'))
 
 ```
+
+42: Evergreen Forest
+52: Shrub/Scrub
+71: Grassland/Herbaceous
 
 ```{r}
 sd_next(next_page = 'Upper_Colorado_Basin_lifeform_prop')
@@ -165,18 +169,18 @@ When using these lifeforms in a restoration what proportion of a seed mix do the
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question('numeric', paste0('Graminoids', '7-51', 'proportion'), paste('51', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '7-42', 'proportion'), paste('42', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '7-52', 'proportion'), paste('52', 'Graminoids'))
 sd_question('numeric', paste0('Graminoids', '7-71', 'proportion'), paste('71', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '7-81', 'proportion'), paste('81', 'Graminoids'))
-sd_question('numeric', paste0('Forbs', '7-51', 'proportion'), paste('51', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '7-42', 'proportion'), paste('42', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '7-52', 'proportion'), paste('52', 'Forbs'))
 sd_question('numeric', paste0('Forbs', '7-71', 'proportion'), paste('71', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '7-81', 'proportion'), paste('81', 'Forbs'))
-sd_question('numeric', paste0('Shrubs', '7-51', 'proportion'), paste('51', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '7-42', 'proportion'), paste('42', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '7-52', 'proportion'), paste('52', 'Shrubs'))
 sd_question('numeric', paste0('Shrubs', '7-71', 'proportion'), paste('71', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '7-81', 'proportion'), paste('81', 'Shrubs'))
-sd_question('numeric', paste0('Trees', '7-51', 'proportion'), paste('51', 'Trees'))
+sd_question('numeric', paste0('Trees', '7-42', 'proportion'), paste('42', 'Trees'))
+sd_question('numeric', paste0('Trees', '7-52', 'proportion'), paste('52', 'Trees'))
 sd_question('numeric', paste0('Trees', '7-71', 'proportion'), paste('71', 'Trees'))
-sd_question('numeric', paste0('Trees', '7-81', 'proportion'), paste('81', 'Trees'))
 
 ```
 
@@ -189,7 +193,7 @@ sd_next(next_page = 'Upper_Colorado_Basin_species')
 
 ### Upper Colorado Basin - Common Species
 
-For each of the following species please. DO STUFF
+For each of the following species please indicate how much of an the area within a DOI region you apply these species to, and what proportion of the seed mix (by PLS) they constitute.  At left, please indicate this using current seeding rates.  At right please indicate how under ideal conditions how much you would apply to meet land health standards. 
 
 :::: {.column .species-odd width='98%'}
 
@@ -575,7 +579,7 @@ sd_next(next_page = 'end', label = 'Head to exit')
 
 ::: {#Great_Lakes_lifeform_area .sd-page}
 
-### Region 2 Great Lakes - Lifeforms by Area 
+### Region 3 Great Lakes - Lifeforms by Area 
 
 Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?
 
@@ -584,20 +588,24 @@ Across all area that you have treated in this region in your career, what percen
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question('numeric', paste0('Graminoids', '3-12', 'area'), paste('12', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '3-23', 'area'), paste('23', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '3-45', 'area'), paste('45', 'Graminoids'))
-sd_question('numeric', paste0('Forbs', '3-12', 'area'), paste('12', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '3-23', 'area'), paste('23', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '3-45', 'area'), paste('45', 'Forbs'))
-sd_question('numeric', paste0('Shrubs', '3-12', 'area'), paste('12', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '3-23', 'area'), paste('23', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '3-45', 'area'), paste('45', 'Shrubs'))
-sd_question('numeric', paste0('Trees', '3-12', 'area'), paste('12', 'Trees'))
-sd_question('numeric', paste0('Trees', '3-23', 'area'), paste('23', 'Trees'))
-sd_question('numeric', paste0('Trees', '3-45', 'area'), paste('45', 'Trees'))
+sd_question('numeric', paste0('Graminoids', '3-41', 'area'), paste('41', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-42', 'area'), paste('42', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-90', 'area'), paste('90', 'Graminoids'))
+sd_question('numeric', paste0('Forbs', '3-41', 'area'), paste('41', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-42', 'area'), paste('42', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-90', 'area'), paste('90', 'Forbs'))
+sd_question('numeric', paste0('Shrubs', '3-41', 'area'), paste('41', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-42', 'area'), paste('42', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-90', 'area'), paste('90', 'Shrubs'))
+sd_question('numeric', paste0('Trees', '3-41', 'area'), paste('41', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-42', 'area'), paste('42', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-90', 'area'), paste('90', 'Trees'))
 
 ```
+
+41: Deciduous Forest
+42: Evergreen Forest
+90: Woody Wetlands
 
 ```{r}
 sd_next(next_page = 'Great_Lakes_lifeform_prop')
@@ -615,18 +623,18 @@ When using these lifeforms in a restoration what proportion of a seed mix do the
 #| layout-ncol: 3
 #| layout-nrow: 4
 
-sd_question('numeric', paste0('Graminoids', '3-12', 'proportion'), paste('12', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '3-23', 'proportion'), paste('23', 'Graminoids'))
-sd_question('numeric', paste0('Graminoids', '3-45', 'proportion'), paste('45', 'Graminoids'))
-sd_question('numeric', paste0('Forbs', '3-12', 'proportion'), paste('12', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '3-23', 'proportion'), paste('23', 'Forbs'))
-sd_question('numeric', paste0('Forbs', '3-45', 'proportion'), paste('45', 'Forbs'))
-sd_question('numeric', paste0('Shrubs', '3-12', 'proportion'), paste('12', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '3-23', 'proportion'), paste('23', 'Shrubs'))
-sd_question('numeric', paste0('Shrubs', '3-45', 'proportion'), paste('45', 'Shrubs'))
-sd_question('numeric', paste0('Trees', '3-12', 'proportion'), paste('12', 'Trees'))
-sd_question('numeric', paste0('Trees', '3-23', 'proportion'), paste('23', 'Trees'))
-sd_question('numeric', paste0('Trees', '3-45', 'proportion'), paste('45', 'Trees'))
+sd_question('numeric', paste0('Graminoids', '3-41', 'proportion'), paste('41', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-42', 'proportion'), paste('42', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-90', 'proportion'), paste('90', 'Graminoids'))
+sd_question('numeric', paste0('Forbs', '3-41', 'proportion'), paste('41', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-42', 'proportion'), paste('42', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-90', 'proportion'), paste('90', 'Forbs'))
+sd_question('numeric', paste0('Shrubs', '3-41', 'proportion'), paste('41', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-42', 'proportion'), paste('42', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-90', 'proportion'), paste('90', 'Shrubs'))
+sd_question('numeric', paste0('Trees', '3-41', 'proportion'), paste('41', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-42', 'proportion'), paste('42', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-90', 'proportion'), paste('90', 'Trees'))
 
 ```
 
@@ -639,7 +647,7 @@ sd_next(next_page = 'Great_Lakes_species')
 
 ### Great Lakes - Common Species
 
-For each of the following species please. DO STUFF
+For each of the following species please indicate how much of an the area within a DOI region you apply these species to, and what proportion of the seed mix (by PLS) they constitute.  At left, please indicate this using current seeding rates.  At right please indicate how under ideal conditions how much you would apply to meet land health standards. 
 
 :::: {.column .species-odd width='98%'}
 
@@ -899,13 +907,13 @@ sd_next(next_page = 'end', label = 'Head to exit')
 
 
 ::: {#end .sd-page}
- 
+
 ## End
- 
+
 Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length.
- 
+
 ```{r}
 sd_close('Exit Survey')
 ```
- 
+
 :::

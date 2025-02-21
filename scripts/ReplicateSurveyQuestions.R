@@ -5,6 +5,9 @@
 setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
 nlcd_tab <- read.csv(file.path('..', 'data', 'Top3NLCD.csv')) 
+nlcd_lkp <- read.csv(file.path('..', 'data', 'NLCDlkp.csv'))
+nlcd_tab <- merge(nlcd_tab, nlcd_lkp, by = "NLCD_NUM")
+
 species_tab <- read.csv(file.path('..', 'data', 'TopTenSpecies.csv')) 
 species_tab$species <- paste0(species_tab$genus, '_', species_tab$species)
 species_tab <- species_tab[,c('REG_NAME', 'species')]
@@ -13,11 +16,6 @@ species_tab <- species_tab[,c('REG_NAME', 'species')]
 
 region_name <- c('Upper Colorado Basin', 'Great Lakes')
 region_no <- c(7, 3)
-nlcd_tab <- data.frame(
-  REG_NAME = rep(c('Upper Colorado Basin', 'Great Lakes'), each = 3),
-  NLCD = c(51, 71, 81, 12, 23, 45)
-)
-
 
 life <- c('Graminoids', 'Forbs', 'Shrubs', 'Trees')
 question <- c(
@@ -161,16 +159,20 @@ cat(
 
 for(i in 1:length(region_name)){
 
-  nlcd <- nlcd_tab[nlcd_tab$REG_NAME== region_name[i],'NLCD']
-
+  nlcd <- nlcd_tab[nlcd_tab$REG_NAME== region_name[i],'NLCD_NUM']
+  nlcd_tab_set <- nlcd_tab[nlcd_tab$REG_NAME== region_name[i], c('NLCD_NUM', 'NLCD_NAME')]
   cat(
     paste0(
       ################# QUESTION ON AMOUNT OF AREA TREATED BY LIFEFORM IS HERE
       "\n",
       "::: {#", gsub(' ', '_', region_name[i]), "_lifeform_area .sd-page}\n",
       "\n",
-      "### Region ", i, " ",  region_name[i], " - Lifeforms by Area \n",
-      "\n",
+      "### Region ", region_no[i], " ",  region_name[i], " - Lifeforms by Area \n",
+      "\n"
+    )
+  )
+  cat(
+    paste0(
       question[1], "\n",
       "\n",
       "```{r Lifeforms by Area - ",  region_name[i],"}\n",
@@ -185,22 +187,34 @@ for(i in 1:length(region_name)){
           cat(
             paste0(
               "sd_question('numeric', paste0('", life[form], "', '", region_no[i], "-",
-              nlcd[class], "', 'area'), ", "paste('", nlcd[class], "', '", life[form], "'))\n")
+              nlcd[class], "', 'area'), ", "paste('", nlcd[class], "', '", life[form], "'))\n"
+              )
           )
         }
       }
-
   cat(
     paste0(
       "\n",
       "```\n",
+      "\n"
+    )
+  )
+  for (class in 1:length(nlcd)){
+    cat(
+      paste0(
+        nlcd_tab_set[class, 'NLCD_NUM'], ': ',
+        nlcd_tab_set[class, 'NLCD_NAME'], '\n'
+      )
+    )
+  }
+  cat(
+    paste0(
       "\n",
       "```{r}\n",
       "sd_next(next_page = '", gsub(' ', '_', region_name[i]), "_lifeform_prop')\n",
       "```\n",
       ":::\n",
       "\n",
-
       ############## QUESTION ON PROPORTION OF LIFEFORM IN THE SEED MIX IS HERE
       "::: {#", gsub(' ', '_', region_name[i]), "_lifeform_prop .sd-page}\n",
       "\n",
@@ -239,7 +253,7 @@ for(i in 1:length(region_name)){
       "\n",
       "### ", region_name[i], " - Common Species\n",
       "\n",
-      "For each of the following species please. DO STUFF\n"
+      "For each of the following species please indicate how much of an the area within a DOI region you apply these species to, and what proportion of the seed mix (by PLS) they constitute.  At left, please indicate this using current seeding rates.  At right please indicate how under ideal conditions how much you would apply to meet land health standards. \n"
     )
   )
 
@@ -288,21 +302,22 @@ for(i in 1:length(region_name)){
     )
   )
 }
+
 cat(
-  paste(
-   "\n",
-  "::: {#end .sd-page}\n",
-  "\n",
-  "## End\n",
-  "\n",
-  "Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length.\n",
-  "\n",
-  "```{r}\n",
-  "sd_close('Exit Survey')\n",
-  "```\n",
-  "\n",
-  ":::\n"
-  )
+paste0(
+"\n",
+"::: {#end .sd-page}\n",
+"\n",
+"## End\n",
+"\n",
+"Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length.\n",
+"\n",
+"```{r}\n",
+"sd_close('Exit Survey')\n",
+"```\n",
+"\n",
+":::\n"
+)
 )
 
 

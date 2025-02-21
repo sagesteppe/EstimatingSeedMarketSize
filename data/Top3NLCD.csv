@@ -1,4 +1,7 @@
-REG_NUM,REG_NAME,NLCD
+REG_NUM,REG_NAME,NLCD_NUM
+3,Great Lakes,41
+3,Great Lakes,90
+3,Great Lakes,42
 7,Upper Colorado Basin,52
 7,Upper Colorado Basin,42
 7,Upper Colorado Basin,71

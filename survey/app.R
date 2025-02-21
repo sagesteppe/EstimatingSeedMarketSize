@@ -5,6 +5,7 @@ library(surveydown)
 
 # Database setup
 db <- surveydown::sd_db_connect(
+  ignore = TRUE
 #  gssencmode = 'disable'
 )
 
