@@ -6,18 +6,18 @@ setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
 nlcd_tab <- read.csv(file.path('..', 'data', 'Top3NLCD.csv')) 
 species_tab <- read.csv(file.path('..', 'data', 'TopTenSpecies.csv')) 
+species_tab$species <- paste0(species_tab$genus, '_', species_tab$species)
+species_tab <- species_tab[,c('REG_NAME', 'species')]
+
 # reg_name_tab <- read.csv(file.path('..', 'data', '')) # still need one of these. 
 
-region_name <- c('UCB')
-region_no <- 7
+region_name <- c('Upper Colorado Basin', 'Great Lakes')
+region_no <- c(7, 3)
 nlcd_tab <- data.frame(
-  REG_NAME = rep(c('UCB', 'Mississippi Basin'), each = 3),
+  REG_NAME = rep(c('Upper Colorado Basin', 'Great Lakes'), each = 3),
   NLCD = c(51, 71, 81, 12, 23, 45)
 )
 
-species_tab <- read.csv('TopTenSpecies.csv') 
-species_tab$species <- paste0(species_tab$genus, '_', species_tab$species)
-species_tab <- species_tab[,c('REG_NAME', 'species')]
 
 life <- c('Graminoids', 'Forbs', 'Shrubs', 'Trees')
 question <- c(
@@ -166,13 +166,14 @@ for(i in 1:length(region_name)){
   cat(
     paste0(
       ################# QUESTION ON AMOUNT OF AREA TREATED BY LIFEFORM IS HERE
-      "::: {#", region_name[i], "_lifeform_area .sd-page} \n",
       "\n",
-      "### Region ", i, " ", region_name[i], " - Lifeforms by Area \n",
+      "::: {#", gsub(' ', '_', region_name[i]), "_lifeform_area .sd-page}\n",
+      "\n",
+      "### Region ", i, " ",  region_name[i], " - Lifeforms by Area \n",
       "\n",
       question[1], "\n",
       "\n",
-      "```{r Lifeforms by Area - ", region_name[i],"}\n",
+      "```{r Lifeforms by Area - ",  region_name[i],"}\n",
       "#| column: screen-inset-shaded\n",
       "#| layout-ncol: 3\n",  # NCOL NEEDS TO BE DYNAMIC BY THE AMOUNT OF HABITAT WE ASK THEM ABOUT.
       "#| layout-nrow: 4\n",
@@ -195,13 +196,13 @@ for(i in 1:length(region_name)){
       "```\n",
       "\n",
       "```{r}\n",
-      "sd_next(next_page = '", region_name[i], "_lifeform_prop')\n",
+      "sd_next(next_page = '", gsub(' ', '_', region_name[i]), "_lifeform_prop')\n",
       "```\n",
       ":::\n",
       "\n",
 
       ############## QUESTION ON PROPORTION OF LIFEFORM IN THE SEED MIX IS HERE
-      "::: {#", region_name[i], "_lifeform_prop .sd-page}\n",
+      "::: {#", gsub(' ', '_', region_name[i]), "_lifeform_prop .sd-page}\n",
       "\n",
       "### ", region_name[i], " - Lifeforms by Seed Mix\n",
       "\n",
@@ -229,12 +230,12 @@ for(i in 1:length(region_name)){
       "```\n",
       "\n",
       "```{r}\n",
-      "sd_next(next_page = '", region_name[i], "_species')\n",
+      "sd_next(next_page = '", gsub(' ', '_',  gsub(' ', '_', region_name[i])), "_species')\n",
       "```\n",
       ":::\n",
       "\n",
       ################### QUESTIONS ON SPECIES ARE HERE. #####################3
-      "::: {#", region_name[i], "_species .sd-page}\n",
+      "::: {#",  gsub(' ', '_', region_name[i]), "_species .sd-page}\n",
       "\n",
       "### ", region_name[i], " - Common Species\n",
       "\n",
@@ -275,17 +276,21 @@ for(i in 1:length(region_name)){
           )
         )
       }
+  cat(
+    paste0(
+      "\n",
+      "```{r}\n",
+      "sd_next(next_page = 'end', label = 'Head to exit')\n",
+      "```\n",
+      "\n",
+      ":::\n",
+      "\n"
+    )
+  )
 }
-
 cat(
-  paste0(
-  "\n",
-  "```{r}\n",
-  "sd_next(next_page = 'end', label = 'Head to exit')\n",
-  "```\n",
-  "\n",
-  ":::\n",
-  "\n",
+  paste(
+   "\n",
   "::: {#end .sd-page}\n",
   "\n",
   "## End\n",
@@ -299,5 +304,6 @@ cat(
   ":::\n"
   )
 )
+
 
 sink()

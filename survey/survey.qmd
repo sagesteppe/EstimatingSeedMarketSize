@@ -122,13 +122,14 @@ sd_next(label = 'Head to my regions survey')
 
 :::
 
-::: {#UCB_lifeform_area .sd-page} 
 
-### Region 1 UCB - Lifeforms by Area 
+::: {#Upper_Colorado_Basin_lifeform_area .sd-page}
+
+### Region 1 Upper Colorado Basin - Lifeforms by Area 
 
 Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?
 
-```{r Lifeforms by Area - UCB}
+```{r Lifeforms by Area - Upper Colorado Basin}
 #| column: screen-inset-shaded
 #| layout-ncol: 3
 #| layout-nrow: 4
@@ -149,17 +150,17 @@ sd_question('numeric', paste0('Trees', '7-81', 'area'), paste('81', 'Trees'))
 ```
 
 ```{r}
-sd_next(next_page = 'UCB_lifeform_prop')
+sd_next(next_page = 'Upper_Colorado_Basin_lifeform_prop')
 ```
 :::
 
-::: {#UCB_lifeform_prop .sd-page}
+::: {#Upper_Colorado_Basin_lifeform_prop .sd-page}
 
-### UCB - Lifeforms by Seed Mix
+### Upper Colorado Basin - Lifeforms by Seed Mix
 
 When using these lifeforms in a restoration what proportion of a seed mix do they make up?
 
-```{r Lifeforms by Seed Mix - UCB}
+```{r Lifeforms by Seed Mix - Upper Colorado Basin}
 #| column: screen-inset-shaded
 #| layout-ncol: 3
 #| layout-nrow: 4
@@ -180,13 +181,13 @@ sd_question('numeric', paste0('Trees', '7-81', 'proportion'), paste('81', 'Trees
 ```
 
 ```{r}
-sd_next(next_page = 'UCB_species')
+sd_next(next_page = 'Upper_Colorado_Basin_species')
 ```
 :::
 
-::: {#UCB_species .sd-page}
+::: {#Upper_Colorado_Basin_species .sd-page}
 
-### UCB - Common Species
+### Upper Colorado Basin - Common Species
 
 For each of the following species please. DO STUFF
 
@@ -571,14 +572,340 @@ sd_next(next_page = 'end', label = 'Head to exit')
 
 :::
 
+
+::: {#Great_Lakes_lifeform_area .sd-page}
+
+### Region 2 Great Lakes - Lifeforms by Area 
+
+Across all area that you have treated in this region in your career, what percent of the area's have you applied seeds belonging to this lifeforms to?
+
+```{r Lifeforms by Area - Great Lakes}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+sd_question('numeric', paste0('Graminoids', '3-12', 'area'), paste('12', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-23', 'area'), paste('23', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-45', 'area'), paste('45', 'Graminoids'))
+sd_question('numeric', paste0('Forbs', '3-12', 'area'), paste('12', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-23', 'area'), paste('23', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-45', 'area'), paste('45', 'Forbs'))
+sd_question('numeric', paste0('Shrubs', '3-12', 'area'), paste('12', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-23', 'area'), paste('23', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-45', 'area'), paste('45', 'Shrubs'))
+sd_question('numeric', paste0('Trees', '3-12', 'area'), paste('12', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-23', 'area'), paste('23', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-45', 'area'), paste('45', 'Trees'))
+
+```
+
+```{r}
+sd_next(next_page = 'Great_Lakes_lifeform_prop')
+```
+:::
+
+::: {#Great_Lakes_lifeform_prop .sd-page}
+
+### Great Lakes - Lifeforms by Seed Mix
+
+When using these lifeforms in a restoration what proportion of a seed mix do they make up?
+
+```{r Lifeforms by Seed Mix - Great Lakes}
+#| column: screen-inset-shaded
+#| layout-ncol: 3
+#| layout-nrow: 4
+
+sd_question('numeric', paste0('Graminoids', '3-12', 'proportion'), paste('12', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-23', 'proportion'), paste('23', 'Graminoids'))
+sd_question('numeric', paste0('Graminoids', '3-45', 'proportion'), paste('45', 'Graminoids'))
+sd_question('numeric', paste0('Forbs', '3-12', 'proportion'), paste('12', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-23', 'proportion'), paste('23', 'Forbs'))
+sd_question('numeric', paste0('Forbs', '3-45', 'proportion'), paste('45', 'Forbs'))
+sd_question('numeric', paste0('Shrubs', '3-12', 'proportion'), paste('12', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-23', 'proportion'), paste('23', 'Shrubs'))
+sd_question('numeric', paste0('Shrubs', '3-45', 'proportion'), paste('45', 'Shrubs'))
+sd_question('numeric', paste0('Trees', '3-12', 'proportion'), paste('12', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-23', 'proportion'), paste('23', 'Trees'))
+sd_question('numeric', paste0('Trees', '3-45', 'proportion'), paste('45', 'Trees'))
+
+```
+
+```{r}
+sd_next(next_page = 'Great_Lakes_species')
+```
+:::
+
+::: {#Great_Lakes_species .sd-page}
+
+### Great Lakes - Common Species
+
+For each of the following species please. DO STUFF
+
+:::: {.column .species-odd width='98%'}
+
+<center>Andropogon gerardii</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Andropogon_gerardii', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Andropogon_gerardii', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Andropogon_gerardii', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Andropogon_gerardii', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-even width='98%'}
+
+<center>Schizachyyrium scoparium</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Schizachyyrium_scoparium', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Schizachyyrium_scoparium', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Schizachyyrium_scoparium', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Schizachyyrium_scoparium', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-odd width='98%'}
+
+<center>Bouteloua curtipendula</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Bouteloua_curtipendula', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Bouteloua_curtipendula', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Bouteloua_curtipendula', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Bouteloua_curtipendula', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-even width='98%'}
+
+<center>Sorghastrum nutans</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Sorghastrum_nutans', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Sorghastrum_nutans', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Sorghastrum_nutans', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Sorghastrum_nutans', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-odd width='98%'}
+
+<center>Sporobolus heterolepis</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Sporobolus_heterolepis', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Sporobolus_heterolepis', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Sporobolus_heterolepis', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Sporobolus_heterolepis', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-even width='98%'}
+
+<center>Dalea purpurea</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Dalea_purpurea', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Dalea_purpurea', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Dalea_purpurea', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Dalea_purpurea', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-odd width='98%'}
+
+<center>Eryngium yuccifolium</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Eryngium_yuccifolium', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Eryngium_yuccifolium', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Eryngium_yuccifolium', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Eryngium_yuccifolium', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-even width='98%'}
+
+<center>Mondarda fistulosa</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Mondarda_fistulosa', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Mondarda_fistulosa', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Mondarda_fistulosa', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Mondarda_fistulosa', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-odd width='98%'}
+
+<center>Ratibida pinnata</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Ratibida_pinnata', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Ratibida_pinnata', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Ratibida_pinnata', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Ratibida_pinnata', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+:::: {.column .species-even width='98%'}
+
+<center>Silphium lacinatum</center>
+
+::: {.column .species-number width='49%'}
+
+<center>Realized</center>
+```{r}
+sd_question('numeric', paste0('Silphium_lacinatum', '-', 3, '-realized-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Silphium_lacinatum', '-', 3, '-realized-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::: {.column .species-number width='49%'}
+<center>Desired</center>
+```{r}
+sd_question('numeric', paste0('Silphium_lacinatum', '-', 3, '-desired-area'), 'Proportion of Area?')
+sd_question('numeric', paste0('Silphium_lacinatum', '-', 3, '-desired-prop'), 'Proportion of Seedmix?')
+```
+
+:::
+
+::::
+
+```{r}
+sd_next(next_page = 'end', label = 'Head to exit')
+```
+
+:::
+
+
 ::: {#end .sd-page}
-
+ 
 ## End
-
+ 
 Thanks for your help, we know the data are a little nebulous, but it is difficult to balance responses with survey length.
-
+ 
 ```{r}
 sd_close('Exit Survey')
 ```
-
+ 
 :::

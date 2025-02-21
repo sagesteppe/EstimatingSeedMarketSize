@@ -295,4 +295,196 @@ Penstemon_linarioides-7-desired-area:
 Penstemon_linarioides-7-desired-prop:
   type: numeric
   label: Proportion of Seedmix?
+Graminoids3-12area:
+  type: numeric
+  label: 12 Graminoids
+Graminoids3-23area:
+  type: numeric
+  label: 23 Graminoids
+Graminoids3-45area:
+  type: numeric
+  label: 45 Graminoids
+Forbs3-12area:
+  type: numeric
+  label: 12 Forbs
+Forbs3-23area:
+  type: numeric
+  label: 23 Forbs
+Forbs3-45area:
+  type: numeric
+  label: 45 Forbs
+Shrubs3-12area:
+  type: numeric
+  label: 12 Shrubs
+Shrubs3-23area:
+  type: numeric
+  label: 23 Shrubs
+Shrubs3-45area:
+  type: numeric
+  label: 45 Shrubs
+Trees3-12area:
+  type: numeric
+  label: 12 Trees
+Trees3-23area:
+  type: numeric
+  label: 23 Trees
+Trees3-45area:
+  type: numeric
+  label: 45 Trees
+Graminoids3-12proportion:
+  type: numeric
+  label: 12 Graminoids
+Graminoids3-23proportion:
+  type: numeric
+  label: 23 Graminoids
+Graminoids3-45proportion:
+  type: numeric
+  label: 45 Graminoids
+Forbs3-12proportion:
+  type: numeric
+  label: 12 Forbs
+Forbs3-23proportion:
+  type: numeric
+  label: 23 Forbs
+Forbs3-45proportion:
+  type: numeric
+  label: 45 Forbs
+Shrubs3-12proportion:
+  type: numeric
+  label: 12 Shrubs
+Shrubs3-23proportion:
+  type: numeric
+  label: 23 Shrubs
+Shrubs3-45proportion:
+  type: numeric
+  label: 45 Shrubs
+Trees3-12proportion:
+  type: numeric
+  label: 12 Trees
+Trees3-23proportion:
+  type: numeric
+  label: 23 Trees
+Trees3-45proportion:
+  type: numeric
+  label: 45 Trees
+Andropogon_gerardii-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Andropogon_gerardii-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Andropogon_gerardii-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Andropogon_gerardii-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Schizachyyrium_scoparium-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Schizachyyrium_scoparium-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Schizachyyrium_scoparium-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Schizachyyrium_scoparium-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Bouteloua_curtipendula-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Bouteloua_curtipendula-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Bouteloua_curtipendula-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Bouteloua_curtipendula-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Sorghastrum_nutans-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Sorghastrum_nutans-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Sorghastrum_nutans-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Sorghastrum_nutans-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Sporobolus_heterolepis-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Sporobolus_heterolepis-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Sporobolus_heterolepis-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Sporobolus_heterolepis-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Dalea_purpurea-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Dalea_purpurea-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Dalea_purpurea-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Dalea_purpurea-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Eryngium_yuccifolium-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Eryngium_yuccifolium-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Eryngium_yuccifolium-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Eryngium_yuccifolium-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Mondarda_fistulosa-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Mondarda_fistulosa-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Mondarda_fistulosa-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Mondarda_fistulosa-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Ratibida_pinnata-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Ratibida_pinnata-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Ratibida_pinnata-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Ratibida_pinnata-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Silphium_lacinatum-3-realized-area:
+  type: numeric
+  label: Proportion of Area?
+Silphium_lacinatum-3-realized-prop:
+  type: numeric
+  label: Proportion of Seedmix?
+Silphium_lacinatum-3-desired-area:
+  type: numeric
+  label: Proportion of Area?
+Silphium_lacinatum-3-desired-prop:
+  type: numeric
+  label: Proportion of Seedmix?
 
