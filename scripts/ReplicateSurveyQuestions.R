@@ -4,6 +4,10 @@
 
 setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
+nlcd_tab <- read.csv(file.path('..', 'data', 'Top3NLCD.csv')) 
+species_tab <- read.csv(file.path('..', 'data', 'TopTenSpecies.csv')) 
+# reg_name_tab <- read.csv(file.path('..', 'data', '')) # still need one of these. 
+
 region_name <- c('UCB')
 region_no <- 7
 nlcd_tab <- data.frame(

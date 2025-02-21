@@ -1,0 +1,57 @@
+genus,species,REG_NAME,REG_NUM,NOTE
+Achnatherum,hymneoides,Upper Colorado Basin,7,TRUE
+Pascopyrum,smithii,Upper Colorado Basin,7,TRUE
+Poa,secunda,Upper Colorado Basin,7,TRUE
+Elymus,elymoides,Upper Colorado Basin,7,TRUE
+Pseudoroegneria,spicata,Upper Colorado Basin,7,TRUE
+Sporobolus,cryptandrus,Upper Colorado Basin,7,TRUE
+Elymus,lanceolatus,Upper Colorado Basin,7,TRUE
+Elymus,trachycaulus,Upper Colorado Basin,7,TRUE
+Bouteloua,gracilis,Upper Colorado Basin,7,TRUE
+Hesperostipa,comata,Upper Colorado Basin,7,TRUE
+Achillea,millefolium,Upper Colorado Basin,7,FORB OVERFLOW
+Machaeranthera,canescens,Upper Colorado Basin,7,FORB OVERFLOW
+Heterotheca,villosa,Upper Colorado Basin,7,FORB OVERFLOW
+Linum,lewisii,Upper Colorado Basin,7,FORB OVERFLOW
+Penstemon,linarioides,Upper Colorado Basin,7,FORB OVERFLOW
+Andropogon,gerardii,Great Lakes,3,TRUE
+Schizachyyrium,scoparium,Great Lakes,3,TRUE
+Bouteloua,curtipendula,Great Lakes,3,TRUE
+Sorghastrum,nutans,Great Lakes,3,TRUE
+Sporobolus,heterolepis,Great Lakes,3,TRUE
+Dalea,purpurea,Great Lakes,3,TRUE
+Eryngium,yuccifolium,Great Lakes,3,TRUE
+Mondarda,fistulosa,Great Lakes,3,TRUE
+Ratibida,pinnata,Great Lakes,3,TRUE
+Silphium,lacinatum,Great Lakes,3,TRUE
+Achillea,millefolium,California-Great Basin,10,Caltrans
+Bromus,carinatus,California-Great Basin,10,Caltrans
+Elymus,elymoides,California-Great Basin,10,Caltrans
+Elymus,glaucus,California-Great Basin,10,Caltrans
+Eriogonum,fasciculatum,California-Great Basin,10,Caltrans
+Eschscholzia,californicum,California-Great Basin,10,Caltrans
+Festuca,idahoensis,California-Great Basin,10,Caltrans
+Festuca,microstachys,California-Great Basin,10,Caltrans
+Hordeum,brachyantherum,California-Great Basin,10,Caltrans
+Lupinus,bicolor,California-Great Basin,10,Caltrans
+Nassella,pulchra,California-Great Basin,10,Caltrans
+Layia,platyglossa,California-Great Basin,10,INNER-SOUTH-COAST
+Melica,imperfecta,California-Great Basin,10,INNER-SOUTH-COAST
+Acmispon,glaber,California-Great Basin,10,INNER-SOUTH-COAST
+Monolopia,lanceolata,California-Great Basin,10,INNER-SOUTH-COAST
+Monolopa,stricta,California-Great Basin,10,INNER-SOUTH-COAST
+Phacelia,tanacetifolia,California-Great Basin,10,INNER-SOUTH-COAST
+Pseudoroegneria,spicata,Columbia-Pacific Northwest,9,TRUE
+Poa,secunda,Columbia-Pacific Northwest,9,TRUE
+Festuca,idahoensis,Columbia-Pacific Northwest,9,TRUE
+Elymus,elymoides,Columbia-Pacific Northwest,9,TRUE
+Hesperostipa,comata,Columbia-Pacific Northwest,9,TRUE
+Artemisia,tripartita,Columbia-Pacific Northwest,9,TRUE
+Artemisia,tridentata spp. Wyomingensis,Columbia-Pacific Northwest,9,TRUE
+Eriogonum,heracleoides,Columbia-Pacific Northwest,9,SWAP
+Eriogonum,sphaerocephalum,Columbia-Pacific Northwest,9,SWAP
+Erigeron,pumilus,Columbia-Pacific Northwest,9,SWAP
+Erigeron,filifolius,Columbia-Pacific Northwest,9,SWAP
+Erigeron,linearis,Columbia-Pacific Northwest,9,SWAP
+Penstemon,gairdneri,Columbia-Pacific Northwest,9,SWAP
+Penstemon,speciosus,Columbia-Pacific Northwest,9,SWAP

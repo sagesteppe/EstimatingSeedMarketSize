@@ -1,11 +1,11 @@
 # remotes::install_github("surveydown-dev/surveydown", force = TRUE)
-# remotes::install_github('sagesteppe/surveydown')
+# remotes::install_github('sagesteppe/surveydown', force = TRUE)
 library(surveydown)
 #setwd('/home/sagesteppe/Documents/assoRted/EstimatingSeedMarketSize/survey')
 
 # Database setup
 db <- surveydown::sd_db_connect(
-  gssencmode = NULL
+#  gssencmode = 'disable'
 )
 
 # Server setup
