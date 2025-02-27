@@ -10,7 +10,7 @@ x <- read.csv(file.path('..', 'data', 'processed',
 resp <- 'TotalArea_Acre'
 pred <- 'FIRE_YEAR'
 wts_p <- 'linear'
-quants <- c(0.025, 0.4, 0.5, 0.6, 0.75, 0.95)
+quants <- c(0.025, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)
 form <- as.formula(paste0(resp, '~', pred))
 
 # wts can be feed into the function if more recent values are more important than
@@ -29,17 +29,23 @@ quantL <- vector(mode = 'list', length = length(quants))
 names(quantL) <- paste0('model.', quants)
 
 for (i in seq(quants)){ 
-  quantL[[i]] <- rq(form, data = x, tau = wts[i], weights = wts)
+  quantL[[i]] <- rq(form, data = x, tau = quants[i], weights = wts)
 }
 
 model.lm <- lm(form, data = x)
 
-# I would expect this to force quantiles from 0.01 to 0.99 to be calculated at 
-# intervals of 0.01 based on the documentation. I'm not really sure why that 
-# isn't what is happening (per the documentation). 
+'grey100'
 
-linetype <- c()
-cols <- paste0('grey', seq(0, 100, length.out = 4))
+if(length(quantL)==7){
+  linetypes <- c(3:5, 1, 5:3)
+  cols <- paste0('grey', round(seq(80, 0, length.out = length(quantL)/2))
+                 )
+} else if(length(quantL==11)){
+  full = c(5, 2, 6, 4, 3) 
+  linetypes <- c(full, 1, rev(full))
+}
+
+cols <- paste0('grey', round(seq(0, 100, length.out = 4)))
 
 par(mar = c(7, 5, 4, 2))
 plot(
@@ -53,18 +59,9 @@ plot(
   yaxt = "n"
 ) 
 abline(model.lm, col = 'blue')
-
-
-for (i in seq()){
-  abline(quantL[[i]], lty = linetype[i], col = cols[i])
+for (i in seq(quantL)){
+  abline(quantL[[i]], lty = linetypes[i], col = cols[i])
 }
-abline(model.5, col = 'grey0')
-abline(model.4, lty = 5, col = 'grey20')
-abline(model.6, lty = 5, col = 'grey20')
-abline(model.25, lty = 4, col = 'grey40')
-abline(model.75, lty = 4, col = 'grey40')
-abline(model.lwr, lty = 3, col = 'grey80')
-abline(model.upr, lty = 3, col = 'grey60')
 axis(2, 
      at = labs <- pretty(par()$usr[3:4]),
      labels = prettyNum(
@@ -90,7 +87,7 @@ legend(
 #' @param resp Character. Name of the response field.  
 #' @param pred Character. Name of the predictor field.  
 #' @param plotLM Boolean. Defaults to TRUE, whether to also plot the fit of a linear model to the plot. 
-quartReg <- function(x){
+quantReg <- function(x){
   
   
   
