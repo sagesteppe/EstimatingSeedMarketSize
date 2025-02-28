@@ -12,6 +12,7 @@ lapply(x_l, quantReg, wts_p = 'exp')
 lapply(x_l, quantReg, wts_p = 'none')
 lapply(x_l, quantReg, wts_p = 'linear')
 
+lapply(x_l, quantReg, gc=TRUE)
 
 # if we make one assumption then we can use a 'growth chart' 
 # the assumption is one of monotonicity, that is a directiona trend exists in the data
@@ -71,9 +72,8 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   if(gc == FALSE){
     form <- as.formula(paste0(resp, '~', pred))
   } else {
-    form <- as.formula(paste0(resp, ' ps(', pred, ', monotone=1)'))
-    }
-  
+    form <- as.formula(paste0(resp, ' ~   ps(', pred, ', monotone=1)'))
+  }
   
   # wts can be feed into the function if more recent values are more important than
   # historic values. 
@@ -82,24 +82,30 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   # add the functionality soon. Supplying them does not break the fn, so we will 
   # include them in args. 
   
-  if(wts_p=='none'){
+  if(wts_p == 'none'){
     wts <- rep(1, length.out = nrow(x))
   } else {
     wts <- seq(0.1, 1, length.out = nrow(x))
   }
   
-  if(wts_p=='exp'){wts <- exp(wts)} else if(wts_p=='log'){wts <- abs(rev(log(wts)))}
+  if(wts_p == 'exp'){wts <- exp(wts)} else if(wts_p=='log'){wts <- abs(rev(log(wts)))}
   
-  quantL <- vector(mode = 'list', length = length(quants))
-  names(quantL) <- paste0('model.', quants)
   
-  for (i in seq(quants)){ 
-    quantL[[i]] <- quantreg::rq(form, data = x, tau = quants[i], weights = wts)
+  # now fit the models. 
+  if(gc==FALSE){
+    quantL <- vector(mode = 'list', length = length(quants))
+    names(quantL) <- paste0('model.', quants)
+    
+    for (i in seq(quants)){ 
+      quantL[[i]] <- quantreg::rq(form, data = x, tau = quants[i], weights = wts)
+    }
+  } else {
+    mod <- quantregGrowth::gcrq(form, data = x, tau = quants, weights = wts)
   }
-  
+
   model.lm <- lm(form, data = x)
   
-  L <- length(quantL)
+  L <- length(quants)
   if(L==7){
     linetypes <- c(3:5, 1, 5:3)
     
@@ -114,16 +120,16 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   }
   
   p <- file.path('..', 'results', 'Plots', 'QuantileForecasts', 
-                 paste0(gsub(' ', '_', x[['REG_NAME']][1]), '-', wts_p))
+                 paste0(gsub(' ', '_', x[['REG_NAME']][1], '-')))
   
   # now plot in two different fashions... if using the default qc use the first
   # option which requires a smidge of specifications. Otherwise use the method
   # in the quantregGrowth package which will dispatch to a generic. 
   
   if(gc==FALSE){
-    p <- file.path(p, wts_p, '.png')
+    p <- paste0(p, wts_p, '.png')
   } else {
-    p <- file.path(p, 'gc', '.png')
+    p <- paste0(p, 'gc', '.png')
   }
   
   png(p)
@@ -143,15 +149,15 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
       abline(quantL[[i]], lty = linetypes[i], col = cols[i])
     }
   } else {
-    quantregGrowth::plot(
-      x, 
-      res=TRUE, 
+    plot(
+      mod, 
+      res = TRUE, 
       col = cols,
       lty = linetypes, 
       yaxt = 'n',
-      main = paste0('Total Area Burned\n', x[['REG_NAME']][1]),
-      xlab = 'Year', 
-      ylab = 'Total Area Burned (Acre)',
+      main = paste0('Total Area Burned\n', x[['REG_NAME']][1])#,
+ #     xlab = 'Year', 
+#      ylab = 'Total Area Burned (Acre)',
       ) 
     points(x[[pred]], x[[resp]], pch = 20, cex = 1.2, col = 'black')
   }
