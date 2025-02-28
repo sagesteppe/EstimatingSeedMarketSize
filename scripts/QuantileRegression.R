@@ -3,9 +3,36 @@ setwd('~/Documents/assoRted/EstimatingSeedMarketSize/scripts')
 library(tidyverse)
 library(quantreg)
 
-x <- read.csv(file.path('..', 'data', 'processed', 
-                                'NoFires-TotalArea_byDOIRegion.csv')) |>
-  filter(REG_NAME == 'South Atlantic Gulf') 
+x_l <- read.csv(file.path('..', 'data', 'processed', 
+                                'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
+  split(., f = .$REG_NAME)
+
+lapply(x_l, quantReg, wts_p = 'log')
+lapply(x_l, quantReg, wts_p = 'exp')
+lapply(x_l, quantReg, wts_p = 'none')
+lapply(x_l, quantReg, wts_p = 'linear')
+
+
+# if we make one assumption then we can use a 'growth chart' 
+# the assumption is one of monotonicity, that is a directiona trend exists in the data
+# although this may seen a rough assumption when forecasting year+1 estimates, it 
+# allows for a non-linear fit of the conditional responses by using b-splines. 
+
+# Technically we could avoid the monotone term, but our data are too sparse to 
+# really pull this off. 
+
+# using the quantreg package not only allows for us to keep out upper quantile 
+# estimates with positive coefficients, but also avoids the 'crossing' of estimates
+# which occurrs when using quantreg, where each model is fit without consideration 
+# of the others. 
+library(quantregGrowth)
+
+names(x_l)
+x_sub <- x_l[['Lower Colorado Basin']]
+
+y <- gcrq(TotalArea_Acre ~ ps(FIRE_YEAR, monotone=1), tau=quants, data=x_sub, weights = wts)
+plot(y, res=TRUE, col= cols, lty = linetypes) 
+points(x_sub$FIRE_YEAR, x_sub$TotalArea_Acre)
 
 #' Fit quantile regression models to an annual time series using an auto regressive process. 
 #' 
@@ -15,6 +42,7 @@ x <- read.csv(file.path('..', 'data', 'processed',
 #' @param wts_p Character. One of 'none' for unweighted regression (the default), 'linear' for a linear decay of weights, or 'exp' for exponential decay, and 'log' for logistic decay (reversed and made absolute) which is a tad extreme for these purposes. 
 #' @param resp Character. Name of the response field.  
 #' @param pred Character. Name of the predictor field.  
+#' @param gc Boolean. Defaults to FALSE, if true fit conditional responses using a growth chart and b-splines with an enforcement of the assumption of positive monotonocity. 
 #' @examples
 #' 
 #' # you the built in weighing fns can be visualized as so. The natural log seems
@@ -31,17 +59,28 @@ x <- read.csv(file.path('..', 'data', 'processed',
 #' rm(wts)
 #'
 #' 
-quantReg <- function(x){
+quantReg <- function(x, quants, wts_p, resp, pred, gc){
   
+  if(missing(quants)){
+    quants <- c(0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)}
+  if(missing(wts_p)){wts_p <- 'none'}
   if(missing(resp)){resp <- 'TotalArea_Acre'} 
   if(missing(pred)){pred <- 'FIRE_YEAR'}
-  if(missing(quants)){
-    quants <- c(0.025, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)}
+  if(missing(gc)){gc <- FALSE}
   
-  form <- as.formula(paste0(resp, '~', pred))
+  if(gc == FALSE){
+    form <- as.formula(paste0(resp, '~', pred))
+  } else {
+    form <- as.formula(paste0(resp, ' ps(', pred, ', monotone=1)'))
+    }
+  
   
   # wts can be feed into the function if more recent values are more important than
   # historic values. 
+  
+  # note that wts are ignored for the gcrq function, but the authors intends to 
+  # add the functionality soon. Supplying them does not break the fn, so we will 
+  # include them in args. 
   
   if(wts_p=='none'){
     wts <- rep(1, length.out = nrow(x))
@@ -55,7 +94,7 @@ quantReg <- function(x){
   names(quantL) <- paste0('model.', quants)
   
   for (i in seq(quants)){ 
-    quantL[[i]] <- rq(form, data = x, tau = quants[i], weights = wts)
+    quantL[[i]] <- quantreg::rq(form, data = x, tau = quants[i], weights = wts)
   }
   
   model.lm <- lm(form, data = x)
@@ -63,6 +102,7 @@ quantReg <- function(x){
   L <- length(quantL)
   if(L==7){
     linetypes <- c(3:5, 1, 5:3)
+    
     cols <- paste0('grey', round(seq(80, 0, length.out =  floor(L/2)+1)))
     cols <- c(cols, rev(cols[1:L/2]))
   } else if(L==11){
@@ -73,21 +113,50 @@ quantReg <- function(x){
     cols <- c(cols, rev(cols[1:L/2]))
   }
   
-  par(mar = c(7, 5, 4, 2))
-  plot(
-    x = x[[pred]],
-    y = x[[resp]],
-    main = paste0('Total Area Burned - quantile regression\n', x[['REG_NAME']][1]),
-    xlab = 'Year', 
-    ylab = 'Total Area Burned (Acre)',
-    pch = 20,
-    cex = 1.2,
-    yaxt = "n"
-  ) 
-  abline(model.lm, col = 'dodgerblue4')
-  for (i in seq(quantL)){
-    abline(quantL[[i]], lty = linetypes[i], col = cols[i])
+  p <- file.path('..', 'results', 'Plots', 'QuantileForecasts', 
+                 paste0(gsub(' ', '_', x[['REG_NAME']][1]), '-', wts_p))
+  
+  # now plot in two different fashions... if using the default qc use the first
+  # option which requires a smidge of specifications. Otherwise use the method
+  # in the quantregGrowth package which will dispatch to a generic. 
+  
+  if(gc==FALSE){
+    p <- file.path(p, wts_p, '.png')
+  } else {
+    p <- file.path(p, 'gc', '.png')
   }
+  
+  png(p)
+  par(mar = c(7, 5, 4, 2))
+  if(gc==FALSE){
+    plot(
+      x = x[[pred]],
+      y = x[[resp]],
+      main = paste0('Total Area Burned\n', x[['REG_NAME']][1]),
+      xlab = 'Year', 
+      ylab = 'Total Area Burned (Acre)',
+      pch = 20,
+      cex = 1.2,
+      yaxt = "n"
+    ) 
+    for (i in seq(quantL)){
+      abline(quantL[[i]], lty = linetypes[i], col = cols[i])
+    }
+  } else {
+    quantregGrowth::plot(
+      x, 
+      res=TRUE, 
+      col = cols,
+      lty = linetypes, 
+      yaxt = 'n',
+      main = paste0('Total Area Burned\n', x[['REG_NAME']][1]),
+      xlab = 'Year', 
+      ylab = 'Total Area Burned (Acre)',
+      ) 
+    points(x[[pred]], x[[resp]], pch = 20, cex = 1.2, col = 'black')
+  }
+
+  abline(model.lm, col = 'dodgerblue4')
   axis(2, 
        at = labs <- pretty(par()$usr[3:4]),
        labels = prettyNum(
@@ -95,16 +164,18 @@ quantReg <- function(x){
   )
   legend(
     x = "topleft", 
-    legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25,0.75)', '0.95 band (0.025,0.975)', 'Mean'),
+    legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25,0.75)', '0.9 band (0.05,0.95)', 'Mean'),
     lty = c(rev(linetypes[1:ceiling(L/2)]), 1),  
     col = c(rev(cols[1:ceiling(L/2)]), 'dodgerblue4'),
     lwd = 2, 
     bg = adjustcolor("white", 0.4)
   )  
-  if(wts_p!='none'){
-    text(x =1997, y = 2.5e6, cex = 0.8, paste(
-      if(wts_p=='exp'){'exponential decay'} else {'linear decay'}, 
-      'weighted regression'))
-  }
+  mtext(side=1, line=4, adj=1, cex=0.8, col = 'grey40', paste(
+      if(wts_p=='exp'){'exponential decay'} else 
+        if (wts_p=='linear'){'linear decay'} else
+          {'logarithmic decay'}, 
+      'weighted quantile regression'))
+  
+  dev.off()
   
 }
