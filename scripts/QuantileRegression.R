@@ -5,11 +5,11 @@ library(quantreg)
 
 x <- read.csv(file.path('..', 'data', 'processed', 
                                 'NoFires-TotalArea_byDOIRegion.csv')) |>
-  filter(REG_NAME == 'California-Great Basin') 
+  filter(REG_NAME == 'South Atlantic Gulf') 
 
 resp <- 'TotalArea_Acre'
 pred <- 'FIRE_YEAR'
-wts_p <- 'linear'
+wts_p <- 'exp'
 quants <- c(0.025, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)
 form <- as.formula(paste0(resp, '~', pred))
 
@@ -34,31 +34,32 @@ for (i in seq(quants)){
 
 model.lm <- lm(form, data = x)
 
-'grey100'
 
-if(length(quantL)==7){
+L <- length(quantL)
+if(L==7){
   linetypes <- c(3:5, 1, 5:3)
-  cols <- paste0('grey', round(seq(80, 0, length.out = length(quantL)/2))
-                 )
-} else if(length(quantL==11)){
+  cols <- paste0('grey', round(seq(80, 0, length.out =  floor(L/2)+1)))
+  cols <- c(cols, rev(cols[1:L/2]))
+} else if(L==11){
   full = c(5, 2, 6, 4, 3) 
   linetypes <- c(full, 1, rev(full))
+  
+  cols <- paste0('grey', round(seq(80, 0, length.out =  floor(L/2)+1)))
+  cols <- c(cols, rev(cols[1:L/2]))
 }
-
-cols <- paste0('grey', round(seq(0, 100, length.out = 4)))
 
 par(mar = c(7, 5, 4, 2))
 plot(
   x = x[[pred]],
   y = x[[resp]],
   main = paste0('Total Area Burned - quantile regression\n', x[['REG_NAME']][1]),
-  xlab = 'Fire Year', 
-  ylab = 'Total Area (Acre)',
+  xlab = 'Year', 
+  ylab = 'Total Area Burned (Acre)',
   pch = 20,
   cex = 1.2,
   yaxt = "n"
 ) 
-abline(model.lm, col = 'blue')
+abline(model.lm, col = 'dodgerblue4')
 for (i in seq(quantL)){
   abline(quantL[[i]], lty = linetypes[i], col = cols[i])
 }
@@ -67,15 +68,21 @@ axis(2,
      labels = prettyNum(
        labs, big.mark = ",", scientific = FALSE)
 )
-
 legend(
   x = "topleft", 
-  legend = c("Median (0.5", "0.4 & 0.6", 'Quartiles (0.25,0.75)', '0.95 band (0.025,0.975)'),
-  lty = c(1, 5:3),  
-  col = paste0('grey', seq(0, 60, length.out = 4)),
+  legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25,0.75)', '0.95 band (0.025,0.975)', 'Mean'),
+  lty = c(rev(linetypes[1:ceiling(L/2)]), 1),  
+  col = c(rev(cols[1:ceiling(L/2)]), 'dodgerblue4'),
   lwd = 2, 
   bg = adjustcolor("white", 0.4)
 )  
+if(wts_p!='none'){
+  text(x =1997, y = 2.5e6, cex = 0.8, paste(
+    if(wts_p=='exp'){'exponential decay'} else {'linear decay'}, 
+    'weighted regression'))
+}
+
+
 
 
 #' Fit quantile regression models to a time series using an autoregressive process. 
@@ -86,7 +93,7 @@ legend(
 #' @param wts_p Character. One of 'none' for unweighted regression (the default), 'linear' for a linear decay of weights, or 'exp' for exponential decay of weigts. 
 #' @param resp Character. Name of the response field.  
 #' @param pred Character. Name of the predictor field.  
-#' @param plotLM Boolean. Defaults to TRUE, whether to also plot the fit of a linear model to the plot. 
+#' 
 quantReg <- function(x){
   
   
