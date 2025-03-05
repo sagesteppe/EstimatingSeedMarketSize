@@ -2,9 +2,10 @@ setwd('~/Documents/assoRted/EstimatingSeedMarketSize/scripts')
 
 library(tidyverse)
 library(quantreg)
+library(quantregGrowth)
 
-x_l <- read.csv(file.path('..', 'data', 'processed', 
-                                'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
+x_l <- read.csv(
+  file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
 
 lapply(x_l, quantReg, wts_p = 'log')
@@ -12,7 +13,7 @@ lapply(x_l, quantReg, wts_p = 'exp')
 lapply(x_l, quantReg, wts_p = 'none')
 lapply(x_l, quantReg, wts_p = 'linear')
 
-lapply(x_l, quantReg, gc=TRUE)
+lapply(x_l, quantReg, gc = TRUE)
 
 # if we make one assumption then we can use a 'growth chart' 
 # the assumption is one of monotonicity, that is a directiona trend exists in the data
@@ -26,14 +27,7 @@ lapply(x_l, quantReg, gc=TRUE)
 # estimates with positive coefficients, but also avoids the 'crossing' of estimates
 # which occurrs when using quantreg, where each model is fit without consideration 
 # of the others. 
-library(quantregGrowth)
 
-names(x_l)
-x_sub <- x_l[['Lower Colorado Basin']]
-
-y <- gcrq(TotalArea_Acre ~ ps(FIRE_YEAR, monotone=1), tau=quants, data=x_sub, weights = wts)
-plot(y, res=TRUE, col= cols, lty = linetypes) 
-points(x_sub$FIRE_YEAR, x_sub$TotalArea_Acre)
 
 #' Fit quantile regression models to an annual time series using an auto regressive process. 
 #' 
@@ -69,10 +63,15 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   if(missing(pred)){pred <- 'FIRE_YEAR'}
   if(missing(gc)){gc <- FALSE}
   
+  p <- file.path('..', 'results', 'Plots', 'QuantileForecasts', 
+                 paste0(gsub(' ', '_', x[['REG_NAME']][1]), '-'))
+  
+  form <- as.formula(paste0(resp, '~', pred))
   if(gc == FALSE){
-    form <- as.formula(paste0(resp, '~', pred))
+    p <- paste0(p, wts_p, '.png')
   } else {
-    form <- as.formula(paste0(resp, ' ~   ps(', pred, ', monotone=1)'))
+    form.sm <- as.formula(paste0(resp, ' ~ ps(', pred, ', monotone=1)'))
+    p <- paste0(p, 'gc', '.png')
   }
   
   # wts can be feed into the function if more recent values are more important than
@@ -81,15 +80,14 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   # note that wts are ignored for the gcrq function, but the authors intends to 
   # add the functionality soon. Supplying them does not break the fn, so we will 
   # include them in args. 
-  
   if(wts_p == 'none'){
     wts <- rep(1, length.out = nrow(x))
   } else {
     wts <- seq(0.1, 1, length.out = nrow(x))
-  }
+  } # these are the linear weights
   
-  if(wts_p == 'exp'){wts <- exp(wts)} else if(wts_p=='log'){wts <- abs(rev(log(wts)))}
-  
+  if(wts_p == 'exp'){wts <- exp(wts)} else 
+    if(wts_p == 'log'){wts <- abs(rev(log(wts)))} # else do nothing to the linear wts. 
   
   # now fit the models. 
   if(gc==FALSE){
@@ -99,12 +97,13 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
     for (i in seq(quants)){ 
       quantL[[i]] <- quantreg::rq(form, data = x, tau = quants[i], weights = wts)
     }
+    
   } else {
-    mod <- quantregGrowth::gcrq(form, data = x, tau = quants, weights = wts)
+    mod <- quantregGrowth::gcrq(form.sm, data = x, tau = quants, weights = wts)
   }
 
   model.lm <- lm(form, data = x)
-  
+
   L <- length(quants)
   if(L==7){
     linetypes <- c(3:5, 1, 5:3)
@@ -119,19 +118,9 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
     cols <- c(cols, rev(cols[1:L/2]))
   }
   
-  p <- file.path('..', 'results', 'Plots', 'QuantileForecasts', 
-                 paste0(gsub(' ', '_', x[['REG_NAME']][1], '-')))
-  
   # now plot in two different fashions... if using the default qc use the first
   # option which requires a smidge of specifications. Otherwise use the method
   # in the quantregGrowth package which will dispatch to a generic. 
-  
-  if(gc==FALSE){
-    p <- paste0(p, wts_p, '.png')
-  } else {
-    p <- paste0(p, 'gc', '.png')
-  }
-  
   png(p)
   par(mar = c(7, 5, 4, 2))
   if(gc==FALSE){
@@ -155,9 +144,9 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
       col = cols,
       lty = linetypes, 
       yaxt = 'n',
-      main = paste0('Total Area Burned\n', x[['REG_NAME']][1])#,
- #     xlab = 'Year', 
-#      ylab = 'Total Area Burned (Acre)',
+      main = paste0('Total Area Burned\n', x[['REG_NAME']][1]), 
+      xlab = 'Year', 
+      ylab = 'Total Area Burned (Acre)',
       ) 
     points(x[[pred]], x[[resp]], pch = 20, cex = 1.2, col = 'black')
   }
@@ -170,7 +159,7 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   )
   legend(
     x = "topleft", 
-    legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25,0.75)', '0.9 band (0.05,0.95)', 'Mean'),
+    legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25, 0.75)', '0.9 band (0.05, 0.95)', 'Mean'),
     lty = c(rev(linetypes[1:ceiling(L/2)]), 1),  
     col = c(rev(cols[1:ceiling(L/2)]), 'dodgerblue4'),
     lwd = 2, 
@@ -180,8 +169,29 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
       if(wts_p=='exp'){'exponential decay'} else 
         if (wts_p=='linear'){'linear decay'} else
           {'logarithmic decay'}, 
-      'weighted quantile regression'))
+      'weighted quantile regression')
+      )
   
   dev.off()
   
+  
+  ## if using growth charts, extract the 'prediction' for the next year, although 
+  # this seems to just be the max year in the data set 'drifted' out to then. I.e. 
+  # the predict fn refuses to extrapolate. 
+  if(gc==TRUE){
+    # there is a way with/when/how quantreg grabs the formula from the fn... 
+    mod$call$formula <- form.sm # but... we can overwrite this in the fn call to fix it.   
+    
+    preds <- data.frame(FIRE_YEAR = as.integer(format(Sys.Date(), "%Y")))
+    preds <- predict(mod, preds) |> 
+      cbind(preds) |> 
+      tibble::rownames_to_column() |> 
+      setNames(c('Tau', 'Prediction', 'FIRE_YEAR'))
+    
+    p <- gsub('Plots', 'Tabular', p)
+    p <- gsub('.png', '.csv', p)
+    write.csv(preds, p, row.names = FALSE)
+  }
 }
+
+
