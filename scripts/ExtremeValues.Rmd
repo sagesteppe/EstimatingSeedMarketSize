@@ -5,7 +5,7 @@ date: "2024-12-20"
 output: html_document
 ---
 
-```{r}
+```{r, message=F, warning=F}
 library(tidyverse)
 library(extRemes)
 source('functions.R')

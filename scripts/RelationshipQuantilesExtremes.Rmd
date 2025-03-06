@@ -1,0 +1,54 @@
+---
+title: "Relationship between Annual Fire Size Estimates from Quantile Regression and Extreme Value Theory"
+author: "Reed Benkendorf"
+date: "2025-03-06"
+output: pdf_document
+---
+
+Quantile regression performs well with estimating the conditional median value within reasonable probabilities, e.g. > 0.8 to maybe the 0.9 band. 
+Extreme Value theory is accepted as the preferred method for estimating values in these more remote probabilities. 
+We have developed both quantile estimates, and extreme value estimates for fire size, under the current fire regime. 
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r read in data}
+p <- file.path('..', 'results', 'Tabular')
+qf <- file.path(p, 'QuantileForecasts')
+fri <- file.path(p, 'FireReturnIntervals')
+
+qfd <- lapply(file.path(qf, list.files(qf)), read.csv) 
+names(qfd) <- gsub('-gc.*', '', list.files(qf))
+qfd <- bind_rows(qfd, .id = 'region')
+
+frid <- lapply(file.path(fri, list.files(fri,  pattern = 'Predictions')), read.csv) 
+names(frid) <- gsub('Predictions-|[.]csv', '', list.files(fri,  pattern = 'Predictions'))
+frid <- bind_rows(frid, .id = 'region')
+frid <- rename(frid, return_lvl = X)
+
+rm(p, fri, qf)
+```
+
+```{r Subset to relevant records}
+frid <- filter(frid, Pr < 0.101) |>
+  mutate(Tau = CDF , method = 'Extreme') |>
+  rename(Prediction = estimate)
+```
+
+Does quantile predict extreme value? 
+```{r}
+
+dat <- bind_rows(
+  select(frid, region, Tau, Prediction, method), 
+  mutate(qfd, method = 'Quantile') |> select(-FIRE_YEAR)
+) |>
+  mutate(region = str_replace_all(region, '_', ' '))
+
+ggplot(dat, aes(x = Tau, y = Prediction, color = region, shape = method)) + 
+  geom_point() + 
+  facet_wrap(~ region, scales = 'free')
+
+```
+
