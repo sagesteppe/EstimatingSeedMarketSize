@@ -45,9 +45,8 @@ frid <- filter(frid, CDF > 0.95) |>
   rename(Prediction = estimate)
 ```
 
-The following plot is intended for internal use only (i.e. it's really ugly), essentially it is for determing where a 'gap' exists between the 0.95 wuantile, and extreme value predictions for that quantile and upwards. 
+The following plot is intended for internal use only (i.e. it's really ugly), essentially it is for determing where a 'gap' exists between the 0.95 quantile, and extreme value predictions for that quantile and upwards. 
 
-Does quantile predict extreme value? 
 ```{r}
 
 dat <- bind_rows(
@@ -60,8 +59,10 @@ ggplot(dat, aes(x = Tau, y = Prediction, color = region, shape = method, size = 
   geom_point() + 
   facet_wrap(~ region, scales = 'free') + 
   theme_bw() + 
-  labs(title = 'Relationships between Quantile and Extreme Value Predictions',
-       y = 'Total Burned Area Prediction (Acres)')
+  labs(
+    title = 'Relationships between Quantile and Extreme Value predictions',
+    y = 'Total Burned Area Prediction (Acres)'
+    )
 
 ```
 

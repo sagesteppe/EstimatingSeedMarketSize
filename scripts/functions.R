@@ -767,7 +767,7 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   if(missing(quants)){
     quants <- c(0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)}
   if(missing(wts_p)){wts_p <- 'none'}
-  if(missing(resp)){resp <- 'TotalArea_Acre'} 
+  if(missing(resp)){resp <- 'TotalArea_Acre'}
   if(missing(pred)){pred <- 'FIRE_YEAR'}
   if(missing(gc)){gc <- FALSE}
   
@@ -900,4 +900,70 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
     p <- gsub('.png', '.csv', p)
     write.csv(preds, p, row.names = FALSE)
   }
+}
+
+
+
+
+#' Fit growth chart quantile regression models to an annual time series using an auto regressive process. 
+#' 
+#' @description 
+#' @param x Data frame. Must contain all data required to perform modelling. 
+#' @param quants Numeric vector - odd. The quantiles which you want to model fits for, defaults to seq(0.05, 0.95, by = 0.01)
+#' @param resp Character. Name of the response field.  
+#' @param pred Character. Name of the predictor field.  
+#' @examples
+quantReg2 <- function(x, quants, resp, pred){
+  
+  if(missing(quants)){quants <- seq(0.05, 0.95, by = 0.01)}
+  if(missing(resp)){resp <- 'TotalArea_Acre'}
+  if(missing(pred)){pred <- 'FIRE_YEAR'}
+  
+  p <- file.path('..', 'results', 'Plots', 'QuantileForecasts', 
+                 paste0(gsub(' ', '_', x[['REG_NAME']][1]), '-'))
+  
+  form <- as.formula(paste0(resp, '~', pred))
+  form.sm <- as.formula(paste0(resp, ' ~ ps(', pred, ', monotone=1)'))
+
+  mod <- tryCatch(
+    {
+      # Attempt the gcrq model fitting
+      quantregGrowth::gcrq(form.sm, data = x, tau = quants)
+    },
+    error = function(e) { 
+      # Handle the error by jittering the response variable
+      message("Error occurred: ", e$message)
+      x[[resp]] <- abs(jitter(x[[resp]], amount = 0.025))
+      
+      # Try again after modifying the response variable
+      result <- quantregGrowth::gcrq(form.sm, data = x, tau = quants)
+      
+      # If the second attempt also fails, return NULL or exit gracefully
+      if (inherits(result, "try-error")) {
+        message("Second attempt failed, exiting function gracefully.")
+        return(NA)  # Exit gracefully
+      }
+      
+      return(result)
+    }
+  )
+  
+  ## if using growth charts, extract the 'prediction' for the next year, although 
+  # this seems to just be the max year in the data set 'drifted' out to then. I.e. 
+  # the predict fn refuses to extrapolate. 
+  
+  # there is a way with/when/how quantreg grabs the formula from the fn... 
+  mod$call$formula <- form.sm # but... we can overwrite this in the fn call to fix it.   
+    
+  preds <- data.frame(FIRE_YEAR = as.integer(format(Sys.Date(), "%Y")))
+
+  preds <- predict(mod, preds) |> 
+    cbind(preds) |> 
+    tibble::rownames_to_column() |> 
+    setNames(c('Tau', 'Prediction', 'FIRE_YEAR'))
+    
+  p <- gsub('Plots', 'Tabular', p)
+  p <- paste0(p, 'allTau.csv')
+  write.csv(preds, p, row.names = FALSE)
+    
 }

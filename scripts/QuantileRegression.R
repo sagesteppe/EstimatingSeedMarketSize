@@ -14,8 +14,6 @@ lapply(x_l, quantReg, wts_p = 'exp')
 lapply(x_l, quantReg, wts_p = 'none')
 lapply(x_l, quantReg, wts_p = 'linear')
 
-lapply(x_l, quantReg, gc = TRUE)
-
 # if we make one assumption then we can use a 'growth chart' 
 # the assumption is one of monotonicity, that is a directiona trend exists in the data
 # although this may seen a rough assumption when forecasting year+1 estimates, it 
@@ -26,9 +24,12 @@ lapply(x_l, quantReg, gc = TRUE)
 
 # using the quantreg package not only allows for us to keep out upper quantile 
 # estimates with positive coefficients, but also avoids the 'crossing' of estimates
-# which occurrs when using quantreg, where each model is fit without consideration 
+# which occurs when using quantreg, where each model is fit without consideration 
 # of the others. 
 
+lapply(x_l, quantReg, gc = TRUE)
+lapply(x_l, quantReg2)
 
-
+quantReg2(x_l$Alaska)
+quantReg2(x_l$`Upper Colorado Basin`)
 
