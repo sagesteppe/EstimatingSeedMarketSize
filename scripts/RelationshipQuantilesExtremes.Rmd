@@ -5,14 +5,17 @@ date: "2025-03-06"
 output: pdf_document
 ---
 
-Quantile regression performs well with estimating the conditional median value within reasonable probabilities, e.g. > 0.8 to maybe the 0.9 band. 
-Extreme Value theory is accepted as the preferred method for estimating values in these more remote probabilities. 
+Quantile regression performs well with estimating the conditional median value within reasonable probabilities, e.g. > 0.8 (from 0.1 to 0.9) to perhaps the 0.9 (0.05 to 0.95) band. 
+How accurate these models fits are will depend on the nature, and size, of the data. 
+Extreme Value theory is accepted as the preferred method for estimating values in the more distal probabilities. 
 We have developed both quantile estimates, and extreme value estimates for fire size, under the current fire regime. 
 
 ```{r}
 library(tidyverse)
 ```
 
+However, how well they 'fit together' to characterize extreme values is unknown. 
+Under predictions of the extreme values, alongside over predictions of the quantile bands could lead to scenarios where the quantile values *exceed* extreme values. 
 
 ```{r read in data}
 p <- file.path('..', 'results', 'Tabular')
@@ -31,11 +34,18 @@ frid <- rename(frid, return_lvl = X)
 rm(p, fri, qf)
 ```
 
+We can focus on using the extreme values only in the upper tails. 
+The very low fire areas we will just set as a floor value, of the lowest calculated quantile. 
+We are not very concerned about the details down that low - the floors are relatively consistent - the data are skewed towards the ceilings. 
+Further in nearly all instances the extreme values in the lower parts of the range are drastically inflated upwards, which would skew our seed demand to being higher than neccessary. 
+
 ```{r Subset to relevant records}
-frid <- filter(frid, Pr < 0.101) |>
+frid <- filter(frid, CDF > 0.95) |>
   mutate(Tau = CDF , method = 'Extreme') |>
   rename(Prediction = estimate)
 ```
+
+The following plot is intended for internal use only (i.e. it's really ugly), essentially it is for determing where a 'gap' exists between the 0.95 wuantile, and extreme value predictions for that quantile and upwards. 
 
 Does quantile predict extreme value? 
 ```{r}
@@ -46,9 +56,26 @@ dat <- bind_rows(
 ) |>
   mutate(region = str_replace_all(region, '_', ' '))
 
-ggplot(dat, aes(x = Tau, y = Prediction, color = region, shape = method)) + 
+ggplot(dat, aes(x = Tau, y = Prediction, color = region, shape = method, size = method)) + 
   geom_point() + 
-  facet_wrap(~ region, scales = 'free')
+  facet_wrap(~ region, scales = 'free') + 
+  theme_bw() + 
+  labs(title = 'Relationships between Quantile and Extreme Value Predictions',
+       y = 'Total Burned Area Prediction (Acres)')
 
 ```
 
+The above plots are intended to display the continuity, or lack thereof, between the two methods of near-term fire quantile predictions. 
+If the predictions from the extreme value estimates are 'hidden' by the 0.95 quantile prediction, it indicates a flat plateau of total possible burned area size, based on the data fed into these models. 
+If the 'extreme' points are above the quantile predictions, it shows that these data and models indicate that a large cumulative burned area may yet to be achieved in reality. 
+If the 0.95 quantile forecast exceeds the extreme forecast, that indicates some major limitation of the data. 
+
+For six of these regions (CA-Great Basin, Columbia Plateau PNW, Great Lakes, Lower Colorado Basin, Mississippi Basin, Missouri Basin) the estimates are similar. 
+Four of these regions have extreme value predictions which greatly exceed the 0.95 quantile band (Alaska, Arkansas - Rio Grande, Pacific Islands, Upper Colorado Basin).
+I am equivocal about which informally described group North Atlantic-Appalachian would fall into. 
+South Atlantic Gulf is an instance where the area described by the 0.95 quantiles exceeds the 'extreme' estimates, clearly showing they are limited in their utility. 
+
+In terms of relative difference of predictions, the Pacific Islands display the greatest discordance between predictions, with the extreme values being roughly 4x the 0.95 quantile. 
+Note that this data only spans until 2022, missing the 2023 Oahu wildfires which burned a total of ~ 17,000 acres; although not all of this was DOI administered lands. 
+The greatest absolute difference between predictions is in Alaska with a roughly 1.5 M discrepancy. 
+These differences reflect the amount of land in each region - Hawaii is smallest and Alaska the largest.
