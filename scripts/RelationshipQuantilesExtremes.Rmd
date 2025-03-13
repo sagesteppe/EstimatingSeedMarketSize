@@ -12,6 +12,7 @@ We have developed both quantile estimates, and extreme value estimates for fire 
 
 ```{r attach libraries}
 library(tidyverse)
+source('functions.R')
 ```
 
 However, how well they 'fit together' to characterize extreme values is unknown. 
@@ -33,7 +34,7 @@ frid <- rename(frid, return_lvl = X)
 
 fire_sum <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv')) %>% 
-  rename(region = REG_NAME)
+  rename(Region = REG_NAME)
 
 rm(p, fri, qf)
 ```
@@ -57,12 +58,13 @@ dat <- bind_rows(
   select(frid, region, Tau, Prediction, Approach), 
   mutate(qfd, Approach = 'Quantile') |> select(-FIRE_YEAR)
 ) |>
-  mutate(region = str_replace_all(region, '_', ' '))
+  mutate(region = str_replace_all(region, '_', ' ')) |>
+  rename(Region = region)
 
 ggplot(dat, aes(x = Tau, y = Prediction)) + 
   geom_point(aes(shape = Approach, color = Approach)) + 
   geom_point(data = fire_sum, aes(y = TotalArea_Acre), x = 0.99, alpha = 0.5) + 
-  facet_wrap(~ region, scales = 'free') + 
+  facet_wrap(~ Region, scales = 'free') + 
   theme_bw() + 
   labs(
     title = 'Relationships between Quantile and Extreme Value predictions',
@@ -93,7 +95,7 @@ We know that the upper limits of the quantile estimates differ from the extreme 
 For any quantiles which exceed the EVT predictions we will replace them with values interpolated from the 'highest' quantile less than an EVT prediction, and the lowest EVT prediction. 
 
 ```{r reconcile quantiles and EVT}
-datL <- split(dat, dat$region)
+datL <- split(dat, dat$Region)
 dat_new <- lapply(datL, reconcileEVT_quantiles) |> bind_rows()
 rm(datL)
 ```
@@ -101,11 +103,12 @@ rm(datL)
 The areas which had interpolation applied to them are evident by how straight the predictions for the upper quantiles are. In the slightly modified, and still ugly, plot below we have the original values in purple, allowing for a quick visual inspection of where values changed. 
 
 ```{r plot difference in overwritten estimates}
+
 ggplot(dat_new, aes(x = Tau, y = Prediction)) + 
   geom_point(data = dat, aes(shape = Approach), color = 'purple',alpha = 0.8) + 
   geom_point(data = fire_sum, aes(y = TotalArea_Acre), x = 0.99, alpha = 0.5) + 
   geom_point(aes(shape = Approach, color = Approach)) + 
-  facet_wrap(~ region, scales = 'free') + 
+  facet_wrap(~ Region, scales = 'free') + 
   theme_bw() + 
   labs(
     title = 'Relationships between Quantile and Extreme Value predictions',
@@ -118,6 +121,43 @@ rm(fire_sum)
 Finally we will also linearly interpolate the growthchart so that we can sample from it using weights, and have a similar number of rows per quantile distance. 
 
 ```{r Resample predictions to same nrows per stretch of values}
+
+datL <- split(dat_new, dat_new$Region)
+
+all_quants <- function(x){
+  
+  des_res <- seq(0.01, 0.95, by = 0.001)
+  des_res <- setdiff(des_res, x$Tau)
+
+  dt <- data.frame(
+    'Region' = x$Region[[1]],
+    'Tau' = des_res,
+    'Prediction' = approx(c(0, x$Tau), c(0, x$Prediction), xout = des_res)$y,
+    'Approach' = 'Quantile'
+  )
+
+  dt <- dplyr::bind_rows(dt, x) |>
+    dplyr::arrange(Tau)
+  
+  return(dt)
+}
+
+datL <- lapply(datL, all_quants) |>
+  bind_rows()
+
+rm(dat, dat_new)
+```
+
+```{r}
+
+ggplot(datL, aes(x = Tau, y = Prediction)) + 
+  geom_point() + 
+  facet_wrap(~ Region, scales = 'free') + 
+  theme_bw() + 
+  labs(
+    title = 'Relationships between Quantile and Extreme Value predictions',
+    y = 'Total Burned Area Prediction (Acres)'
+    )
 
 ```
 
