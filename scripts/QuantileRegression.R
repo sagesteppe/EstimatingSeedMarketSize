@@ -28,5 +28,4 @@ lapply(x_l, quantReg, wts_p = 'linear')
 # of the others. 
 
 lapply(x_l, quantReg, gc = TRUE)
-
 lapply(x_l, quantReg2)

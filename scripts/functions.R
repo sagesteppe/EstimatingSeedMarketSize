@@ -992,3 +992,38 @@ quantReg2 <- function(x, quants, resp, pred){
     write.csv(preds, p, row.names = FALSE)
     
 }
+
+#' Use this to reconcile overpredictions of quantiles (or underpreds of EVT) so they can form a continuous distribution. 
+#' 
+#' @param x
+reconcileEVT_quantiles <- function(x){
+  
+  # isolate the 'lowest' extreme prediction beyond 0.95 
+  exts <- x[x$Approach=='Extreme',]
+  exts <- exts[which.min(exts$Tau),]
+  
+  # determine if any quant preds exceed this value. 
+  qua <- x[x$Approach=='Quantile',]
+  problems <- qua$Prediction > exts$Prediction
+  
+  # if so apply the interpolation between the two methods. 
+  if(any(problems)){
+    
+    toAlter <- qua[problems==TRUE,]
+    
+    # keep all other records, and add our lowest EVT to them to form the upper bound. 
+    toRefer <- rbind(qua[problems==FALSE,], exts)
+    toAlter$Prediction <- approx(toRefer$Tau, toRefer$Prediction, xout = toAlter$Tau)$y 
+    toAlter$ReInterpolated <- TRUE
+    
+    # now we can add back together the pieces. 
+    dplyr::bind_rows(
+      x[x$Approach=='Extreme',], 
+      qua[problems==FALSE,],
+      toAlter
+    )
+  } else {
+    x$ReInterpolated <- NA
+    return(x)
+  }
+}
