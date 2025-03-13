@@ -28,8 +28,5 @@ lapply(x_l, quantReg, wts_p = 'linear')
 # of the others. 
 
 lapply(x_l, quantReg, gc = TRUE)
+
 lapply(x_l, quantReg2)
-
-quantReg2(x_l$Alaska)
-quantReg2(x_l$`Upper Colorado Basin`)
-

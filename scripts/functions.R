@@ -926,44 +926,69 @@ quantReg2 <- function(x, quants, resp, pred){
   form.sm <- as.formula(paste0(resp, ' ~ ps(', pred, ', monotone=1)'))
 
   mod <- tryCatch(
-    {
-      # Attempt the gcrq model fitting
-      quantregGrowth::gcrq(form.sm, data = x, tau = quants)
-    },
-    error = function(e) { 
-      # Handle the error by jittering the response variable
-      message("Error occurred: ", e$message)
-      x[[resp]] <- abs(jitter(x[[resp]], amount = 0.025))
-      
-      # Try again after modifying the response variable
-      result <- quantregGrowth::gcrq(form.sm, data = x, tau = quants)
-      
-      # If the second attempt also fails, return NULL or exit gracefully
-      if (inherits(result, "try-error")) {
-        message("Second attempt failed, exiting function gracefully.")
-        return(NA)  # Exit gracefully
-      }
-      
-      return(result)
-    }
+    {quantregGrowth::gcrq(form.sm, data = x, tau = quants)},
+    error = function(e) {return(NA)}
   )
+
+  # we can try and jitter the values but... this hasn't worked so far... 
+  if(length(mod)==1){
+    mod <- tryCatch(
+      {x[[resp]] <- abs(jitter(x[[resp]], amount = 0.025))
+        quantregGrowth::gcrq(form.sm, data = x, tau = quants)},
+      error = function(e) {return(NA)}
+      )
+  }
+  
+  # so let's simply interpolate less values of tau, and then apply linear interpolation
+  # between them to get our resolution. 
+  if(length(mod)==1){
+    quant_sub <- seq(min(quants), max(quants), by = 0.05)
+    
+    mod <- tryCatch(
+      {quantregGrowth::gcrq(form.sm, data = x, tau = quant_sub)},
+      error = function(e) {return(NA)}
+    )
+  }
+  
+  # soft exit for mods when nothing happens. 
+  if(length(mod)==1){return(NA)}
+  
   
   ## if using growth charts, extract the 'prediction' for the next year, although 
   # this seems to just be the max year in the data set 'drifted' out to then. I.e. 
   # the predict fn refuses to extrapolate. 
   
   # there is a way with/when/how quantreg grabs the formula from the fn... 
-  mod$call$formula <- form.sm # but... we can overwrite this in the fn call to fix it.   
-    
-  preds <- data.frame(FIRE_YEAR = as.integer(format(Sys.Date(), "%Y")))
 
-  preds <- predict(mod, preds) |> 
-    cbind(preds) |> 
-    tibble::rownames_to_column() |> 
-    setNames(c('Tau', 'Prediction', 'FIRE_YEAR'))
+    mod$call$formula <- form.sm # but... we can overwrite this in the fn call to fix it.   
     
-  p <- gsub('Plots', 'Tabular', p)
-  p <- paste0(p, 'allTau.csv')
-  write.csv(preds, p, row.names = FALSE)
+    preds <- data.frame(pred = as.integer(format(Sys.Date(), "%Y")))
+    names(preds) <- pred
+    
+    preds <- predict(mod, preds) |> 
+      cbind(preds, 'Predicted') |> 
+      tibble::rownames_to_column() |> 
+      setNames(c('Tau', 'Prediction', pred, 'Method')) |>
+      dplyr::mutate(Tau = as.numeric(Tau))
+    
+    # now we interpolate the missing values for areas where we couldnt not
+    # fit directly
+    if(nrow(preds)!=length(quants)) {
+      
+      quant_need <- setdiff(quants, quant_sub)
+      int_preds <- data.frame(
+        approx(preds$Tau, preds$Prediction, xout = quant_need), 
+        as.integer(format(Sys.Date(), "%Y")), 
+        'Interpolated'
+      ) |>
+        setNames(c('Tau', 'Prediction', pred, 'Method'))
+      
+      preds <- rbind(preds, int_preds)
+      preds <- preds[order(preds$Tau), ]
+    }
+    
+    p <- gsub('Plots', 'Tabular', p)
+    p <- paste0(p, 'allTau.csv')
+    write.csv(preds, p, row.names = FALSE)
     
 }
