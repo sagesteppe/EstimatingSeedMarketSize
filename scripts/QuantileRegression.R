@@ -28,4 +28,22 @@ lapply(x_l, quantReg, wts_p = 'linear')
 # of the others. 
 
 lapply(x_l, quantReg, gc = TRUE)
+
+# this will get the estimates for each individual quantile to be interpolated between.
 lapply(x_l, quantReg2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####33 try and use their predict function!s

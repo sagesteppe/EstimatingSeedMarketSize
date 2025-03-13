@@ -118,7 +118,7 @@ ggplot(dat_new, aes(x = Tau, y = Prediction)) +
 rm(fire_sum)
 ```
 
-Finally we will also linearly interpolate the growthchart so that we can sample from it using weights, and have a similar number of rows per quantile distance. 
+Finally we will also linearly interpolate the growth chart so that we can sample from it using weights, and have a similar number of rows per quantile distance. 
 
 ```{r Resample predictions to same nrows per stretch of values}
 
@@ -126,7 +126,7 @@ datL <- split(dat_new, dat_new$Region)
 
 all_quants <- function(x){
   
-  des_res <- seq(0.01, 0.95, by = 0.001)
+  des_res <- seq(0.01, 0.95, by = 0.0001)
   des_res <- setdiff(des_res, x$Tau)
 
   dt <- data.frame(
@@ -148,7 +148,7 @@ datL <- lapply(datL, all_quants) |>
 rm(dat, dat_new)
 ```
 
-```{r}
+```{r plot quantiles and evt}
 
 ggplot(datL, aes(x = Tau, y = Prediction)) + 
   geom_point() + 
@@ -159,5 +159,26 @@ ggplot(datL, aes(x = Tau, y = Prediction)) +
     y = 'Total Burned Area Prediction (Acres)'
     )
 
+write.csv(datL, '../results/Tabular/QuantileForecasts/AllValuesInterpolated.csv', row.names = FALSE)
+```
+
+
+# practice sampling from these distributions
+
+```{r}
+ak <- filter(datL, Region == 'Alaska') |>
+  mutate(
+    LIKELIHOOD = if_else(Tau > 0.5, 1 - Tau, Tau))
+
+# something wrong here on the upper thresholds. 
+hist(ak$Tau)
+hist(ak$LIKELIHOOD)
+
+samples <- replicate(
+  20,
+  sample(1:nrow(ak), size = 5, replace = TRUE, prob = ak$LIKELIHOOD)
+)
+
+ak[samples[,5],]
 ```
 
