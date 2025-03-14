@@ -27,23 +27,30 @@ lapply(x_l, quantReg, wts_p = 'linear')
 # which occurs when using quantreg, where each model is fit without consideration 
 # of the others. 
 
+# sometimes their is an issue with the final part of the function finding this in the
+# appropriate environment; set it globally (yuck) to ensure it can be found. 
+form.sm <- paste0('TotalArea_Acre', ' ~ ps(', 'FIRE_YEAR', ', monotone=1)')
 lapply(x_l, quantReg, gc = TRUE)
 
 # this will get the estimates for each individual quantile to be interpolated between.
 lapply(x_l, quantReg2)
 
+aky <- x_l$`Mississippi Basin`
+aky <- drop_na(aky)
 
+preds <- data.frame(FIRE_YEAR = 2025:2030)
 
+quants <- c(0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)
+mod <- quantregGrowth::gcrq(TotalArea_Acre ~ ps(FIRE_YEAR, monotone=1), tau = quants, data = aky)
+preds <- abs(predict(mod, preds))
+mod$call$formula <- 'TotalArea_Acre ~ ps(FIRE_YEAR, monotone=1)'
 
+dat <- cbind(preds, Year = 2025:2030) |>
+  data.frame() |>
+  pivot_longer(starts_with('X')) |>
+  mutate(name = gsub('X', '', name))
 
+ggplot(data = dat, aes(x = Year, y = value, color = name)) +
+  geom_line()
 
-
-
-
-
-
-
-
-
-
-#####33 try and use their predict function!s
+read.csv('../results/Tabular/QuantileForecasts/Mississippi_Basin-gc.csv')

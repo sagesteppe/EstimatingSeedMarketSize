@@ -781,7 +781,7 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
     form.sm <- as.formula(paste0(resp, ' ~ ps(', pred, ', monotone=1)'))
     p <- paste0(p, 'gc', '.png')
   }
-  
+
   # wts can be feed into the function if more recent values are more important than
   # historic values. 
   
@@ -795,7 +795,7 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   } # these are the linear weights
   
   if(wts_p == 'exp'){wts <- exp(wts)} else 
-    if(wts_p == 'log'){wts <- abs(rev(log(wts)))} # else do nothing to the linear wts. 
+    if(wts_p == 'log'){wts <- abs(rev(log(wts)))} # else do nothing to linear or none weights 
   
   # now fit the models. 
   if(gc==FALSE){
@@ -867,29 +867,29 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
   )
   legend(
     x = "topleft", 
-    legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25, 0.75)', '0.9 band (0.05, 0.95)', 'Mean'),
+    legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25, 0.75)', '0.9 band (0.05, 0.95)', 'Conditional Mean'),
     lty = c(rev(linetypes[1:ceiling(L/2)]), 1),  
     col = c(rev(cols[1:ceiling(L/2)]), 'dodgerblue4'),
     lwd = 2, 
     bg = adjustcolor("white", 0.4)
   )  
   mtext(side=1, line=4, adj=1, cex=0.8, col = 'grey40', paste(
-    if(wts_p=='exp'){'exponential decay'} else 
-      if (wts_p=='linear'){'linear decay'} else
-      {'logarithmic decay'}, 
-    'weighted quantile regression')
+    if(wts_p=='exp'){'exponential decay weighted'} else 
+      if (wts_p=='linear'){'linear decay weighted'} else 
+        if (wts_p=='log'){'logarithmic decay weighted'} else 
+          if (wts_p=='none'){'unweighted'}, 
+    'quantile regression')
   )
-  
   dev.off()
-  
   
   ## if using growth charts, extract the 'prediction' for the next year, although 
   # this seems to just be the max year in the data set 'drifted' out to then. I.e. 
   # the predict fn refuses to extrapolate. 
+  
   if(gc==TRUE){
     # there is a way with/when/how quantreg grabs the formula from the fn... 
     mod$call$formula <- form.sm # but... we can overwrite this in the fn call to fix it.   
-    
+
     preds <- data.frame(FIRE_YEAR = as.integer(format(Sys.Date(), "%Y")))
     preds <- predict(mod, preds) |> 
       cbind(preds) |> 
@@ -913,13 +913,13 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
 #' @param resp Character. Name of the response field.  
 #' @param pred Character. Name of the predictor field.  
 #' @examples
-quantReg2 <- function(x, quants, resp, pred){
+quantPred <- function(x, quants, resp, pred){
   
-  if(missing(quants)){quants <- seq(0.05, 0.95, by = 0.01)}
+  if(missing(quants)){quants <- c(0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)}
   if(missing(resp)){resp <- 'TotalArea_Acre'}
   if(missing(pred)){pred <- 'FIRE_YEAR'}
   
-  p <- file.path('..', 'results', 'Plots', 'QuantileForecasts', 
+  p <- file.path('..', 'results', 'Plots', 'QuantileForecasts',
                  paste0(gsub(' ', '_', x[['REG_NAME']][1]), '-'))
   
   form <- as.formula(paste0(resp, '~', pred))
@@ -953,7 +953,6 @@ quantReg2 <- function(x, quants, resp, pred){
   # soft exit for mods when nothing happens. 
   if(length(mod)==1){return(NA)}
   
-  
   ## if using growth charts, extract the 'prediction' for the next year, although 
   # this seems to just be the max year in the data set 'drifted' out to then. I.e. 
   # the predict fn refuses to extrapolate. 
@@ -965,9 +964,9 @@ quantReg2 <- function(x, quants, resp, pred){
     preds <- data.frame(pred = as.integer(format(Sys.Date(), "%Y")))
     names(preds) <- pred
     
-    preds <- predict(mod, preds) |> 
-      cbind(preds, 'Predicted') |> 
-      tibble::rownames_to_column() |> 
+    preds <- predict(mod, preds) |>
+      cbind(preds, 'Predicted') |>
+      tibble::rownames_to_column() |>
       setNames(c('Tau', 'Prediction', pred, 'Method')) |>
       dplyr::mutate(Tau = as.numeric(Tau))
     
@@ -993,7 +992,7 @@ quantReg2 <- function(x, quants, resp, pred){
     
 }
 
-#' Use this to reconcile overpredictions of quantiles (or underpreds of EVT) so they can form a continuous distribution. 
+#' Use this to reconcile over predictions of quantiles (or underpreds of EVT) so they can form a continuous distribution. 
 #' 
 #' @param x
 reconcileEVT_quantiles <- function(x){
@@ -1027,3 +1026,30 @@ reconcileEVT_quantiles <- function(x){
     return(x)
   }
 }
+
+#' Simulate the total amount of burned area in the near future (<=5 years from now)
+#' 
+#' @param historic Data frame. Containing observed fire characteristics from a user defined start point (e.g. introduction to a relevant paradigm) to the most recent records. 
+#' @param years Numeric. The number of years to simulate into the future. Defaults to 3. 
+#' @param Syear Numeric. The year to start simulations from, defaults to the last year in the 'historic' data set. 
+#' @param steps Numeric. The resolution to forecast simulations at, Defaults to 0.001 or a thousandth; faster results may occurr with 0.01 etc, but your mileage may vary on what people continuous. 
+burnedAreasSimulator <- function(x){
+  
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
