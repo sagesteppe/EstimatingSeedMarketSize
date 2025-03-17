@@ -1,90 +1,106 @@
-genus,species,REG_NAME,REG_NUM,NOTE,NOTE2
-Achnatherum,hymneoides,Upper Colorado Basin,7,TRUE,
-Pascopyrum,smithii,Upper Colorado Basin,7,TRUE,
-Poa,secunda,Upper Colorado Basin,7,TRUE,
-Elymus,elymoides,Upper Colorado Basin,7,TRUE,
-Pseudoroegneria,spicata,Upper Colorado Basin,7,TRUE,
-Sporobolus,cryptandrus,Upper Colorado Basin,7,TRUE,
-Elymus,lanceolatus,Upper Colorado Basin,7,TRUE,
-Elymus,trachycaulus,Upper Colorado Basin,7,TRUE,
-Bouteloua,gracilis,Upper Colorado Basin,7,TRUE,
-Hesperostipa,comata,Upper Colorado Basin,7,TRUE,
-Achillea,millefolium,Upper Colorado Basin,7,FORB OVERFLOW,
-Machaeranthera,canescens,Upper Colorado Basin,7,FORB OVERFLOW,
-Heterotheca,villosa,Upper Colorado Basin,7,FORB OVERFLOW,
-Linum,lewisii,Upper Colorado Basin,7,FORB OVERFLOW,
-Penstemon,linarioides,Upper Colorado Basin,7,FORB OVERFLOW,
-Andropogon,gerardii,Great Lakes,3,TRUE,
-Schizachyyrium,scoparium,Great Lakes,3,TRUE,
-Bouteloua,curtipendula,Great Lakes,3,TRUE,
-Sorghastrum,nutans,Great Lakes,3,TRUE,
-Sporobolus,heterolepis,Great Lakes,3,TRUE,
-Dalea,purpurea,Great Lakes,3,TRUE,
-Eryngium,yuccifolium,Great Lakes,3,TRUE,
-Mondarda,fistulosa,Great Lakes,3,TRUE,
-Ratibida,pinnata,Great Lakes,3,TRUE,
-Silphium,lacinatum,Great Lakes,3,TRUE,
-Achillea,millefolium,California-Great Basin,10,Caltrans,
-Bromus,carinatus,California-Great Basin,10,Caltrans,
-Elymus,elymoides,California-Great Basin,10,Caltrans,
-Elymus,glaucus,California-Great Basin,10,Caltrans,
-Eriogonum,fasciculatum,California-Great Basin,10,Caltrans,
-Eschscholzia,californicum,California-Great Basin,10,Caltrans,
-Festuca,idahoensis,California-Great Basin,10,Caltrans,
-Festuca,microstachys,California-Great Basin,10,Caltrans,
-Hordeum,brachyantherum,California-Great Basin,10,Caltrans,
-Lupinus,bicolor,California-Great Basin,10,Caltrans,
-Nassella,pulchra,California-Great Basin,10,Caltrans,
-Layia,platyglossa,California-Great Basin,10,INNER-SOUTH-COAST,
-Melica,imperfecta,California-Great Basin,10,INNER-SOUTH-COAST,
-Acmispon,glaber,California-Great Basin,10,INNER-SOUTH-COAST,
-Monolopia,lanceolata,California-Great Basin,10,INNER-SOUTH-COAST,
-Monolopa,stricta,California-Great Basin,10,INNER-SOUTH-COAST,
-Phacelia,tanacetifolia,California-Great Basin,10,INNER-SOUTH-COAST,
-Pseudoroegneria,spicata,Columbia-Pacific Northwest,9,TRUE,
-Poa,secunda,Columbia-Pacific Northwest,9,TRUE,
-Festuca,idahoensis,Columbia-Pacific Northwest,9,TRUE,
-Elymus,elymoides,Columbia-Pacific Northwest,9,TRUE,
-Hesperostipa,comata,Columbia-Pacific Northwest,9,TRUE,
-Artemisia,tripartita,Columbia-Pacific Northwest,9,TRUE,
-Artemisia,tridentata spp. Wyomingensis,Columbia-Pacific Northwest,9,TRUE,
-Eriogonum,heracleoides,Columbia-Pacific Northwest,9,SWAP,
-Eriogonum,sphaerocephalum,Columbia-Pacific Northwest,9,SWAP,
-Erigeron,pumilus,Columbia-Pacific Northwest,9,SWAP,
-Erigeron,filifolius,Columbia-Pacific Northwest,9,SWAP,
-Erigeron,linearis,Columbia-Pacific Northwest,9,SWAP,
-Penstemon,gairdneri,Columbia-Pacific Northwest,9,SWAP,
-Penstemon,speciosus,Columbia-Pacific Northwest,9,SWAP,
-Pseudoroegneria,spicata,Great Basin,10,ASPIRATIONAL,
-Poa,secunda,Great Basin,10,ASPIRATIONAL,
-Elymus,elymoides,Great Basin,10,ASPIRATIONAL,
-Achnatherum,hymenoides,Great Basin,10,ASPIRATIONAL,
-Pleuraphis,jamesii,Great Basin,10,ASPIRATIONAL,
-Cleome,lutea,Great Basin,10,ASPIRATIONAL,
-Sphaeralcea,spp.,Great Basin,10,ASPIRATIONAL,
-Penstemon,spp.,Great Basin,10,ASPIRATIONAL,
-Lomatium,spp.,Great Basin,10,ASPIRATIONAL,
-Crepis,spp.,Great Basin,10,ASPIRATIONAL,
-Dieteria,canescens,Great Basin,10,ASPIRATIONAL,
-Mentzelia,spp.,Great Basin,10,ASPIRATIONAL,
-Heliomeris,spp.,Great Basin,10,ASPIRATIONAL,
-Dodonaea,viscosa,Hawaii,12,TRUE,
-Abutilon,menziesii,Hawaii,12,TRUE,
-Acacia,koa,Hawaii,12,TRUE,
-Argemone,glauca,Hawaii,12,TRUE,
-Cheirodendron,trigynum spp. Trigynum,Hawaii,12,TRUE,
-Chenopodium,oahuense,Hawaii,12,TRUE,
-Dodonaea,viscosa,Hawaii,12,TRUE,
-Eragrostis,variabilis,Hawaii,12,TRUE,
-Myoporum,sandwicense,Hawaii,12,TRUE,
-Rubus,hawaiensis,Hawaii,12,TRUE,
-Sophora,chrysophylla,Hawaii,12,TRUE,
-Argyroxiphium,sandwicense,Hawaii,12,TRUE,Oahu
-Acacia,koa,Hawaii,12,TRUE,Oahu
-Sida,fallax,Hawaii,12,TRUE,Oahu
-Ilex,anomola,Hawaii,12,TRUE,Oahu
-Heteropogon,contortus,Hawaii,12,TRUE,Oahu
-Erythrina,sandwicensis,Hawaii,12,TRUE,Oahu
-Metrosideros,polymorpha,Hawaii,12,TRUE,Oahu
-Coprosma,montana,Hawaii,12,TRUE,Oahu
-Osteomeles,anthylidifolia,Hawaii,12,TRUE,Oahu
+genus,species,REG_NAME,REG_NUM,NOTE,NOTE2,Source
+Achnatherum,hymneoides,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Pascopyrum,smithii,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Poa,secunda,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Elymus,elymoides,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Pseudoroegneria,spicata,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Sporobolus,cryptandrus,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Elymus,lanceolatus,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Elymus,trachycaulus,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Bouteloua,gracilis,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Hesperostipa,comata,Upper Colorado Basin,7,TRUE,,Kramer – Database
+Achillea,millefolium,Upper Colorado Basin,7,FORB OVERFLOW,,Kramer – Database
+Machaeranthera,canescens,Upper Colorado Basin,7,FORB OVERFLOW,,Kramer – Database
+Heterotheca,villosa,Upper Colorado Basin,7,FORB OVERFLOW,,Kramer – Database
+Linum,lewisii,Upper Colorado Basin,7,FORB OVERFLOW,,Kramer – Database
+Penstemon,linarioides,Upper Colorado Basin,7,FORB OVERFLOW,,Kramer – Database
+Andropogon,gerardii,Great Lakes,3,TRUE,,Woolridge
+Schizachyyrium,scoparium,Great Lakes,3,TRUE,,Woolridge
+Bouteloua,curtipendula,Great Lakes,3,TRUE,,Woolridge
+Sorghastrum,nutans,Great Lakes,3,TRUE,,Woolridge
+Sporobolus,heterolepis,Great Lakes,3,TRUE,,Woolridge
+Dalea,purpurea,Great Lakes,3,TRUE,,Woolridge
+Eryngium,yuccifolium,Great Lakes,3,TRUE,,Woolridge
+Mondarda,fistulosa,Great Lakes,3,TRUE,,Woolridge
+Ratibida,pinnata,Great Lakes,3,TRUE,,Woolridge
+Silphium,lacinatum,Great Lakes,3,TRUE,,Woolridge
+Achillea,millefolium,California-Great Basin,10,Caltrans,,Caltrans
+Bromus,carinatus,California-Great Basin,10,Caltrans,,Caltrans
+Elymus,elymoides,California-Great Basin,10,Caltrans,,Caltrans
+Elymus,glaucus,California-Great Basin,10,Caltrans,,Caltrans
+Eriogonum,fasciculatum,California-Great Basin,10,Caltrans,,Caltrans
+Eschscholzia,californicum,California-Great Basin,10,Caltrans,,Caltrans
+Festuca,idahoensis,California-Great Basin,10,Caltrans,,Caltrans
+Festuca,microstachys,California-Great Basin,10,Caltrans,,Caltrans
+Hordeum,brachyantherum,California-Great Basin,10,Caltrans,,Caltrans
+Lupinus,bicolor,California-Great Basin,10,Caltrans,,Caltrans
+Nassella,pulchra,California-Great Basin,10,Caltrans,,Caltrans
+Layia,platyglossa,California-Great Basin,10,INNER-SOUTH-COAST,,O’Dell
+Melica,imperfecta,California-Great Basin,10,INNER-SOUTH-COAST,,O’Dell
+Acmispon,glaber,California-Great Basin,10,INNER-SOUTH-COAST,,O’Dell
+Monolopia,lanceolata,California-Great Basin,10,INNER-SOUTH-COAST,,O’Dell
+Monolopa,stricta,California-Great Basin,10,INNER-SOUTH-COAST,,O’Dell
+Phacelia,tanacetifolia,California-Great Basin,10,INNER-SOUTH-COAST,,O’Dell
+Pseudoroegneria,spicata,Columbia-Pacific Northwest,9,TRUE,,Boyter & Sheridan
+Poa,secunda,Columbia-Pacific Northwest,9,TRUE,,Boyter & Sheridan
+Festuca,idahoensis,Columbia-Pacific Northwest,9,TRUE,,Boyter & Sheridan
+Elymus,elymoides,Columbia-Pacific Northwest,9,TRUE,,Boyter & Sheridan
+Hesperostipa,comata,Columbia-Pacific Northwest,9,TRUE,,Boyter & Sheridan
+Artemisia,tripartita,Columbia-Pacific Northwest,9,TRUE,,Boyter & Sheridan
+Artemisia,tridentata spp. Wyomingensis,Columbia-Pacific Northwest,9,TRUE,,Boyter & Sheridan
+Eriogonum,heracleoides,Columbia-Pacific Northwest,9,SWAP,,Boyter & Sheridan
+Eriogonum,sphaerocephalum,Columbia-Pacific Northwest,9,SWAP,,Boyter & Sheridan
+Erigeron,pumilus,Columbia-Pacific Northwest,9,SWAP,,Boyter & Sheridan
+Erigeron,filifolius,Columbia-Pacific Northwest,9,SWAP,,Boyter & Sheridan
+Erigeron,linearis,Columbia-Pacific Northwest,9,SWAP,,Boyter & Sheridan
+Penstemon,gairdneri,Columbia-Pacific Northwest,9,SWAP,,Boyter & Sheridan
+Penstemon,speciosus,Columbia-Pacific Northwest,9,SWAP,,Boyter & Sheridan
+Pseudoroegneria,spicata,Great Basin,10,ASPIRATIONAL,,Kindred
+Poa,secunda,Great Basin,10,ASPIRATIONAL,,Kindred
+Elymus,elymoides,Great Basin,10,ASPIRATIONAL,,Kindred
+Achnatherum,hymenoides,Great Basin,10,ASPIRATIONAL,,Kindred
+Pleuraphis,jamesii,Great Basin,10,ASPIRATIONAL,,Kindred
+Cleome,lutea,Great Basin,10,ASPIRATIONAL,,Kindred
+Sphaeralcea,spp.,Great Basin,10,ASPIRATIONAL,,Kindred
+Penstemon,spp.,Great Basin,10,ASPIRATIONAL,,Kindred
+Lomatium,spp.,Great Basin,10,ASPIRATIONAL,,Kindred
+Crepis,spp.,Great Basin,10,ASPIRATIONAL,,Kindred
+Dieteria,canescens,Great Basin,10,ASPIRATIONAL,,Kindred
+Mentzelia,spp.,Great Basin,10,ASPIRATIONAL,,Kindred
+Heliomeris,spp.,Great Basin,10,ASPIRATIONAL,,Kindred
+Dodonaea,viscosa,Hawaii,12,TRUE,,Kingsley
+Abutilon,menziesii,Hawaii,12,TRUE,,Kingsley
+Acacia,koa,Hawaii,12,TRUE,,Kingsley
+Argemone,glauca,Hawaii,12,TRUE,,Kingsley
+Cheirodendron,trigynum spp. Trigynum,Hawaii,12,TRUE,,Kingsley
+Chenopodium,oahuense,Hawaii,12,TRUE,,Kingsley
+Dodonaea,viscosa,Hawaii,12,TRUE,,Kingsley
+Eragrostis,variabilis,Hawaii,12,TRUE,,Kingsley
+Myoporum,sandwicense,Hawaii,12,TRUE,,Kingsley
+Rubus,hawaiensis,Hawaii,12,TRUE,,Kingsley
+Sophora,chrysophylla,Hawaii,12,TRUE,,Kingsley
+Argyroxiphium,sandwicense,Hawaii,12,TRUE,Oahu,Arram
+Acacia,koa,Hawaii,12,TRUE,Oahu,Arram
+Sida,fallax,Hawaii,12,TRUE,Oahu,Arram
+Ilex,anomola,Hawaii,12,TRUE,Oahu,Arram
+Heteropogon,contortus,Hawaii,12,TRUE,Oahu,Arram
+Erythrina,sandwicensis,Hawaii,12,TRUE,Oahu,Arram
+Metrosideros,polymorpha,Hawaii,12,TRUE,Oahu,Arram
+Coprosma,montana,Hawaii,12,TRUE,Oahu,Arram
+Osteomeles,anthylidifolia,Hawaii,12,TRUE,Oahu,Arram
+Andropogon,gerardii,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Tridens,flavus,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Elymus,virginicus,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Sorghastrum,nutans,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Panicum,virgatum,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Schizachyrium,scoparium,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Asclepias,tuberosa,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Rudbeckia,hirta,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Coreopsis,lanceolata,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Solidago,spp.,South Atlantic-Gulf,2,TRUE,Piedmont Province,Touloupas
+Andropogon,ternarius,South Atlantic-Gulf,2,OVERFLOW,Piedmont Province,Touloupas
+Andropogon,virginicus,South Atlantic-Gulf,2,OVERFLOW,Piedmont Province,Touloupas
+Agrostis,spp.,South Atlantic-Gulf,2,OVERFLOW,Piedmont Province,Touloupas
+Chamaecrista,fasciculata,South Atlantic-Gulf,2,OVERFLOW,Piedmont Province,Touloupas
+Lespedeza,capitata,South Atlantic-Gulf,2,OVERFLOW,Piedmont Province,Touloupas
+Mondarda,spp.,South Atlantic-Gulf,2,OVERFLOW,Piedmont Province,Touloupas

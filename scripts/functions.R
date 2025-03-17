@@ -912,12 +912,15 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
 #' @param quants Numeric vector - odd. The quantiles which you want to model fits for, defaults to seq(0.05, 0.95, by = 0.01)
 #' @param resp Character. Name of the response field.  
 #' @param pred Character. Name of the predictor field.  
+#' @param write Boolean Whether to write results to disk or return them. 
+#' Defaults to FALSE, if you want them returned provide filename and path to it. 
 #' @examples
-quantPred <- function(x, quants, resp, pred){
+quantPred <- function(x, quants, resp, pred, write){
   
-  if(missing(quants)){quants <- c(0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)}
+  if(missing(quants)){quants <- seq(0.05, 0.95, by = 0.01)}
   if(missing(resp)){resp <- 'TotalArea_Acre'}
   if(missing(pred)){pred <- 'FIRE_YEAR'}
+  if(missing(write)){write <- FALSE}
   
   p <- file.path('..', 'results', 'Plots', 'QuantileForecasts',
                  paste0(gsub(' ', '_', x[['REG_NAME']][1]), '-'))
@@ -986,70 +989,88 @@ quantPred <- function(x, quants, resp, pred){
       preds <- preds[order(preds$Tau), ]
     }
     
-    p <- gsub('Plots', 'Tabular', p)
-    p <- paste0(p, 'allTau.csv')
-    write.csv(preds, p, row.names = FALSE)
+    if(write){
+      p <- gsub('Plots', 'Tabular', p)
+      p <- paste0(p, 'allTau.csv')
+      write.csv(preds, p, row.names = FALSE)
+    } else {return(preds)}
     
 }
 
 #' Use this to reconcile over predictions of quantiles (or underpreds of EVT) so they can form a continuous distribution. 
 #' 
-#' @param x
-reconcileEVT_quantiles <- function(x){
+#' @param x Data frame. Results of Extreme Value Theory modelling. 
+#' @param y Data frame. Results of quantile regression. 
+reconcileEVT_quantiles <- function(qr, ev){
   
-  # isolate the 'lowest' extreme prediction beyond 0.95 
-  exts <- x[x$Approach=='Extreme',]
+  # isolate the 'lowest' extreme prediction beyond 0.95
+  exts <- ev[ev$Region == qr$Region[1],]
   exts <- exts[which.min(exts$Tau),]
   
-  # determine if any quant preds exceed this value. 
-  qua <- x[x$Approach=='Quantile',]
-  problems <- qua$Prediction > exts$Prediction
+  # determine if any quant preds exceed this value.
+  problems <- qr$Prediction > exts$Prediction
   
   # if so apply the interpolation between the two methods. 
   if(any(problems)){
     
-    toAlter <- qua[problems==TRUE,]
+    toAlter <- qr[problems==TRUE,]
     
     # keep all other records, and add our lowest EVT to them to form the upper bound. 
-    toRefer <- rbind(qua[problems==FALSE,], exts)
-    toAlter$Prediction <- approx(toRefer$Tau, toRefer$Prediction, xout = toAlter$Tau)$y 
+    toRefer <- dplyr::bind_rows(qr[problems==FALSE,], exts)
+    toAlter$Prediction <- approx(toRefer$Tau, toRefer$Prediction, xout = toAlter$Tau)$y
     toAlter$ReInterpolated <- TRUE
     
     # now we can add back together the pieces. 
     dplyr::bind_rows(
-      x[x$Approach=='Extreme',], 
-      qua[problems==FALSE,],
+      ev,
+      qr[problems==FALSE,],
       toAlter
     )
   } else {
-    x$ReInterpolated <- NA
-    return(x)
+    ev$ReInterpolated <- NA
+    dplyr::bind_rows(
+      ev,
+      qr
+    )
   }
 }
 
 #' Simulate the total amount of burned area in the near future (<=5 years from now)
 #' 
 #' @param historic Data frame. Containing observed fire characteristics from a user defined start point (e.g. introduction to a relevant paradigm) to the most recent records. 
-#' @param years Numeric. The number of years to simulate into the future. Defaults to 3. 
-#' @param Syear Numeric. The year to start simulations from, defaults to the last year in the 'historic' data set. 
-#' @param steps Numeric. The resolution to forecast simulations at, Defaults to 0.001 or a thousandth; faster results may occurr with 0.01 etc, but your mileage may vary on what people continuous. 
-burnedAreasSimulator <- function(x){
+#' @param extremes Data frame. A set of extreme value predictions, at the same resolution as `steps` to be sampled from to form the upper bounds (see `quant_bounds`) for the simulations
+#' @param resp Character. The name of the response variable, e.g. total area burned. Defaults to 'TotalArea_Acre'
+#' @param pred Character. The name of the predictor variable, e.g. 'Year'. Defaults to 'FIRE_YEAR'. 
+#' @param years Numeric. The number of years to simulate into the future. Defaults to 3, maxes out at 5.  
+#' @param steps Numeric. The resolution to forecast simulations at, Defaults to 0.001 or a thousandth; faster results may occur with 0.01 etc, but your mileage may vary on what people continuous. 
+#' @param sims Numeric. The number of simulations to perform. Defaults to 100 for speed, but 1000 are quite reasonable. 
+#' @param quant_bounds Numeric, length two. A lower and upper quantile bound to make predictions within. Defaults to c(0.05, 0.95)
+burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, steps, sims, quant_bounds){
   
+  if(missing(resp)){resp <- 'TotalArea_Acre'}; if(missing(pred)){pred <- 'FIRE_YEAR'}
+  if(missing(years)){years <- 5}; if(missing(steps)){steps <- 0.001}
+  if(missing(sims)){sims <- 100}
+
+  # identify the first year for the simulation 
+  if(missing(Syear)){Syear <- max(historic[[pred]])+1}
   
+  # we will loop through the predictions and estimates... 
+  # from this process we will save a csv where each row is the year of the simulation
+  # and each column is a different simulation run. 
+  sampled <- matrix(nrow = years, ncol = sims)
+  j <- seq_along(1:years)
+  
+  # verify that the extremes are at the same resolution as the other data
+  
+  for (i in seq_along(1:sims)){
+
+    # make a prediction 
+    preds <- quantPred(x, quants, resp, pred)
+    reconcileEVT_quantiles
+    
+  }
+  
+  # now fit data for the first year
+  preds <- quantPred(x, quants, resp, pred)
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

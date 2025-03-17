@@ -33,12 +33,15 @@ form.sm <- paste0('TotalArea_Acre', ' ~ ps(', 'FIRE_YEAR', ', monotone=1)')
 lapply(x_l, quantReg, gc = TRUE)
 
 # this will get the estimates for each individual quantile to be interpolated between.
-lapply(x_l, quantReg2)
+lapply(x_l, quantPred, write = TRUE)
 
+
+
+# here we can see the results of a the default prediction, the slope is quite modest. 
 aky <- x_l$`Mississippi Basin`
 aky <- drop_na(aky)
-
 preds <- data.frame(FIRE_YEAR = 2025:2030)
+
 
 quants <- c(0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95)
 mod <- quantregGrowth::gcrq(TotalArea_Acre ~ ps(FIRE_YEAR, monotone=1), tau = quants, data = aky)

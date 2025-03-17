@@ -26,7 +26,6 @@ We will treat the sum of all areas as a a yearly block maxima for these purposes
 While non-stationary data are more commonly used with the GP distribution, the GEV distribution is more generally used for block maxima. 
 We will use the GEV distribution, because GP does not lend itself to single annual values. 
 
-
 ```{r Calculate Fire Return Intervals}
 regs <- split(annual, f = annual$REG_NAME)
 lapply(regs, CalculateReturnIntervals)
