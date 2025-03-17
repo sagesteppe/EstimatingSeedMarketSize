@@ -953,6 +953,15 @@ quantPred <- function(x, quants, resp, pred, write){
     )
   }
   
+  if(length(mod)==1){
+    quant_sub <- seq(min(quants), max(quants), by = 0.1)
+    
+    mod <- tryCatch(
+      {quantregGrowth::gcrq(form.sm, data = x, tau = quant_sub)},
+      error = function(e) {return(NA)}
+    )
+  }
+  
   # soft exit for mods when nothing happens. 
   if(length(mod)==1){return(NA)}
   
@@ -963,18 +972,20 @@ quantPred <- function(x, quants, resp, pred, write){
   # there is a way with/when/how quantreg grabs the formula from the fn... 
 
     mod$call$formula <- form.sm # but... we can overwrite this in the fn call to fix it.   
-    
-    preds <- data.frame(pred = as.integer(format(Sys.Date(), "%Y")))
+
+    preds <- data.frame(pred = max(x[[pred]])+1 )
     names(preds) <- pred
     
     preds <- predict(mod, preds) |>
       cbind(preds, 'Predicted') |>
       tibble::rownames_to_column() |>
       setNames(c('Tau', 'Prediction', pred, 'Method')) |>
-      dplyr::mutate(Tau = as.numeric(Tau))
+      dplyr::mutate(Tau = as.numeric(Tau)) |>
+      data.frame()
     
     # now we interpolate the missing values for areas where we could not
     # fit directly
+    
     if(nrow(preds)!=length(quants)) {
       
       quant_need <- setdiff(quants, quant_sub)
@@ -994,7 +1005,9 @@ quantPred <- function(x, quants, resp, pred, write){
       preds <- preds |>
         dplyr::group_by(Tau) |>
         dplyr::arrange(Method) |> # alphabetical, 'Interpolated' before 'Predicted' we want to keep predicted. 
-        dplyr::slice_tail(n = 1)
+        dplyr::slice_tail(n = 1) |>
+        dplyr::ungroup() |>
+        data.frame()
     }
     
     if(write){
@@ -1034,7 +1047,7 @@ reconcileEVT_quantiles <- function(qr, ev){
       qr[problems==FALSE,],
       toAlter
     ) |>
-      dplyr::arrange(Tau)
+      dplyr::arrange(Tau) 
     
   } else {
     exts$ReInterpolated <- NA
@@ -1082,22 +1095,32 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     style = 3,  
     char = "=") 
   
-  for (j in seq_along(1:sims)){
-    
+#   cluster <- parallel::makeCluster( parallel::detectCores()/4 ) 
+#   doParallel::registerDoParallel(cluster)
+#   parallel::clusterExport(
+#     cluster, c(
+#       'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
+   
+#   foreach::foreach(j = seq_along(1:sims)) %dopar% {
+  
+ # preds2 <- vector(mode = 'list', length = 5) # for debugging
+
+  for(j in seq_along(1:sims)){
+  
     x <- historic # overwrite the last set of simulations results 
-    
     for (i in seq_along(1:years)){ # run X simulations for each year.  
 
     # model the growth chart from the beginning of the sample period, to the year-1
     # for this next prediction. 
     preds <- quantPred(x)
+   # preds2[[i]] <- preds # for debugging
 
     # some of the tau estimates are more extreme than what we would expect from 
     # extreme value theory, we will bound them with the extreme value predictions. 
     # to do this we simply run linear interpolation between the highest qr pred
     # and the lowest extreme value pred. 
     reconciled <- reconcileEVT_quantiles(qr = preds, ev = extremes)
-    
+
     # note that the quantile regression methods can only deal with so many values of tau
     # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
     # and then we have to perform linear interpolations afterwards. 
@@ -1122,15 +1145,17 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     }
     setTxtProgressBar(pb, j)
   }
+   
+ # parallel::stopCluster(cluster)
   
   rownames(predictions) <- paste0('year', seq_along(1:years))
   colnames(predictions) <- paste0('sim', seq_along(1:sims))
-  
   rownames(taus) <- paste0('year', seq_along(1:years))
   colnames(taus) <- paste0('sim', seq_along(1:sims))
   
   return(
     list(
+   #   preds2, # for debugging
       Predictions = predictions, 
       Tau = taus)
   )

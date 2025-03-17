@@ -12,6 +12,7 @@ We have developed both quantile estimates, and extreme value estimates for fire 
 
 ```{r attach libraries}
 library(tidyverse)
+library(quantregGrowth)
 source('functions.R')
 ```
 
@@ -129,8 +130,6 @@ datL <- split(dat_new, f = dat_new$Region)
 all_quants <- function(x){
   
   des_res <- seq(0.01, 0.95, by = 0.0001); des_res <- setdiff(des_res, x$Tau)
-
-  approx(c(0, x[['Tau']]), c(0, x[['Prediction']]), xout = des_res)
   
   dt <- data.frame(
     'Region' = x[['Region']][1],
@@ -173,21 +172,30 @@ x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
 
-ak <- x_l[['Alaska']]
+ak <- x_l[['Mississippi Basin']]
 
 # one set of sims works... 
-outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 20, years = 5)
-
+outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 10, years = 5)
 
 d2 <- data.frame(outtie$Predictions) |>
   rownames_to_column('Year')
 dd <- pivot_longer(d2, !Year)
 
-ggplot(data = dd, aes(x = Year, y= value, color = name, group = name))+ 
-  geom_point() + 
+ggplot(data = dd, aes(x = Year, y= value)) +
+  geom_point() +
   geom_line()
 
+rm(form.sm)
 ```
+
+
+
+
+
+
+
+
+
 
 
 # practice sampling from these distributions
