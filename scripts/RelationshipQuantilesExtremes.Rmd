@@ -168,6 +168,8 @@ write.csv(datL, '../results/Tabular/QuantileForecasts/AllValuesInterpolated.csv'
 
 ```{r}
 
+library(foreach)
+
 x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
@@ -175,7 +177,7 @@ x_l <- read.csv(
 ak <- x_l[['Mississippi Basin']]
 
 # one set of sims works... 
-outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 10, years = 5)
+outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 20, years = 5)
 
 d2 <- data.frame(outtie$Predictions) |>
   rownames_to_column('Year')
@@ -199,21 +201,4 @@ rm(form.sm)
 
 
 # practice sampling from these distributions
-
-
-```{r}
-ak <- filter(datL, Region == 'Alaska') |>
-  mutate(
-    LIKELIHOOD = if_else(Tau > 0.5, 1 - Tau, Tau))
-
-hist(ak$Tau)
-hist(ak$LIKELIHOOD)
-
-samples <- replicate(
-  20,
-  sample(1:nrow(ak), size = 5, replace = TRUE, prob = ak$LIKELIHOOD)
-)
-
-ak[samples[,5],]
-```
 

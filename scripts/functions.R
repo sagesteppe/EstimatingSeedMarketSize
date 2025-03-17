@@ -1095,17 +1095,16 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     style = 3,  
     char = "=") 
   
-#   cluster <- parallel::makeCluster( parallel::detectCores()/4 ) 
-#   doParallel::registerDoParallel(cluster)
-#   parallel::clusterExport(
-#     cluster, c(
-#       'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
+   cluster <- parallel::makeCluster( parallel::detectCores()/4 ) 
+   doParallel::registerDoParallel(cluster)
+   parallel::clusterExport(
+     cluster, c(
+       'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
    
-#   foreach::foreach(j = seq_along(1:sims)) %dopar% {
+   foreach::foreach(j = seq_along(1:sims)) %dopar% {
   
  # preds2 <- vector(mode = 'list', length = 5) # for debugging
-
-  for(j in seq_along(1:sims)){
+#  for(j in seq_along(1:sims)){
   
     x <- historic # overwrite the last set of simulations results 
     for (i in seq_along(1:years)){ # run X simulations for each year.  
@@ -1135,7 +1134,7 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
       setNames(c('Tau', resp))
     samples[pred] <- max(x[pred] + 1)
     
-    # now simply add the 
+    # now simply add the new prediction to the results. 
     x <- bind_rows(
         dplyr::select(x, dplyr::all_of(c(resp, pred))), 
         samples, 
@@ -1146,7 +1145,7 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     setTxtProgressBar(pb, j)
   }
    
- # parallel::stopCluster(cluster)
+  parallel::stopCluster(cluster)
   
   rownames(predictions) <- paste0('year', seq_along(1:years))
   colnames(predictions) <- paste0('sim', seq_along(1:sims))
