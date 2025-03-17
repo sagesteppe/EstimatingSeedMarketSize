@@ -1035,7 +1035,7 @@ reconcileEVT_quantiles <- function(qr, ev){
   }
 }
 
-#' Simulate the total amount of burned area in the near future (<=5 years from now)
+#' Simulate the total amount of burned area in the near future (=< 5 years from now)
 #' 
 #' @param historic Data frame. Containing observed fire characteristics from a user defined start point (e.g. introduction to a relevant paradigm) to the most recent records. 
 #' @param extremes Data frame. A set of extreme value predictions, at the same resolution as `steps` to be sampled from to form the upper bounds (see `quant_bounds`) for the simulations
@@ -1056,21 +1056,47 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   
   # we will loop through the predictions and estimates... 
   # from this process we will save a csv where each row is the year of the simulation
-  # and each column is a different simulation run. 
+  # and each column is a different run of the simulation.  
   sampled <- matrix(nrow = years, ncol = sims)
-  j <- seq_along(1:years)
   
   # verify that the extremes are at the same resolution as the other data
+  x <- historic
   
-  for (i in seq_along(1:sims)){
-
-    # make a prediction 
-    preds <- quantPred(x, quants, resp, pred)
-    reconcileEVT_quantiles
+  for (j in seq_along(1:sims)){
     
+    # run X simulations for each year.  
+    for (i in seq_along(1:years)){
+
+    # model the growth chart from the beginning of the sample period, to the year-1
+    # for this next prediction. 
+    preds <- quantPred(x)
+    
+    # some of the tau estimates are more extreme than what we would expect from 
+    # extreme value theory, we will bound them with the extreme value predictions. 
+    # to do this we simply run linear interpolation between the highest qr pred
+    # and the lowest extreme value pred. 
+    reconciled <- reconcileEVT_quantiles(qfd = preds, ev = extremes)
+    
+    # note that the quantile regression methods can only deal with so many values of tau
+    # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
+    # and then we have to perform linear interpolations afterwards. 
+    all_q <- all_quants(reconciled)
+    
+    # we can now sample from this object, and fit a model to the simulated data. 
+    all_q <- dplyr::mutate(all_q, LIKELIHOOD = dplyr::if_else(Tau > 0.5, 1 - Tau, Tau))
+    samples <- all_q[
+      sample(1:nrow(all_q), size = 1, prob = all_q$LIKELIHOOD), 
+      c('Tau', 'Prediction')
+      ]
+    
+    # now simply add the 
+#    bind_rows(
+#      dplyr::select(samples) |>
+#        mutate(FIRE_YEAR = max(x$FIRE_YEAR + 1)), 
+#    )
+    
+    }
+    sampled[i,j] <- samples$Prediction 
   }
-  
-  # now fit data for the first year
-  preds <- quantPred(x, quants, resp, pred)
   
 }

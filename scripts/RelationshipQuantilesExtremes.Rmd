@@ -124,17 +124,18 @@ Finally we will also linearly interpolate the growth chart so that we can sample
 
 ```{r Resample predictions to same nrows per stretch of values}
 
-datL <- split(dat_new, dat_new$Region)
+datL <- split(dat_new, f = dat_new$Region)
 
 all_quants <- function(x){
   
-  des_res <- seq(0.01, 0.95, by = 0.0001)
-  des_res <- setdiff(des_res, x$Tau)
+  des_res <- seq(0.01, 0.95, by = 0.0001); des_res <- setdiff(des_res, x$Tau)
 
   dt <- data.frame(
+    'Region' = x$Region[[1]],
     'Tau' = des_res,
-    'Prediction' = approx(c(0, x$Tau), c(0, x$Prediction), xout = des_res)$y
-  ) |>
+    'Prediction' = approx(c(0, x$Tau), c(0, x$Prediction), xout = des_res)$y,
+    'Approach' = 'Quantile'
+  ) |> 
     dplyr::bind_rows(x) |>
     dplyr::arrange(Tau)
 
@@ -149,10 +150,10 @@ rm(dat, dat_new)
 
 ```{r plot quantiles and evt}
 
-ggplot(datL, aes(x = Tau, y = Prediction)) + 
-  geom_point() + 
-  facet_wrap(~ Region, scales = 'free') + 
-  theme_bw() + 
+ggplot(datL, aes(x = Tau, y = Prediction)) +
+  geom_point() +
+  facet_wrap(~ Region, scales = 'free') +
+  theme_bw() +
   labs(
     title = 'Relationships between Quantile and Extreme Value predictions',
     y = 'Total Burned Area Prediction (Acres)'
@@ -162,7 +163,17 @@ write.csv(datL, '../results/Tabular/QuantileForecasts/AllValuesInterpolated.csv'
 ```
 
 
+
+# start trying simulation 
+
+```{r}
+
+```
+
+
+
 # practice sampling from these distributions
+
 
 ```{r}
 ak <- filter(datL, Region == 'Alaska') |>
