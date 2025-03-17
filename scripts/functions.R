@@ -973,7 +973,7 @@ quantPred <- function(x, quants, resp, pred, write){
       setNames(c('Tau', 'Prediction', pred, 'Method')) |>
       dplyr::mutate(Tau = as.numeric(Tau))
     
-    # now we interpolate the missing values for areas where we couldnt not
+    # now we interpolate the missing values for areas where we could not
     # fit directly
     if(nrow(preds)!=length(quants)) {
       
@@ -987,6 +987,14 @@ quantPred <- function(x, quants, resp, pred, write){
       
       preds <- rbind(preds, int_preds)
       preds <- preds[order(preds$Tau), ]
+      
+      # a strange event occurs where some values get duplicated - the project funding
+      # was pulled and can't investigate root cause, but the following band-aid
+      # will remove the symptom
+      preds <- preds |>
+        dplyr::group_by(Tau) |>
+        dplyr::arrange(Method) |> # alphabetical, 'Interpolated' before 'Predicted' we want to keep predicted. 
+        dplyr::slice_tail(n = 1)
     }
     
     if(write){
@@ -1004,14 +1012,14 @@ quantPred <- function(x, quants, resp, pred, write){
 reconcileEVT_quantiles <- function(qr, ev){
   
   # isolate the 'lowest' extreme prediction beyond 0.95
-  exts <- ev[ev$Region == qr$Region[1],]
-  exts <- exts[which.min(exts$Tau),]
+  exts <- ev
+  exts_min <- exts[which.min(exts$Tau),]
   
   # determine if any quant preds exceed this value.
-  problems <- qr$Prediction > exts$Prediction
+  problems <- qr$Prediction > exts_min$Prediction
   
   # if so apply the interpolation between the two methods. 
-  if(any(problems)){
+  if(any(problems)==TRUE){
     
     toAlter <- qr[problems==TRUE,]
     
@@ -1022,16 +1030,20 @@ reconcileEVT_quantiles <- function(qr, ev){
     
     # now we can add back together the pieces. 
     dplyr::bind_rows(
-      ev,
+      exts,
       qr[problems==FALSE,],
       toAlter
-    )
+    ) |>
+      dplyr::arrange(Tau)
+    
   } else {
-    ev$ReInterpolated <- NA
+    exts$ReInterpolated <- NA
+    
     dplyr::bind_rows(
-      ev,
+      exts,
       qr
-    )
+    ) |>
+      dplyr::arrange(Tau)
   }
 }
 
@@ -1053,6 +1065,8 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
 
   # identify the first year for the simulation 
   if(missing(Syear)){Syear <- max(historic[[pred]])+1}
+  
+  extremes <- extremes[extremes$Region == historic$REG_NAME[1], ]
   
   # we will loop through the predictions and estimates... 
   # from this process we will save a csv where each row is the year of the simulation
@@ -1077,7 +1091,7 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     # model the growth chart from the beginning of the sample period, to the year-1
     # for this next prediction. 
     preds <- quantPred(x)
-    
+
     # some of the tau estimates are more extreme than what we would expect from 
     # extreme value theory, we will bound them with the extreme value predictions. 
     # to do this we simply run linear interpolation between the highest qr pred
@@ -1088,8 +1102,6 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
     # and then we have to perform linear interpolations afterwards. 
     all_q <- all_quants(reconciled)
-    head(all_q)
-    message('all q completed')
     
     # we can now sample from this object, and fit a model to the simulated data. 
     all_q <- dplyr::mutate(all_q, LIKELIHOOD = dplyr::if_else(Tau > 0.5, 1 - Tau, Tau))
@@ -1108,9 +1120,7 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     predictions[i,j] <- x[[resp]][nrow(x)] 
     taus[i,j] <- x[['Tau']][nrow(x)]
     }
-    
     setTxtProgressBar(pb, j)
-    
   }
   
   rownames(predictions) <- paste0('year', seq_along(1:years))

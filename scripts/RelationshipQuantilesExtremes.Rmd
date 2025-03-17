@@ -130,15 +130,16 @@ all_quants <- function(x){
   
   des_res <- seq(0.01, 0.95, by = 0.0001); des_res <- setdiff(des_res, x$Tau)
 
+  approx(c(0, x[['Tau']]), c(0, x[['Prediction']]), xout = des_res)
+  
   dt <- data.frame(
-    'Region' = x$Region[[1]],
+    'Region' = x[['Region']][1],
     'Tau' = des_res,
-    'Prediction' = approx(c(0, x$Tau), c(0, x$Prediction), xout = des_res)$y,
+    'Prediction' = approx(c(0, x[['Tau']]), c(0, x[['Prediction']]), xout = des_res)$y,
     'Approach' = 'Quantile'
   ) |> 
     dplyr::bind_rows(x) |>
     dplyr::arrange(Tau)
-
 }
 
 datL <- lapply(datL, all_quants) |>
@@ -175,7 +176,16 @@ x_l <- read.csv(
 ak <- x_l[['Alaska']]
 
 # one set of sims works... 
-outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 2, years = 5)
+outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 20, years = 5)
+
+
+d2 <- data.frame(outtie$Predictions) |>
+  rownames_to_column('Year')
+dd <- pivot_longer(d2, !Year)
+
+ggplot(data = dd, aes(x = Year, y= value, color = name, group = name))+ 
+  geom_point() + 
+  geom_line()
 
 ```
 
