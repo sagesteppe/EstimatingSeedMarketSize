@@ -1057,15 +1057,22 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   # we will loop through the predictions and estimates... 
   # from this process we will save a csv where each row is the year of the simulation
   # and each column is a different run of the simulation.  
-  sampled <- matrix(nrow = years, ncol = sims)
+  predictions <- matrix(nrow = years, ncol = sims)
+  taus <- predictions
   
   # verify that the extremes are at the same resolution as the other data
-  x <- historic
+
+  pb <- txtProgressBar(
+    min = 0,
+    max = sims, 
+    style = 3,  
+    char = "=") 
   
   for (j in seq_along(1:sims)){
     
-    # run X simulations for each year.  
-    for (i in seq_along(1:years)){
+    x <- historic # overwrite the last set of simulations results 
+    
+    for (i in seq_along(1:years)){ # run X simulations for each year.  
 
     # model the growth chart from the beginning of the sample period, to the year-1
     # for this next prediction. 
@@ -1075,28 +1082,47 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     # extreme value theory, we will bound them with the extreme value predictions. 
     # to do this we simply run linear interpolation between the highest qr pred
     # and the lowest extreme value pred. 
-    reconciled <- reconcileEVT_quantiles(qfd = preds, ev = extremes)
+    reconciled <- reconcileEVT_quantiles(qr = preds, ev = extremes)
     
     # note that the quantile regression methods can only deal with so many values of tau
     # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
     # and then we have to perform linear interpolations afterwards. 
     all_q <- all_quants(reconciled)
+    head(all_q)
+    message('all q completed')
     
     # we can now sample from this object, and fit a model to the simulated data. 
     all_q <- dplyr::mutate(all_q, LIKELIHOOD = dplyr::if_else(Tau > 0.5, 1 - Tau, Tau))
     samples <- all_q[
       sample(1:nrow(all_q), size = 1, prob = all_q$LIKELIHOOD), 
       c('Tau', 'Prediction')
-      ]
+      ] |>
+      setNames(c('Tau', resp))
+    samples[pred] <- max(x[pred] + 1)
     
     # now simply add the 
-#    bind_rows(
-#      dplyr::select(samples) |>
-#        mutate(FIRE_YEAR = max(x$FIRE_YEAR + 1)), 
-#    )
-    
+    x <- bind_rows(
+        dplyr::select(x, dplyr::all_of(c(resp, pred))), 
+        samples, 
+    )
+    predictions[i,j] <- x[[resp]][nrow(x)] 
+    taus[i,j] <- x[['Tau']][nrow(x)]
     }
-    sampled[i,j] <- samples$Prediction 
+    
+    setTxtProgressBar(pb, j)
+    
   }
   
+  rownames(predictions) <- paste0('year', seq_along(1:years))
+  colnames(predictions) <- paste0('sim', seq_along(1:sims))
+  
+  rownames(taus) <- paste0('year', seq_along(1:years))
+  colnames(taus) <- paste0('sim', seq_along(1:sims))
+  
+  return(
+    list(
+      Predictions = predictions, 
+      Tau = taus)
+  )
 }
+
