@@ -177,18 +177,33 @@ x_l <- read.csv(
 ak <- x_l[['Mississippi Basin']]
 
 # one set of sims works... 
-bnch <- bench::mark( outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 100, years = 5))
+bnch <- bench::mark(
+  outtie <- burnedAreasSimulator(
+    historic = ak, extremes = frid, sims = 500, years = 5)
+  )
 
 rm(outtie)
 # 20 sims = 53 seconds
+# 40 sim = 1.75 minutes
+# 500 sims = 22.3 minutes  # scales linearly. 
 
 d2 <- data.frame(outtie$Predictions) |>
   rownames_to_column('Year')
 dd <- pivot_longer(d2, !Year)
 
+blah <- data.frame(outtie$Tau) |>
+  rownames_to_column('Year') |>
+  pivot_longer( !Year)
+  
+
+hist(dd$value)
+
+# write these out for now...  so no need to re run the sims, looks like 1000 sims is a good target. 
+# but that we need to allow for the extreme values to be 'refreshed' at the midpoint of simulation
+# e.g. if running for 5 years, re-run the extreme values at year 3. 
+
 ggplot(data = dd, aes(x = Year, y= value)) +
-  geom_point() +
-  geom_line()
+  geom_point(alpha = 0.4)
 
 rm(form.sm)
 ```
