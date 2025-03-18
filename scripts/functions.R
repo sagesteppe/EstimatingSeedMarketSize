@@ -962,6 +962,15 @@ quantPred <- function(x, quants, resp, pred, write){
     )
   }
   
+  if(length(mod)==1){
+    quant_sub <- seq(min(quants), max(quants), by = 0.18)
+    
+    mod <- tryCatch(
+      {quantregGrowth::gcrq(form.sm, data = x, tau = quant_sub)},
+      error = function(e) {return(NA)}
+    )
+  }
+  
   # soft exit for mods when nothing happens. 
   if(length(mod)==1){return(NA)}
   
@@ -1089,11 +1098,11 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   
   # verify that the extremes are at the same resolution as the other data
 
-  pb <- txtProgressBar(
-    min = 0,
-    max = sims, 
-    style = 3,  
-    char = "=") 
+ # pb <- txtProgressBar(
+#    min = 0,
+#    max = sims,
+#    style = 3,
+#    char = "=")
   
    cluster <- parallel::makeCluster( parallel::detectCores()/4 ) 
    doParallel::registerDoParallel(cluster)
@@ -1101,8 +1110,10 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
      cluster, c(
        'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
    
-   foreach::foreach(j = seq_along(1:sims)) %dopar% {
+   obbie <- foreach::foreach(j = seq_along(1:sims), .packages = 'quantregGrowth', .combine = c) %dopar% {
   
+     predictions <- vector(mode = 'numeric', length = years)
+     taus <- vector(mode = 'numeric', length = years)
  # preds2 <- vector(mode = 'list', length = 5) # for debugging
 #  for(j in seq_along(1:sims)){
   
@@ -1135,28 +1146,34 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     samples[pred] <- max(x[pred] + 1)
     
     # now simply add the new prediction to the results. 
-    x <- bind_rows(
-        dplyr::select(x, dplyr::all_of(c(resp, pred))), 
-        samples, 
+    x <- dplyr::bind_rows(
+        dplyr::select(x, dplyr::all_of(c(resp, pred))),
+        samples,
     )
-    predictions[i,j] <- x[[resp]][nrow(x)] 
-    taus[i,j] <- x[['Tau']][nrow(x)]
+    predictions[i] <- x[[resp]][nrow(x)]
+    taus[i] <- x[['Tau']][nrow(x)]
+
     }
-    setTxtProgressBar(pb, j)
+  #  setTxtProgressBar(pb, j)
+    return(
+      list(
+        Predictions = predictions, 
+        Tau = taus)
+    )
   }
    
   parallel::stopCluster(cluster)
   
-  rownames(predictions) <- paste0('year', seq_along(1:years))
-  colnames(predictions) <- paste0('sim', seq_along(1:sims))
-  rownames(taus) <- paste0('year', seq_along(1:years))
-  colnames(taus) <- paste0('sim', seq_along(1:sims))
+  return(obbie)
+#  rownames(predictions) <- paste0('year', seq_along(1:years))
+#  colnames(predictions) <- paste0('sim', seq_along(1:sims))
+#  rownames(taus) <- paste0('year', seq_along(1:years))
+#  colnames(taus) <- paste0('sim', seq_along(1:sims))
   
-  return(
-    list(
-   #   preds2, # for debugging
-      Predictions = predictions, 
-      Tau = taus)
-  )
+#  return(
+#    list(
+#      Predictions = predictions, 
+#      Tau = taus)
+#  )
 }
 

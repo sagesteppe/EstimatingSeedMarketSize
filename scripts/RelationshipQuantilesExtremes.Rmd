@@ -175,9 +175,11 @@ x_l <- read.csv(
   split(., f = .$REG_NAME)
 
 ak <- x_l[['Mississippi Basin']]
+form.sm <- paste0('TotalArea_Acre', ' ~ ps(', 'FIRE_YEAR', ', monotone=1)')
+
 
 # one set of sims works... 
-outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 20, years = 5)
+outtie <- burnedAreasSimulator(historic = ak, extremes = frid, sims = 10, years = 3)
 
 d2 <- data.frame(outtie$Predictions) |>
   rownames_to_column('Year')
@@ -190,15 +192,38 @@ ggplot(data = dd, aes(x = Year, y= value)) +
 rm(form.sm)
 ```
 
+```{r}
+
+
+bas <- function(sims, years){
+  
+  
+  pb <- txtProgressBar(
+    min = 0,
+    max = sims, 
+    style = 3,  
+    char = "=") 
+  
+   cluster <- parallel::makeCluster( parallel::detectCores()/4 ) 
+   doParallel::registerDoParallel(cluster)
+   parallel::clusterExport(
+     cluster, c(
+       'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
+   
+    foreach::foreach(j = seq_along(1:sims), .packages = 'quantregGrowth') %dopar% {
+      
+      x <- historic # overwrite the last set of simulations results 
+      for (i in seq_along(1:years)){ 
+        message(sims[j], years[i])
+      }
+      setTxtProgressBar(pb, j)
+    }
+    parallel::stopCluster(cluster)
+}
 
 
 
+bas(sims = 5, years = 5)
+```
 
-
-
-
-
-
-
-# practice sampling from these distributions
 
