@@ -962,15 +962,6 @@ quantPred <- function(x, quants, resp, pred, write){
     )
   }
   
-  if(length(mod)==1){
-    quant_sub <- seq(min(quants), max(quants), by = 0.18)
-    
-    mod <- tryCatch(
-      {quantregGrowth::gcrq(form.sm, data = x, tau = quant_sub)},
-      error = function(e) {return(NA)}
-    )
-  }
-  
   # soft exit for mods when nothing happens. 
   if(length(mod)==1){return(NA)}
   
@@ -1088,73 +1079,73 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   # identify the first year for the simulation 
   if(missing(Syear)){Syear <- max(historic[[pred]])+1}
   
+  # subset extremes to the particular region we are focusing on . 
   extremes <- extremes[extremes$Region == historic$REG_NAME[1], ]
   
-  # we will loop through the predictions and estimates... 
-  # from this process we will save a csv where each row is the year of the simulation
-  # and each column is a different run of the simulation.  
-  predictions <- matrix(nrow = years, ncol = sims)
-  taus <- predictions
+  pb <- txtProgressBar(max = sims, style = 3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  opts <- list(progress = progress)
   
-  # verify that the extremes are at the same resolution as the other data
-
- # pb <- txtProgressBar(
-#    min = 0,
-#    max = sims,
-#    style = 3,
-#    char = "=")
-  
-   cluster <- parallel::makeCluster( parallel::detectCores()/4 ) 
-   doParallel::registerDoParallel(cluster)
+   cluster <- parallel::makeCluster( parallel::detectCores()/4) 
+   doSNOW::registerDoSNOW(cluster) # might need doSNOW:: registerDoSNOW(cl)
    parallel::clusterExport(
      cluster, c(
        'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
    
-   obbie <- foreach::foreach(j = seq_along(1:sims), .packages = 'quantregGrowth', .combine = c) %dopar% {
+   iters <- foreach::foreach(
+     j = seq_along(1:sims), .packages = 'quantregGrowth', .options.snow = opts) %dopar% {
   
+     # we will loop through the predictions and estimates... 
+     # from this process we will save a csv where each row is the year of the simulation
+     # and each column is a different run of the simulation.  
      predictions <- vector(mode = 'numeric', length = years)
      taus <- vector(mode = 'numeric', length = years)
- # preds2 <- vector(mode = 'list', length = 5) # for debugging
-#  for(j in seq_along(1:sims)){
   
-    x <- historic # overwrite the last set of simulations results 
-    for (i in seq_along(1:years)){ # run X simulations for each year.  
+      x <- historic # overwrite the last set of simulations results 
+      for (i in seq_along(1:years)){ # run X simulations for each year.  
 
-    # model the growth chart from the beginning of the sample period, to the year-1
-    # for this next prediction. 
-    preds <- quantPred(x)
-   # preds2[[i]] <- preds # for debugging
+      # model the growth chart from the beginning of the sample period, to the year-1
+      # for this next prediction. 
+      preds <- quantPred(x)
+      
+      #### need to kill the simulation is preds is NA    ####
+      if(length(preds)==1){
+        predictions[i] <- NA
+        taus[i] <- NA
+      }
+ 
+      # some of the tau estimates are more extreme than what we would expect from 
+      # extreme value theory, we will bound them with the extreme value predictions. 
+      # to do this we simply run linear interpolation between the highest qr pred
+      # and the lowest extreme value pred. 
+      reconciled <- reconcileEVT_quantiles(qr = preds, ev = extremes)
 
-    # some of the tau estimates are more extreme than what we would expect from 
-    # extreme value theory, we will bound them with the extreme value predictions. 
-    # to do this we simply run linear interpolation between the highest qr pred
-    # and the lowest extreme value pred. 
-    reconciled <- reconcileEVT_quantiles(qr = preds, ev = extremes)
-
-    # note that the quantile regression methods can only deal with so many values of tau
-    # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
-    # and then we have to perform linear interpolations afterwards. 
-    all_q <- all_quants(reconciled)
+      # note that the quantile regression methods can only deal with so many values of tau
+      # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
+      # and then we have to perform linear interpolations afterwards. 
+      all_q <- all_quants(reconciled)
     
-    # we can now sample from this object, and fit a model to the simulated data. 
-    all_q <- dplyr::mutate(all_q, LIKELIHOOD = dplyr::if_else(Tau > 0.5, 1 - Tau, Tau))
-    samples <- all_q[
-      sample(1:nrow(all_q), size = 1, prob = all_q$LIKELIHOOD), 
-      c('Tau', 'Prediction')
-      ] |>
-      setNames(c('Tau', resp))
-    samples[pred] <- max(x[pred] + 1)
+      # we can now sample from this object, and fit a model to the simulated data. 
+      all_q <- dplyr::mutate(all_q, LIKELIHOOD = dplyr::if_else(Tau > 0.5, 1 - Tau, Tau))
+      samples <- all_q[
+        sample(1:nrow(all_q), size = 1, prob = all_q$LIKELIHOOD), 
+        c('Tau', 'Prediction')
+        ] |>
+        setNames(c('Tau', resp)) # this is our sample for year+1
+      samples[pred] <- max(x[pred] + 1)
     
-    # now simply add the new prediction to the results. 
-    x <- dplyr::bind_rows(
-        dplyr::select(x, dplyr::all_of(c(resp, pred))),
-        samples,
-    )
-    predictions[i] <- x[[resp]][nrow(x)]
-    taus[i] <- x[['Tau']][nrow(x)]
+      # now simply bind the new prediction onto the observed data, plus the samples
+      # from the previous iterations of the simulations (if currentyear > finalyear + 1)
+      x <- dplyr::bind_rows(
+          dplyr::select(x, dplyr::all_of(c(resp, pred))),
+          samples,
+      )
+      
+      # finally save the output here. could be done at end, but we go as it goes. 
+      predictions[i] <- x[[resp]][nrow(x)]
+      taus[i] <- x[['Tau']][nrow(x)]
 
     }
-  #  setTxtProgressBar(pb, j)
     return(
       list(
         Predictions = predictions, 
@@ -1162,18 +1153,25 @@ burnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
     )
   }
    
+  close(pb)
   parallel::stopCluster(cluster)
   
-  return(obbie)
-#  rownames(predictions) <- paste0('year', seq_along(1:years))
-#  colnames(predictions) <- paste0('sim', seq_along(1:sims))
-#  rownames(taus) <- paste0('year', seq_along(1:years))
-#  colnames(taus) <- paste0('sim', seq_along(1:sims))
+  # every set of simulations is in two sublists, we will combine them into 
+  # matrics for easy saving. An array could be a better option for certain users. 
+  predictions <- matrix(unlist(lapply(iters, '[', 'Predictions')), nrow = years)
+  taus <- matrix(unlist(lapply(iters, '[', 'Tau')), nrow = years)
   
-#  return(
-#    list(
-#      Predictions = predictions, 
-#      Tau = taus)
-#  )
+  # and names these so we can keep the matrix numeric - pretty obvious but... 
+  rownames(predictions) <- paste0('year', seq_along(1:years))
+  colnames(predictions) <- paste0('sim', seq_along(1:sims))
+  rownames(taus) <- paste0('year', seq_along(1:years))
+  colnames(taus) <- paste0('sim', seq_along(1:sims))
+  
+  # finally repack this pupper as a list of two matrices. 
+  return(
+    list(
+      Predictions = predictions, 
+      Tau = taus)
+  )
 }
 
