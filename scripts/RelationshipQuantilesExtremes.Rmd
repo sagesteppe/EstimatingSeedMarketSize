@@ -168,7 +168,7 @@ write.csv(datL, '../results/Tabular/QuantileForecasts/AllValuesInterpolated.csv'
 
 ```{r}
 
-library(foreach)
+library(tidyverse)
 
 x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
@@ -176,6 +176,11 @@ x_l <- read.csv(
 
 ak <- x_l[['Mississippi Basin']]
 
+backa <- CalculateReturnIntervals(
+  x = ak, plot = FALSE, write = FALSE, ret_period = c(95, 100, 0.1), burn.in = 10000)
+```
+
+```{r}
 # one set of sims works... 
 bnch <- bench::mark(
   outtie <- burnedAreasSimulator(

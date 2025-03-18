@@ -378,50 +378,65 @@ reportBalance <- function(x, w, interval, prediction, conf_lvl){
 #' @param pred
 #' @param resp
 #' @param plot Boolean. Whether to also make and save a plot of the results. Defaults to TRUE. 
-#' @param write Booean. Whether to write results to disk or not. Defaults to TRUE. 
+#' @param write Boolean. Whether to write results to disk or not. Defaults to TRUE. 
+#' @param ret_period Numeric. If 1, the default, the full range of quantiles from 1.01 to 100 are calculated. Else a user specified range and resolution c(95, 100, 0.01), will calculate from a 95 to 100 year conditions at 0.01 resolution. 
+#' @param ... Further arguments passed to ??extRemes::return.level, such as `do.ci` and `burn.in`
 #' @returns a plot of intervals, a data frame of predictions from the fit model, the model, and a sample of positions from the  predictions data frame. By default these three objects are written to disk. 
 #' @param export
-CalculateReturnIntervals <- function(x, resp, pred, plot, write){
+CalculateReturnIntervals <- function(x, resp, pred, plot, write, ret_period, ...){
   
+  if(missing(resp)){resp <- 'TotalArea_Acre'}; if(missing(pred)){pred <- 'FIRE_YEAR'}
   if(missing(plot)){plot <- TRUE}
   if(missing(write)){write <- TRUE}
+  if(missing(ret_period)){ret_period <- 1}
   
   x <- x[!is.na(x[[resp]]),] # this removes recent no-data years - is safe and stable
   
   # this replaces the log of years without any burned area with a 0. Seems stable
   # but may have peculiar side effects? 
-  logs <- log(x[['pred']])
+  logs <- log(x[[resp]])
   pos <- logs=='-Inf'
   logs <- replace(logs, pos, 0)
   
   fevd_ext <- extRemes::fevd(
     logs, 
     type = 'GEV',
-    units ='Acres', 
+    units = 'Acres', 
     span = length(logs), 
     time.units = '1/year'
   )
   
-  ret_period <- seq(0.01, 99.9, 0.01) # 'years' for the return intervals. 
-  return_ls <- return.level(fevd_ext, ret_period, do.ci = TRUE, burn.in = 10000) 
+  if(length(ret_period)==1){ # 'years' for the return intervals. 
+    ret_period <- seq(1.01, 100, 0.01)
+  } else {
+    ret_period <- seq(ret_period[1], ret_period[2], ret_period[3])
+  }
   
-  # Find the intersection of the desired value and the generated sequence of return levels
-  return_ls <- data.frame(
+  # note min must be > 1.000 , such as 1.0x1 etc. 
+  return_ls <- extRemes::return.level(x = fevd_ext, return.period = ret_period, ...)
+
+  return_df <- data.frame(
     Period = ret_period,
-    Pr = 1/ret_period, 
-    CDF = ret_period/100, 
-    lwrCI = return_ls[,1], 
-    estimate = return_ls[,2], 
-    uprCI = return_ls[,3] 
+    Pr = 1/ret_period,
+    CDF = ret_period/100
   )
-  
-  cols <- c('lwrCI', 'uprCI', 'estimate') # convert back to a linear scale 
-  return_ls[,cols] <- apply(return_ls[,cols], 2, exp)
-  
-  positions <- sort( # sampling rows from the data frame based on the return intervals
-    sample(1:nrow(return_ls), 
-           prob = return_ls$Pr, 
-           size = 1250, replace = TRUE))
+
+  if(is.null(dim(return_ls))){
+    return_ls <- cbind(
+      return_df, 
+      estimate = exp(as.numeric(return_ls))
+    )
+    
+  } else {
+    return_ls <- cbind(
+      return_df, 
+      lwrCI = return_ls[,1],
+      uprCI = return_ls[,3],
+      estimate = return_ls[,2]
+    )
+    cols <- c('lwrCI', 'uprCI', 'estimate')
+    return_ls[,cols] <- apply(return_ls[,cols], 2, exp)
+  }
 
   if(plot){
     ReturnIntervalsPlot(x = x, mod = fevd_ext, return_ls = return_ls)
@@ -429,29 +444,14 @@ CalculateReturnIntervals <- function(x, resp, pred, plot, write){
 
   if(write){
     write.csv(
-      positions, 
-      file.path(
-        '..', 'results', 'Tabular', 'FireReturnIntervals', 
-        paste0('SampleIndex-',  x$REG_NAME[1], '.txt')
-      ), row.names = F)
-    
-    write.csv(
       return_ls,
       file.path(
         '..', 'results', 'Tabular', 'FireReturnIntervals', 
         paste0('Predictions-', x$REG_NAME[1], '.csv')
       )
     )
-  } else {
-    
-    return(
-      list(
-        ReturnIntervals = return_ls, 
-        Samples = positions
-        )
-    )
-    
-  }
+  } else {return(return_ls)}
+  
 }
 
 
@@ -1088,7 +1088,8 @@ reconcileEVT_quantiles <- function(qr, ev){
 #' @param steps Numeric. The resolution to forecast simulations at, Defaults to 0.001 or a thousandth; faster results may occur with 0.01 etc, but your mileage may vary on what people continuous. 
 #' @param sims Numeric. The number of simulations to perform. Defaults to 100 for speed, but 1000 are quite reasonable. 
 #' @param quant_bounds Numeric, length two. A lower and upper quantile bound to make predictions within. Defaults to c(0.05, 0.95)
-BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, steps, sims, quant_bounds){
+#' @param recalc_extremes Character. Whether to recalculate the 'extremes' data set as time progresses. One of either: 'none' (the default), which will use the user supplied values as a ceiling (which may be fine for simulations of only a year or two), 'every' for recalculating the extreme values each year, 'other' for recalculating every other year (which becomes even 'years' as we count from 1), and 'median' which will recalculate the extreme values only once at the midpoint of observations (uses `round(median(1:years))`, so even years will round down.). 
+BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, steps, sims, quant_bounds, recalc_extremes){
   
   if(missing(resp)){resp <- 'TotalArea_Acre'}; if(missing(pred)){pred <- 'FIRE_YEAR'}
   if(missing(years)){years <- 5}; if(missing(steps)){steps <- 0.001}
@@ -1097,6 +1098,17 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   # identify the first year for the simulation 
   if(missing(Syear)){Syear <- max(historic[[pred]])+1}
   
+  # identify any years to trigger recalculation of extreme variables. 
+  if(recalc_extremes == 'none'){
+    recalc_extremes = years+1} else 
+      if(recalc_extremes == 'every'){
+        re = seq_along(1:years)} else 
+        if(recalc_extremes == 'other') {
+          re = which( seq_along(1:years) %% 0)} else 
+            if(recalc_extremes == 'median'){
+              re = round(median(seq_along(1:years)))
+            }
+  
   # subset extremes to the particular region we are focusing on . 
   extremes <- extremes[extremes$Region == historic$REG_NAME[1], ]
   
@@ -1104,8 +1116,8 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
   
-   cluster <- parallel::makeCluster( parallel::detectCores()/4) 
-   doSNOW::registerDoSNOW(cluster) # might need doSNOW:: registerDoSNOW(cl)
+   cluster <- parallel::makeCluster(parallel::detectCores()/4) 
+   doSNOW::registerDoSNOW(cluster) 
    parallel::clusterExport(
      cluster, c(
        'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
@@ -1122,9 +1134,10 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
       x <- historic # overwrite the last set of simulations results 
       for (i in seq_along(1:years)){ # run X simulations for each year.  
 
-      # if years > 2, then in the median year, re-predict the extreme burn values 
-      # so that the results are not totally restricted by the upper bounds. 
-      extremes <- CalculateReturnIntervals(x, resp, pred, plot, write)
+      # recalculate the extreme values if user wants to do so. 
+      if(i==re){
+        extremes <- CalculateReturnIntervals(x = x, resp = resp, pred = pred, plot = FALSE, write = FALSE)
+      }
         
       # model the growth chart from the beginning of the sample period, to the year-1
       # for this next prediction. 
