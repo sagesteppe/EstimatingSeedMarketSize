@@ -1119,28 +1119,32 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
   
-   cluster <- parallel::makeCluster(parallel::detectCores()/4) 
-   doSNOW::registerDoSNOW(cluster) 
-   parallel::clusterExport(
-     cluster, c(
-       'quantPred', 'years', 'CalculateReturnIntervals', 'reconcileEVT_quantiles', 'all_quants'))
-   on.exit(parallel::stopCluster(cluster))
-   on.exit(close(pb))
+  on.exit(parallel::stopCluster(cluster))
+  on.exit(close(pb))
+  
+  cluster <- parallel::makeCluster(parallel::detectCores()/4)
+  doSNOW::registerDoSNOW(cluster)
+  parallel::clusterExport(
+   cluster, c(
+     'quantPred', 'years', 'CalculateReturnIntervals', 'reconcileEVT_quantiles', 'all_quants'))
 
    iters <- foreach::foreach(
      j = seq_along(1:sims), .packages = 'quantregGrowth', .options.snow = opts) %dopar% {
   
-     # we will loop through the predictions and estimates... 
+     # we will loop through the predictions and estimates...
      # from this process we will save a csv where each row is the year of the simulation
-     # and each column is a different run of the simulation.  
+     # and each column is a different run of the simulation.
      predictions <- vector(mode = 'numeric', length = years)
      taus <- vector(mode = 'numeric', length = years)
   
-      x <- historic # overwrite the last set of simulations results 
-      for (i in seq_along(1:years)){ # run X simulations for each year. 
-
-      # recalculate the extreme values if user wants to do so. 
-      if(i==re){
+      x <- historic # overwrite the last set of simulations results
+      
+      for (i in seq_along(1:years)){ # run X simulations for each year.
+      
+      # recalculate the extreme values as desired. If you don't do this then 
+      # eventually they can become a 'ceiling' restricting the true growth of the
+      # process if it is monotonic 
+      if(any(re)==i){
         extremes <- CalculateReturnIntervals(
           x = x, resp = resp, pred = pred, ret_period = c(95, 100, 0.1),
           plot = FALSE, write = FALSE, burn.in = 1000)  |>
@@ -1150,18 +1154,13 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
       }
       # model the growth chart from the beginning of the sample period, to the year-1
       # for this next prediction. 
-      preds <- quantPred(x, quants = seq(0.05, 0.94, by = 0.01))
+      preds <- quantPred(x, quants = seq(0.05, 0.95, by = 0.01))
       
-      #### need to kill the simulation is preds is NA   ####
-      if(isTRUE(length(preds)==1)){
-        predictions <- -9999
-        taus <- -9999
-        return(
-          list(
-            Predictions = predictions, 
-            Tau = taus)
-        )
-        next()
+      #### need to kill the simulation is preds is NA ####
+      if(length(preds)==1){
+          predictions = rep(-999, length(predictions))
+          tau = rep(-999, length(taus))
+          break
       }
  
       # some of the tau estimates are more extreme than what we would expect from 
@@ -1188,7 +1187,7 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
       # from the previous iterations of the simulations (if current year > final year + 1)
       x <- dplyr::bind_rows(
           dplyr::select(x, dplyr::all_of(c(resp, pred))),
-          samples,
+          samples
       )
 
       # finally save the output here. could be done at end, but we go as it goes. 
@@ -1224,4 +1223,3 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
       Tau = taus)
   )
 }
-

@@ -171,7 +171,8 @@ x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
 
-ak <- x_l[['Mississippi Basin']]
+ak <- x_l[['Alaska']]
+ak <-  drop_na(ak)
 
 CalculateReturnIntervals(
   x = ak, plot = FALSE, write = FALSE, ret_period = c(95, 100, 0.1), burn.in = 10000)
@@ -183,31 +184,26 @@ library(foreach)
 # one set of sims works... 
 bnch <- bench::mark(
   outtie <- BurnedAreasSimulator(
-    historic = ak, extremes = frid, sims = 10, years = 5, recalc_extremes = 'none') # 'every is failing when many
+    historic = ak, extremes = frid, sims = 50, years = 5, recalc_extremes = 'median') # 'every is failing when many
 )
 
-
-rm(outtie)
 # 20 sims = 53 seconds
 # 40 sim = 1.75 minutes
 # 500 sims = 22.3 minutes  # scales linearly. 
 
 d2 <- data.frame(outtie$Predictions) |>
-  rownames_to_column('Year')
-dd <- pivot_longer(d2, !Year)
+  rownames_to_column('Year') |>
+  pivot_longer(d2, !Year)
 
 blah <- data.frame(outtie$Tau) |>
   rownames_to_column('Year') |>
-  pivot_longer( !Year)
+  pivot_longer(!Year)
   
-
-hist(dd$value)
-
 # write these out for now...  so no need to re run the sims, looks like 1000 sims is a good target. 
 # but that we need to allow for the extreme values to be 'refreshed' at the midpoint of simulation
 # e.g. if running for 5 years, re-run the extreme values at year 3. 
 
-ggplot(data = dd, aes(x = Year, y= value)) +
+ggplot(data = d2, aes(x = Year, y= value)) +
   geom_point(alpha = 0.4)
 
 rm(form.sm)
