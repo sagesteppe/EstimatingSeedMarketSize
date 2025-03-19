@@ -132,10 +132,9 @@ all_quants <- function(x){
   des_res <- seq(0.01, 0.95, by = 0.0001); des_res <- setdiff(des_res, x$Tau)
   
   dt <- data.frame(
-    'Region' = x[['Region']][1],
     'Tau' = des_res,
     'Prediction' = approx(c(0, x[['Tau']]), c(0, x[['Prediction']]), xout = des_res)$y,
-    'Approach' = 'Quantile'
+    'Method' = 'Quantile'
   ) |> 
     dplyr::bind_rows(x) |>
     dplyr::arrange(Tau)
@@ -168,24 +167,25 @@ write.csv(datL, '../results/Tabular/QuantileForecasts/AllValuesInterpolated.csv'
 
 ```{r}
 
-library(tidyverse)
-
 x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
 
 ak <- x_l[['Mississippi Basin']]
 
-backa <- CalculateReturnIntervals(
+CalculateReturnIntervals(
   x = ak, plot = FALSE, write = FALSE, ret_period = c(95, 100, 0.1), burn.in = 10000)
 ```
 
 ```{r}
+
+library(foreach)
 # one set of sims works... 
 bnch <- bench::mark(
-  outtie <- burnedAreasSimulator(
-    historic = ak, extremes = frid, sims = 500, years = 5)
-  )
+  outtie <- BurnedAreasSimulator(
+    historic = ak, extremes = frid, sims = 10, years = 5, recalc_extremes = 'none') # 'every is failing when many
+)
+
 
 rm(outtie)
 # 20 sims = 53 seconds

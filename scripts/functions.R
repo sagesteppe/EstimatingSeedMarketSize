@@ -1099,15 +1099,18 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   if(missing(Syear)){Syear <- max(historic[[pred]])+1}
   
   # identify any years to trigger recalculation of extreme variables. 
+  if(missing(recalc_extremes)){recalc_extremes <- 'none'}
   if(recalc_extremes == 'none'){
-    recalc_extremes = years+1} else 
+    re <- years+1} else # just set to > 1 so never encountered. 
       if(recalc_extremes == 'every'){
-        re = seq_along(1:years)} else 
+        re <- seq_along(1:years)} else # equal to i so always happens. 
         if(recalc_extremes == 'other') {
-          re = which( seq_along(1:years) %% 0)} else 
+          re <- which(seq_along(1:years) %% 0)} else # even years 
             if(recalc_extremes == 'median'){
-              re = round(median(seq_along(1:years)))
+              re <- round(median(seq_along(1:years))) # median year, and round to integer. 
             }
+  # ADD A CONDITION TO CALCULATE XTREMES IF IT IS MISSING !!! 
+  
   
   # subset extremes to the particular region we are focusing on . 
   extremes <- extremes[extremes$Region == historic$REG_NAME[1], ]
@@ -1120,8 +1123,10 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
    doSNOW::registerDoSNOW(cluster) 
    parallel::clusterExport(
      cluster, c(
-       'quantPred', 'years', 'reconcileEVT_quantiles', 'all_quants'))
-   
+       'quantPred', 'years', 'CalculateReturnIntervals', 'reconcileEVT_quantiles', 'all_quants'))
+   on.exit(parallel::stopCluster(cluster))
+   on.exit(close(pb))
+
    iters <- foreach::foreach(
      j = seq_along(1:sims), .packages = 'quantregGrowth', .options.snow = opts) %dopar% {
   
@@ -1132,22 +1137,31 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
      taus <- vector(mode = 'numeric', length = years)
   
       x <- historic # overwrite the last set of simulations results 
-      for (i in seq_along(1:years)){ # run X simulations for each year.  
+      for (i in seq_along(1:years)){ # run X simulations for each year. 
 
       # recalculate the extreme values if user wants to do so. 
       if(i==re){
-        extremes <- CalculateReturnIntervals(x = x, resp = resp, pred = pred, plot = FALSE, write = FALSE)
+        extremes <- CalculateReturnIntervals(
+          x = x, resp = resp, pred = pred, ret_period = c(95, 100, 0.1),
+          plot = FALSE, write = FALSE, burn.in = 1000)  |>
+          
+          dplyr::mutate(Tau = CDF, Method = 'Extreme') |>
+          dplyr::rename(Prediction = estimate)
       }
-        
       # model the growth chart from the beginning of the sample period, to the year-1
       # for this next prediction. 
-      preds <- quantPred(x)
+      preds <- quantPred(x, quants = seq(0.05, 0.94, by = 0.01))
       
       #### need to kill the simulation is preds is NA   ####
-      if(length(preds)==1){
-        predictions[i] <- NA
-        taus[i] <- NA
-        next
+      if(isTRUE(length(preds)==1)){
+        predictions <- -9999
+        taus <- -9999
+        return(
+          list(
+            Predictions = predictions, 
+            Tau = taus)
+        )
+        next()
       }
  
       # some of the tau estimates are more extreme than what we would expect from 
@@ -1160,7 +1174,7 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
       # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
       # and then we have to perform linear interpolations afterwards. 
       all_q <- all_quants(reconciled)
-    
+      
       # we can now sample from this object, and fit a model to the simulated data. 
       all_q <- dplyr::mutate(all_q, LIKELIHOOD = dplyr::if_else(Tau > 0.5, 1 - Tau, Tau))
       samples <- all_q[
@@ -1169,14 +1183,14 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
         ] |>
         setNames(c('Tau', resp)) # this is our sample for year+1
       samples[pred] <- max(x[pred] + 1)
-    
+  
       # now simply bind the new prediction onto the observed data, plus the samples
-      # from the previous iterations of the simulations (if currentyear > finalyear + 1)
+      # from the previous iterations of the simulations (if current year > final year + 1)
       x <- dplyr::bind_rows(
           dplyr::select(x, dplyr::all_of(c(resp, pred))),
           samples,
       )
-      
+
       # finally save the output here. could be done at end, but we go as it goes. 
       predictions[i] <- x[[resp]][nrow(x)]
       taus[i] <- x[['Tau']][nrow(x)]
@@ -1191,9 +1205,9 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
    
   close(pb)
   parallel::stopCluster(cluster)
-  
+
   # every set of simulations is in two sublists, we will combine them into 
-  # matrics for easy saving. An array could be a better option for certain users. 
+  # matrices for easy saving. An array could be a better option for certain users. 
   predictions <- matrix(unlist(lapply(iters, '[', 'Predictions')), nrow = years)
   taus <- matrix(unlist(lapply(iters, '[', 'Tau')), nrow = years)
   
