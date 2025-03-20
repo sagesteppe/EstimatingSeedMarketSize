@@ -793,6 +793,8 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
                  paste0(gsub(' ', '_', x[['REG_NAME']][1]), '-'))
   
   form <- as.formula(paste0(resp, '~', pred))
+  form.sm <- as.formula(paste0(resp, ' ~ ps(', pred, ', monotone=1)'))
+  
   if(gc == FALSE){
     p <- paste0(p, wts_p, '.png')
   } else {
@@ -1089,7 +1091,8 @@ reconcileEVT_quantiles <- function(qr, ev){
 #' @param sims Numeric. The number of simulations to perform. Defaults to 100 for speed, but 1000 are quite reasonable. 
 #' @param quant_bounds Numeric, length two. A lower and upper quantile bound to make predictions within. Defaults to c(0.05, 0.95)
 #' @param recalc_extremes Character. Whether to recalculate the 'extremes' data set as time progresses. One of either: 'none' (the default), which will use the user supplied values as a ceiling (which may be fine for simulations of only a year or two), 'every' for recalculating the extreme values each year, 'other' for recalculating every other year (which becomes even 'years' as we count from 1), and 'median' which will recalculate the extreme values only once at the midpoint of observations (uses `round(median(1:years))`, so even years will round down.). 
-BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, steps, sims, quant_bounds, recalc_extremes){
+BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
+                                 steps, sims, quant_bounds, recalc_extremes){
   
   if(missing(resp)){resp <- 'TotalArea_Acre'}; if(missing(pred)){pred <- 'FIRE_YEAR'}
   if(missing(years)){years <- 5}; if(missing(steps)){steps <- 0.001}
@@ -1211,10 +1214,10 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear, s
   taus <- matrix(unlist(lapply(iters, '[', 'Tau')), nrow = years)
   
   # and names these so we can keep the matrix numeric - pretty obvious but... 
-  rownames(predictions) <- paste0('year', seq_along(1:years))
+  rownames(predictions) <- max(historic[[pred]]) +  seq_along(1:years)
   colnames(predictions) <- paste0('sim', seq_along(1:sims))
-  rownames(taus) <- paste0('year', seq_along(1:years))
-  colnames(taus) <- paste0('sim', seq_along(1:sims))
+  rownames(taus) <- max(historic[[pred]]) + seq_along(1:years)
+  colnames(taus) <-  paste0('sim', seq_along(1:sims))
   
   # finally repack this pupper as a list of two matrices. 
   return(

@@ -140,28 +140,8 @@ all_quants <- function(x){
     dplyr::arrange(Tau)
 }
 
-datL <- lapply(datL, all_quants) |>
-  # fill newly created rows with values before binding if need be. 
-  bind_rows()
-
 rm(dat, dat_new)
 ```
-
-```{r plot quantiles and evt}
-
-ggplot(datL, aes(x = Tau, y = Prediction)) +
-  geom_point() +
-  facet_wrap(~ Region, scales = 'free') +
-  theme_bw() +
-  labs(
-    title = 'Relationships between Quantile and Extreme Value predictions',
-    y = 'Total Burned Area Prediction (Acres)'
-    )
-
-write.csv(datL, '../results/Tabular/QuantileForecasts/AllValuesInterpolated.csv', row.names = FALSE)
-```
-
-
 
 # start trying simulation 
 
@@ -171,42 +151,125 @@ x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
 
-ak <- x_l[['Alaska']]
+ak <- x_l[['California-Great Basin']]
 ak <-  drop_na(ak)
 
-CalculateReturnIntervals(
-  x = ak, plot = FALSE, write = FALSE, ret_period = c(95, 100, 0.1), burn.in = 10000)
 ```
 
 ```{r}
 
 library(foreach)
-# one set of sims works... 
 bnch <- bench::mark(
   outtie <- BurnedAreasSimulator(
-    historic = ak, extremes = frid, sims = 50, years = 5, recalc_extremes = 'median') # 'every is failing when many
+    historic = ak, extremes = frid, sims = 1000, years = 3, recalc_extremes = 'every') # 'every is failing when many
 )
 
-# 20 sims = 53 seconds
-# 40 sim = 1.75 minutes
-# 500 sims = 22.3 minutes  # scales linearly. 
+# 50 sims, years = 5, extremes='median', 3.91 minutes. 
+# 50 sims, years = 5, extremes='every', 
+# 1000 sims, years = 3, extremes='every', 49.6 minutes
 
 d2 <- data.frame(outtie$Predictions) |>
-  rownames_to_column('Year') |>
-  pivot_longer(d2, !Year)
+  rownames_to_column('Year')|>
+  pivot_longer( !Year) |>
+  mutate(Year = as.numeric(Year)) |>
+   select( FIRE_YEAR = Year, TotalArea_Acre = value)
 
 blah <- data.frame(outtie$Tau) |>
   rownames_to_column('Year') |>
-  pivot_longer(!Year)
-  
-# write these out for now...  so no need to re run the sims, looks like 1000 sims is a good target. 
-# but that we need to allow for the extreme values to be 'refreshed' at the midpoint of simulation
-# e.g. if running for 5 years, re-run the extreme values at year 3. 
+  pivot_longer(!Year)|>
+  mutate(Year = as.numeric(Year))
 
-ggplot(data = d2, aes(x = Year, y= value)) +
+# write these out for now...  so no need to re run the sims, looks like 1000 sims is a good target.
+# but that we need to allow for the extreme values to be 'refreshed' at the midpoint of simulation
+# e.g. if running for 5 years, re-run the extreme values at year 3.
+
+ggplot(data = d2, aes(x = FIRE_YEAR, y= TotalArea_Acre)) +
   geom_point(alpha = 0.4)
 
-rm(form.sm)
 ```
+
+
+Let's quickly compare the simulation results to the results from growthchart. 
+
+We will do this with California-Great Basin where fires are strongly growing. 
+
+
+```{r}
+# plot needs three components: 
+# historic data.... 
+# normal forecasts
+# simulated forecasts
+resp <- 'TotalArea_Acre'
+pred <- 'FIRE_YEAR'
+
+d2 <- bind_rows(
+  select(ak, FIRE_YEAR, TotalArea_Acre), 
+  d2
+)
+
+form.sm <- as.formula(paste0('TotalArea_Acre', ' ~ ps(', 'FIRE_YEAR', ', monotone=1)'))
+d2 <- mutate(d2, FIRE_YEAR = jitter(FIRE_YEAR))
+
+# first fit the growth curves on the historic data 
+quants <- c(0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.9)
+quantL <- vector(mode = 'list', length = length(quants))
+mod <- quantregGrowth::gcrq(form.sm, data = ak, tau = quants)
+
+# this is for 'prediction' and simulation prediction. 
+predsL <- vector(mode = 'list', length = length(quants))
+preds <- data.frame(FIRE_YEAR = 2024:2028)
+
+## simulation prediction. 
+
+niner <- quantregGrowth::gcrq(form.sm, data=d2, tau = 0.9)
+
+mod_sim <- quantregGrowth::gcrq(form.sm, data = d2, tau = quants)
+
+
+####### these are the simple 'predictions' from the growthchart. 
+mod$call$formula <- form.sm
+normal_preds <- predict(mod, preds)
+# what you will see  below is that the model refuses to predict, it will just pass 
+# the values from the last few years onto this. Basically it won't extrapolate - 
+# which I won't complain about!
+
+# this is all for plotting 
+L <- 7
+linetypes <- c(3:5, 1, 5:3)
+cols <- paste0('grey', round(seq(80, 0, length.out =  floor(7/2)+1)))
+cols <- c(cols, rev(cols[1:7/2]))
+
+plot(
+    mod_sim, 
+    res = TRUE, 
+    col = cols,
+    lty = linetypes, 
+    xlim = c(1990, 2029),
+    yaxt = 'n',
+    xlab = 'Year', 
+    ylab = 'Total Area Burned (Acre)',
+) 
+points(ak[[pred]], ak[[resp]], pch = 20, cex = 1.2, col = 'black')
+legend(
+  x = "topleft", 
+  legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25, 0.75)', '0.9 band (0.05, 0.95)', 'Conditional Mean'),
+  lty = c(rev(linetypes[1:ceiling(L/2)]), 1),  
+  col = rev(cols[1:ceiling(L/2)]),
+  lwd = 2, 
+  bg = adjustcolor("white", 0.4)
+)  
+  
+# perfect, predict just does an extrapolation at the exact slope. 
+for (i in seq_along(1:ncol(normal_preds))){ 
+    lines(y = mod_sim[["fitted.values"]][,i], x = seq(2024, 2028, length= 1000))
+}
+
+```
+
+
+```{r}
+
+```
+
 
 
