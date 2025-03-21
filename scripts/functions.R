@@ -1042,19 +1042,35 @@ quantPred <- function(x, quants, resp, pred, write){
 #' 
 #' @param x Data frame. Results of Extreme Value Theory modelling. 
 #' @param y Data frame. Results of quantile regression. 
-reconcileEVT_quantiles <- function(qr, ev){
+#' @param thresh Numeric. If values are flagged for overwriting, a buffer offset to include 'downstream' (lower Tau values) quantiles to also be overwritten. This is to try and help make predictions 'more smooth' between the GEV/EVT predictions and the upper quantile regression CDF transformed values. Defaults to 0, note 2.5% would be 0.025. 
+reconcileEVT_quantiles <- function(qr, ev, thresh=0){
+  
+  # just for now... 
+  ev <- ev[ev$Region==qr$Region[1],]
   
   # isolate the 'lowest' extreme prediction beyond 0.95
   exts <- ev
   exts_min <- exts[which.min(exts$Tau),]
-  
+
   # determine if any quant preds exceed this value.
   problems <- qr$Prediction > exts_min$Prediction
+  
+  ######## : URGENT MAR 21  - IF WE HAVE PROBLEMS OCCUR ... 
+  # LET'S SEE ABOUT EXTENDING THIS DOWN ANOTHER 2.5% PERCENTILE TO ALLOW FOR
+  # A SMOOTHING OF RATES TO OCCUR. 
+  
+  ######## : USE HYMAN SMOOTHING TO MAKE THE INTERPOLATION BELOW MORE SENSIBLE
   
   # if so apply the interpolation between the two methods. 
   if(any(problems)==TRUE){
     
+    # find the lowest Tau value which we will edit the predictions at. 
+    
     toAlter <- qr[problems==TRUE,]
+    
+    # apply threshold 
+    qr$Prediction > exts_min$Prediction
+    problems <- qr$Tau > (min(toAlter$Tau) - thresh)
     
     # keep all other records, and add our lowest EVT to them to form the upper bound. 
     toRefer <- dplyr::bind_rows(qr[problems==FALSE,], exts)

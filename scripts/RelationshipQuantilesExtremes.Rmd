@@ -44,7 +44,7 @@ rm(p, fri, qf)
 We can focus on using the extreme values only in the upper tails. 
 The very low fire areas we will just set as a floor value, of the lowest calculated quantile. 
 We are not very concerned about the details down that low - the floors are relatively consistent - the data are skewed towards the ceilings. 
-Further in nearly all instances the extreme values in the lower parts of the range are drastically inflated upwards, which would skew our seed demand to being higher than neccessary. 
+Further in nearly all instances the extreme values in the lower parts of the range are drastically inflated upwards, which would skew our seed demand to being higher than necessary. 
 
 ```{r Subset to relevant records}
 frid <- filter(frid, CDF > 0.95) |>
@@ -96,7 +96,7 @@ For any quantiles which exceed the EVT predictions we will replace them with val
 
 ```{r reconcile quantiles and EVT}
 
-dat_new <- lapply(X = split(qfd, f = qfd$Region), FUN = reconcileEVT_quantiles, ev = frid) |>
+dat_new <- lapply(X = split(qfd, f = qfd$Region), FUN = reconcileEVT_quantiles, ev = frid, thresh = 0.025) |>
   bind_rows()
 
 rm(datL)
@@ -118,7 +118,7 @@ ggplot(dat_new, aes(x = Tau, y = Prediction)) +
     y = 'Total Burned Area Prediction (Acres)'
     )
 
-rm(fire_sum)
+#rm(fire_sum)
 ```
 
 Finally we will also linearly interpolate the growth chart so that we can sample from it using weights, and have a similar number of rows per quantile distance. 
@@ -130,17 +130,49 @@ datL <- split(dat_new, f = dat_new$Region)
 all_quants <- function(x){
   
   des_res <- seq(0.01, 0.95, by = 0.0001); des_res <- setdiff(des_res, x$Tau)
+  tmp <- splinefun(x = c(0, x[['Tau']]), y = c(0, x[['Prediction']]), method="hyman")
   
   dt <- data.frame(
     'Tau' = des_res,
     'Prediction' = approx(c(0, x[['Tau']]), c(0, x[['Prediction']]), xout = des_res)$y,
+   # 'Prediction' = tmp(x = c(0, x[['Tau']])),
     'Method' = 'Quantile'
   ) |> 
     dplyr::bind_rows(x) |>
     dplyr::arrange(Tau)
+  
+  return(
+    list(
+      des_res, 
+      'Prediction' = tmp(x = c(0, x[['Tau']])), 
+      dt
+    )
+  )
 }
 
+x <- all_quants(datL[[1]])
+
+nrow(datL[[1]])
+
+sspl <- smooth.spline(c(0, x[['Tau']]), c(0, x[['Prediction']]))
+tmp <- splinefun(x = c(0, x[['Tau']]), y = c(0, x[['Prediction']]), method="hyman")
+
+plot(c(0, x[['Tau']]), c(0, x[['Prediction']]), col = 'grey80')
+lines(sspl,col="blue")
+lines(c(0, x[['Tau']]),  tmp(x = c(0, x[['Tau']])), col = 'red')
+
 rm(dat, dat_new)
+```
+
+
+```{r}
+
+v <- splinefun(c(0, x[['Prediction']]), method = 'hyman')
+
+library(scam)
+fit = scam(c(0, x[['Prediction']]) ~ s(1:100, k=10, bs="mpi", m=5), family=gaussian(link="identity"))
+
+
 ```
 
 # start trying simulation 
@@ -161,7 +193,7 @@ ak <-  drop_na(ak)
 library(foreach)
 bnch <- bench::mark(
   outtie <- BurnedAreasSimulator(
-    historic = ak, extremes = frid, sims = 1000, years = 3, recalc_extremes = 'every') # 'every is failing when many
+    historic = ak, extremes = frid, sims = 50, years = 5, recalc_extremes = 'every') # 'every is failing when many
 )
 
 # 50 sims, years = 5, extremes='median', 3.91 minutes. 
@@ -220,11 +252,7 @@ predsL <- vector(mode = 'list', length = length(quants))
 preds <- data.frame(FIRE_YEAR = 2024:2028)
 
 ## simulation prediction. 
-
-niner <- quantregGrowth::gcrq(form.sm, data=d2, tau = 0.9)
-
 mod_sim <- quantregGrowth::gcrq(form.sm, data = d2, tau = quants)
-
 
 ####### these are the simple 'predictions' from the growthchart. 
 mod$call$formula <- form.sm
@@ -237,28 +265,31 @@ normal_preds <- predict(mod, preds)
 L <- 7
 linetypes <- c(3:5, 1, 5:3)
 cols <- paste0('grey', round(seq(80, 0, length.out =  floor(7/2)+1)))
-cols <- c(cols, rev(cols[1:7/2]))
+cols <- c(cols, rev(cols[1:length(cols)-1]))
 
 plot(
-    mod_sim, 
-    res = TRUE, 
+    mod_sim,
+    res = TRUE,
     col = cols,
-    lty = linetypes, 
+    bg = 'green',
+    pch = 25,
+    lty = linetypes,
+    lwd = 2,
     xlim = c(1990, 2029),
     yaxt = 'n',
-    xlab = 'Year', 
+    xlab = 'Year',
     ylab = 'Total Area Burned (Acre)',
-) 
-points(ak[[pred]], ak[[resp]], pch = 20, cex = 1.2, col = 'black')
+)
+
 legend(
-  x = "topleft", 
-  legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25, 0.75)', '0.9 band (0.05, 0.95)', 'Conditional Mean'),
-  lty = c(rev(linetypes[1:ceiling(L/2)]), 1),  
-  col = rev(cols[1:ceiling(L/2)]),
-  lwd = 2, 
+  x = "topleft",
+  legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25, 0.75)', '0.9 band (0.05, 0.95)'),
+  lty = linetypes,
+  col = cols,
+  lwd = 2,
   bg = adjustcolor("white", 0.4)
-)  
-  
+)
+
 # perfect, predict just does an extrapolation at the exact slope. 
 for (i in seq_along(1:ncol(normal_preds))){ 
     lines(y = mod_sim[["fitted.values"]][,i], x = seq(2024, 2028, length= 1000))
@@ -266,10 +297,6 @@ for (i in seq_along(1:ncol(normal_preds))){
 
 ```
 
-
-```{r}
-
-```
 
 
 
