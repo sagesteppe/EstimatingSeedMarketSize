@@ -146,7 +146,7 @@ x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
 
-ak <- x_l[['California-Great Basin']]
+ak <- x_l[['Lower Colorado Basin']]
 ak <-  drop_na(ak)
 
 ```
@@ -156,16 +156,8 @@ ak <-  drop_na(ak)
 library(foreach)
 bnch <- bench::mark(
   outtie <- BurnedAreasSimulator(
-    historic = ak, extremes = frid, sims = 10, years = 3, recalc_extremes = 'every')
+    historic = ak, extremes = frid, sims = 50, years = 5, recalc_extremes = 'every')
 )
-
-ob <- reconcileEVT_quantiles(
-  qr = qr1, ev = frid[frid$Region=='California-Great Basin',], thresh = 0.025)
-
-qr <- outtie[[3]]
-
-toAlter$Prediction <- spline(
-      x = ob[['Tau']],  y = ob[['Prediction']], xout = toAlter$Tau, method="hyman")$y
 
 # 50 sims, years = 5, extremes='median', 3.91 minutes. 
 # 50 sims, years = 5, extremes='every', 
@@ -254,17 +246,12 @@ plot(
 
 legend(
   x = "topleft",
-  legend = c("Median (0.5)", "0.4 & 0.6", 'Quartiles (0.25, 0.75)', '0.9 band (0.05, 0.95)'),
+  legend = c('0.9 band (0.05, 0.95)', 'Quartiles (0.25, 0.75)', "0.4 & 0.6", "Median (0.5)"),
   lty = linetypes,
   col = cols,
   lwd = 2,
   bg = adjustcolor("white", 0.4)
 )
-
-# perfect, predict just does an extrapolation at the exact slope. 
-for (i in seq_along(1:ncol(normal_preds))){ 
-    lines(y = mod_sim[["fitted.values"]][,i], x = seq(2024, 2028, length= 1000))
-}
 
 ```
 

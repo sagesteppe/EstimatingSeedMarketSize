@@ -1188,7 +1188,7 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
       # extreme value theory, we will bound them with the extreme value predictions. 
       # to do this we simply run linear interpolation between the highest qr pred
       # and the lowest extreme value pred. 
-      reconciled <- reconcileEVT_quantiles(qr = preds, ev = extremes)
+      reconciled <- reconcileEVT_quantiles(qr = preds, ev = extremes, thresh = 0.025)
 
       # note that the quantile regression methods can only deal with so many values of tau
       # otherwise errors start to occur. So we try to get a prediction at each 
@@ -1217,16 +1217,15 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
       taus[i] <- x[['Tau']][nrow(x)]
 
     }
- #   return(
-#      list(
-#        Predictions = predictions, 
-#        Tau = taus)
-#    )
+    return(
+      list(
+        Predictions = predictions, 
+        Tau = taus)
+    )
   }
    
   close(pb)
   parallel::stopCluster(cluster)
-  return(iters)
 
   # every set of simulations is in two sublists, we will combine them into 
   # matrices for easy saving. An array could be a better option for certain users. 
@@ -1238,6 +1237,10 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
   colnames(predictions) <- paste0('sim', seq_along(1:sims))
   rownames(taus) <- max(historic[[pred]]) + seq_along(1:years)
   colnames(taus) <-  paste0('sim', seq_along(1:sims))
+  
+  keeps <- apply(predictions, MARGIN = 2, sum) > 0
+  predictions <- predictions[,keeps]
+  taus <- taus[,keeps]
   
   # finally repack this pupper as a list of two matrices. 
   return(
