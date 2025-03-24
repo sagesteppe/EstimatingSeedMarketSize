@@ -146,33 +146,42 @@ x_l <- read.csv(
   file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv'))  %>% 
   split(., f = .$REG_NAME)
 
-ak <- x_l[['Lower Colorado Basin']]
+ak <- x_l[['Pacific Islands']]
 ak <-  drop_na(ak)
 
 ```
 
 ```{r}
 
+
 library(foreach)
-bnch <- bench::mark(
+
+wrapper <- function(x){
+  
+  x <- tidyr::drop_na(x)
   outtie <- BurnedAreasSimulator(
-    historic = ak, extremes = frid, sims = 50, years = 5, recalc_extremes = 'every')
-)
+      historic = x, extremes = frid, sims = 50, years = 8, recalc_extremes = 'every')
 
-# 50 sims, years = 5, extremes='median', 3.91 minutes. 
-# 50 sims, years = 5, extremes='every', 
-# 1000 sims, years = 3, extremes='every', 49.6 minutes
+  predictions <- data.frame(outtie$Predictions) |>
+    rownames_to_column('Year')|>
+    pivot_longer( !Year, names_to = 'Simulation', values_to = 'TotalArea_Acre') |>
+    mutate(Year = as.numeric(Year)) |>
+    rename(FIRE_YEAR = Year)
 
-d2 <- data.frame(outtie$Predictions) |>
-  rownames_to_column('Year')|>
-  pivot_longer( !Year) |>
-  mutate(Year = as.numeric(Year)) |>
-   select( FIRE_YEAR = Year, TotalArea_Acre = value)
+  taus <- data.frame(outtie$Tau) |>
+    rownames_to_column('Year') |>
+    pivot_longer(!Year, names_to = 'Simulation', values_to = 'Tau')|>
+    mutate(Year = as.numeric(Year))
+  
+  fname <- paste0(gsub(' ', '_', x$REG_NAME[1]))
+  write.csv(predictions, row.names = FALSE, 
+            paste0('../results/Tabular/QuantileSimulations/', fname, '-preds.csv'))
+  write.csv(taus, row.names = FALSE,
+            paste0('../results/Tabular/QuantileSimulations/', fname, '-tau.csv'))
+  
+}
 
-blah <- data.frame(outtie$Tau) |>
-  rownames_to_column('Year') |>
-  pivot_longer(!Year)|>
-  mutate(Year = as.numeric(Year))
+wrapper(x_l[[1]])
 
 # write these out for now...  so no need to re run the sims, looks like 1000 sims is a good target.
 # but that we need to allow for the extreme values to be 'refreshed' at the midpoint of simulation
@@ -198,7 +207,7 @@ resp <- 'TotalArea_Acre'
 pred <- 'FIRE_YEAR'
 
 d2 <- bind_rows(
-  select(ak, FIRE_YEAR, TotalArea_Acre), 
+  select(ak, FIRE_YEAR, TotalArea_Acre),
   d2
 )
 
@@ -234,7 +243,6 @@ plot(
     mod_sim,
     res = TRUE,
     col = cols,
-    bg = 'green',
     pch = 25,
     lty = linetypes,
     lwd = 2,
