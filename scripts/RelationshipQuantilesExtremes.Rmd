@@ -96,7 +96,7 @@ For any quantiles which exceed the EVT predictions we will replace them with val
 
 ```{r reconcile quantiles and EVT}
 
-dat_new <- lapply(X = split(qfd, f = qfd$Region), FUN = reconcileEVT_quantiles, ev = frid, thresh = 0.025) |>
+dat_new <- lapply(X = split(qfd, f = qfd$Region), FUN = reconcileEVT_quantiles, ev = frid, thresh = 0.05) |>
   bind_rows()
 
 rm(datL)
@@ -107,18 +107,18 @@ In the slightly modified, and still ugly, plot below we have the original values
 
 ```{r plot difference in overwritten estimates}
 
-ggplot(dat_new, aes(x = Tau, y = Prediction)) + 
-  geom_point(data = qfd, aes(shape = Approach), color = 'purple',alpha = 0.8) + 
-  geom_point(data = fire_sum, aes(y = TotalArea_Acre), x = 0.99, alpha = 0.5) + 
+ggplot(dat_new, aes(x = Tau, y = Prediction)) +
+  geom_point(data = qfd, aes(shape = Approach), color = 'purple',alpha = 0.8) +
+  geom_point(data = fire_sum, aes(y = TotalArea_Acre), x = 0.99, alpha = 0.5) +
   geom_point(aes(shape = Approach, color = Approach)) + 
-  facet_wrap(~ Region, scales = 'free') + 
-  theme_bw() + 
+  facet_wrap(~ Region, scales = 'free') +
+  theme_bw() +
   labs(
     title = 'Relationships between Quantile and Extreme Value predictions',
     y = 'Total Burned Area Prediction (Acres)'
     )
 
-#rm(fire_sum)
+rm(fire_sum)
 ```
 
 Finally we will also linearly interpolate the growth chart so that we can sample from it using weights, and have a similar number of rows per quantile distance. 
@@ -127,52 +127,15 @@ Finally we will also linearly interpolate the growth chart so that we can sample
 
 datL <- split(dat_new, f = dat_new$Region)
 
-all_quants <- function(x){
-  
-  des_res <- seq(0.01, 0.95, by = 0.0001); des_res <- setdiff(des_res, x$Tau)
-  tmp <- splinefun(x = c(0, x[['Tau']]), y = c(0, x[['Prediction']]), method="hyman")
-  
-  dt <- data.frame(
-    'Tau' = des_res,
-    'Prediction' = approx(c(0, x[['Tau']]), c(0, x[['Prediction']]), xout = des_res)$y,
-   # 'Prediction' = tmp(x = c(0, x[['Tau']])),
-    'Method' = 'Quantile'
-  ) |> 
-    dplyr::bind_rows(x) |>
-    dplyr::arrange(Tau)
-  
-  return(
-    list(
-      des_res, 
-      'Prediction' = tmp(x = c(0, x[['Tau']])), 
-      dt
-    )
-  )
-}
+datL1 <- lapply(datL, all_quants) |> 
+  purrr::map(fill, Region, .direction  = 'downup') |>
+  bind_rows()
 
-x <- all_quants(datL[[1]])
-
-nrow(datL[[1]])
-
-sspl <- smooth.spline(c(0, x[['Tau']]), c(0, x[['Prediction']]))
-tmp <- splinefun(x = c(0, x[['Tau']]), y = c(0, x[['Prediction']]), method="hyman")
-
-plot(c(0, x[['Tau']]), c(0, x[['Prediction']]), col = 'grey80')
-lines(sspl,col="blue")
-lines(c(0, x[['Tau']]),  tmp(x = c(0, x[['Tau']])), col = 'red')
+ggplot(datL1, aes(x = Tau, y = Prediction)) + 
+  facet_wrap(~ Region, scales = 'free') +
+  geom_line() 
 
 rm(dat, dat_new)
-```
-
-
-```{r}
-
-v <- splinefun(c(0, x[['Prediction']]), method = 'hyman')
-
-library(scam)
-fit = scam(c(0, x[['Prediction']]) ~ s(1:100, k=10, bs="mpi", m=5), family=gaussian(link="identity"))
-
-
 ```
 
 # start trying simulation 
@@ -193,8 +156,16 @@ ak <-  drop_na(ak)
 library(foreach)
 bnch <- bench::mark(
   outtie <- BurnedAreasSimulator(
-    historic = ak, extremes = frid, sims = 50, years = 5, recalc_extremes = 'every') # 'every is failing when many
+    historic = ak, extremes = frid, sims = 10, years = 3, recalc_extremes = 'every')
 )
+
+ob <- reconcileEVT_quantiles(
+  qr = qr1, ev = frid[frid$Region=='California-Great Basin',], thresh = 0.025)
+
+qr <- outtie[[3]]
+
+toAlter$Prediction <- spline(
+      x = ob[['Tau']],  y = ob[['Prediction']], xout = toAlter$Tau, method="hyman")$y
 
 # 50 sims, years = 5, extremes='median', 3.91 minutes. 
 # 50 sims, years = 5, extremes='every', 

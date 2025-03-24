@@ -34,9 +34,7 @@ lapply(x_l, quantReg, gc = TRUE)
 
 # this will get the estimates for each individual quantile to be interpolated between.
 lapply(x_l, quantPred, write = TRUE)
-
-
-
+ 
 # here we can see the results of a the default prediction, the slope is quite modest. 
 aky <- x_l$`Mississippi Basin`
 aky <- drop_na(aky)

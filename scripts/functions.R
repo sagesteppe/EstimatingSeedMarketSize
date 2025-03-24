@@ -929,7 +929,7 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
 #' 
 #' @description 
 #' @param x Data frame. Must contain all data required to perform modelling. 
-#' @param quants Numeric vector - odd. The quantiles which you want to model fits for, defaults to seq(0.05, 0.95, by = 0.01)
+#' @param quants Numeric vector - odd. The quantiles which you want to model fits for, defaults to seq(0.05, 0.95, by = 0.025). Use to default to 0.01, but results were too 'jumpy', now we consider it best to use fewer predictions points and then using monotonic interpolation via splines ('hyman' method) to create estimates which do not have 'jumps' between predictions. 
 #' @param resp Character. Name of the response field.  
 #' @param pred Character. Name of the predictor field.  
 #' @param write Boolean Whether to write results to disk or return them. 
@@ -937,7 +937,7 @@ quantReg <- function(x, quants, wts_p, resp, pred, gc){
 #' @examples
 quantPred <- function(x, quants, resp, pred, write){
   
-  if(missing(quants)){quants <- seq(0.05, 0.95, by = 0.01)}
+  if(missing(quants)){quants <- seq(0.05, 0.95, by = 0.025)}
   if(missing(resp)){resp <- 'TotalArea_Acre'}
   if(missing(pred)){pred <- 'FIRE_YEAR'}
   if(missing(write)){write <- FALSE}
@@ -1040,59 +1040,62 @@ quantPred <- function(x, quants, resp, pred, write){
 
 #' Use this to reconcile over predictions of quantiles (or underpreds of EVT) so they can form a continuous distribution. 
 #' 
-#' @param x Data frame. Results of Extreme Value Theory modelling. 
-#' @param y Data frame. Results of quantile regression. 
+#' @param qr Data frame. Results of quantile regression. 
+#' @param ev Data frame. Results of Extreme Value Theory modelling. 
 #' @param thresh Numeric. If values are flagged for overwriting, a buffer offset to include 'downstream' (lower Tau values) quantiles to also be overwritten. This is to try and help make predictions 'more smooth' between the GEV/EVT predictions and the upper quantile regression CDF transformed values. Defaults to 0, note 2.5% would be 0.025. 
 reconcileEVT_quantiles <- function(qr, ev, thresh=0){
   
   # just for now... 
-  ev <- ev[ev$Region==qr$Region[1],]
+ # ev <- ev[ev$Region==qr$Region[1],]
+  
+  # remove any negative predictions, these cannot exist. 
+  qr <- qr[qr$Prediction>0,]
+  
+  # ensure that all taus are equal to the previous value or ascending
+  qr <- qr[!diff(qr$Prediction, 1) < 0, ]
   
   # isolate the 'lowest' extreme prediction beyond 0.95
   exts <- ev
   exts_min <- exts[which.min(exts$Tau),]
 
-  # determine if any quant preds exceed this value.
+  # determine if any quantile predictions exceed this value.
   problems <- qr$Prediction > exts_min$Prediction
-  
-  ######## : URGENT MAR 21  - IF WE HAVE PROBLEMS OCCUR ... 
-  # LET'S SEE ABOUT EXTENDING THIS DOWN ANOTHER 2.5% PERCENTILE TO ALLOW FOR
-  # A SMOOTHING OF RATES TO OCCUR. 
-  
-  ######## : USE HYMAN SMOOTHING TO MAKE THE INTERPOLATION BELOW MORE SENSIBLE
-  
+
   # if so apply the interpolation between the two methods. 
   if(any(problems)==TRUE){
     
     # find the lowest Tau value which we will edit the predictions at. 
-    
     toAlter <- qr[problems==TRUE,]
     
     # apply threshold 
     qr$Prediction > exts_min$Prediction
-    problems <- qr$Tau > (min(toAlter$Tau) - thresh)
-    
+    problems <- qr$Tau > ((min(toAlter$Tau) *  (1 - thresh)))
+    toAlter <- qr[problems==TRUE,]
+  
     # keep all other records, and add our lowest EVT to them to form the upper bound. 
     toRefer <- dplyr::bind_rows(qr[problems==FALSE,], exts)
-    toAlter$Prediction <- approx(toRefer$Tau, toRefer$Prediction, xout = toAlter$Tau)$y
+    toAlter$Prediction <- spline(
+      x = toRefer[['Tau']],  y = toRefer[['Prediction']], xout = toAlter$Tau, method="hyman")$y
     toAlter$ReInterpolated <- TRUE
     
     # now we can add back together the pieces. 
-    dplyr::bind_rows(
+    ret <- dplyr::bind_rows(
       exts,
       qr[problems==FALSE,],
       toAlter
     ) |>
       dplyr::arrange(Tau) 
-    
+    ret <- ret [ !diff(ret$Prediction, 1) < 0 , ] 
+  
   } else {
     exts$ReInterpolated <- NA
     
-    dplyr::bind_rows(
+    ret <- dplyr::bind_rows(
       exts,
       qr
     ) |>
       dplyr::arrange(Tau)
+    ret <- ret [ !diff(ret$Prediction, 1) < 0 , ] 
   }
 }
 
@@ -1129,7 +1132,6 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
               re <- round(median(seq_along(1:years))) # median year, and round to integer. 
             }
   # ADD A CONDITION TO CALCULATE XTREMES IF IT IS MISSING !!! 
-  
   
   # subset extremes to the particular region we are focusing on . 
   extremes <- extremes[extremes$Region == historic$REG_NAME[1], ]
@@ -1173,7 +1175,7 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
       }
       # model the growth chart from the beginning of the sample period, to the year-1
       # for this next prediction. 
-      preds <- quantPred(x, quants = seq(0.05, 0.95, by = 0.01))
+      preds <- quantPred(x, quants = seq(0.05, 0.95, by = 0.025))
       
       #### need to kill the simulation is preds is NA ####
       if(length(preds)==1){
@@ -1189,7 +1191,8 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
       reconciled <- reconcileEVT_quantiles(qr = preds, ev = extremes)
 
       # note that the quantile regression methods can only deal with so many values of tau
-      # otherwise errors start to occur. So we try to get a prediction at each whole quantile (e.g. integer if you will)
+      # otherwise errors start to occur. So we try to get a prediction at each 
+      # whole quantile (e.g. integer if you will)
       # and then we have to perform linear interpolations afterwards. 
       all_q <- all_quants(reconciled)
       
@@ -1214,15 +1217,16 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
       taus[i] <- x[['Tau']][nrow(x)]
 
     }
-    return(
-      list(
-        Predictions = predictions, 
-        Tau = taus)
-    )
+ #   return(
+#      list(
+#        Predictions = predictions, 
+#        Tau = taus)
+#    )
   }
    
   close(pb)
   parallel::stopCluster(cluster)
+  return(iters)
 
   # every set of simulations is in two sublists, we will combine them into 
   # matrices for easy saving. An array could be a better option for certain users. 
@@ -1241,4 +1245,38 @@ BurnedAreasSimulator <- function(historic, extremes, resp, pred, years, Syear,
       Predictions = predictions, 
       Tau = taus)
   )
+}
+
+#' Backfill the predictions at a series of fine resolutions Taus to create a continuous distribution to sample from 
+#' @param x The data from `reconcileEVT_quantiles` as a list of data frames. 
+all_quants <- function(x){
+  
+  des_res <- seq(0.0, 1.0, by = 0.0001)
+  
+  # ensure that all taus are equal to the previous value or ascending
+  
+  x <- x[!diff(x$Prediction, 1) < 0 ,]
+  #return(x$Prediction)
+  
+  spli <- spline(
+    x = c(0, x[['Tau']]),
+    y = c(0, x[['Prediction']]),
+    xout = des_res,
+    method = "hyman"
+  ) |>
+    setNames(c('Tau', 'Prediction'))
+  
+  pos <- which(!spli$Tau %in% x$Tau)
+  spli <- lapply(spli, '[', pos)
+  
+  dt <- data.frame(
+    'Tau' = spli$Tau,
+    'Prediction' = spli$Prediction,
+    'Method' = 'Quantile',
+    'Approach' = 'Splines'
+  ) |>
+    dplyr::bind_rows(x) |>
+    dplyr::arrange(Tau)
+  
+  return(dt)
 }
