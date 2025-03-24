@@ -41,13 +41,9 @@ pr1 <- ifel(pr$`Land Cover Class`, ! pr$`Land Cover Class` %in%
          'Emergent Herbaceuous Wetlands'), 0, pr$`Land Cover Class`, 
        filename = 'Pr.tif')
 
-
-
 # For terrestrial surface we use the GADM, which has excellent resolution for the CONUS coastlines, islands off Alaska, and the Pacific Islands. 
 # However it also draws land ownership over the Great Lakes. 
 # We will use Natural Earth data to remove this coverage. 
-
-
 
 # mask each NLCD data set to DOI land 
 
@@ -63,8 +59,3 @@ padus <- sf::st_read(
 # We will convert padus to a raster data set 
 
 p2nlcd <- '/media/steppe/hdd/SeedMarketSizeTemplates/tiles/nlcd'
-
-padWritR <- function(x){
-  
-  
-}

@@ -15,8 +15,7 @@ x1 <- split(annual, f = annual$REG_NAME)
 lapply(x1, forecasting)
 
 forecasting <- function(x){
-  
-  
+
   x <- tsibble::as_tsibble(x, key = REG_NAME, index = FIRE_YEAR)
   
   ### perform ARIMA modelling ###
