@@ -22,29 +22,50 @@ The original design of the function follows just a couple simple steps, and iter
 
 
 ```{r}
+bp <- file.path('..', 'data', 'geospatial', 'WildfireProbability')
+ras <- terra::rast( file.path(bp, 'I_FSim_CONUS_LF2020_270m', 'CONUS_BP.tif'))
 
 # devtools::install_github("jolars/euclidr")
 
-SimFireGrowth <- function(x){
+SimFireGrowth <- function(n){
   
-  # mask raster to DOI region under analysis. 
+  
+  ### prep work. all simulations will use these base products 
+
+  # load relevant raster for the area of interest
+  
+  # mask raster to DOI region under analysis (for CONUS only)
+  
+  ### now enter a set of simulations for a single 5 year trajectory in an area. 
+  # this is important because we will keep masking the areas which can burn. 
   
   
   # Sample cells from raster using Pr. wildfire weights 
   # this is our method for putting fires in areas where fires mostly make sense. 
-  ignition <- terra::spatSample(ras, method = 'weights', xy = TRUE)
+  ignition <- terra::spatSample(ras, size = n, method = 'weights', xy = TRUE) |>
+    sf::st_as_sf(coords = c('x', 'y'), crs = terra::crs(ras))
   
   # now add the equidistant rings to each ignition point, we will extract these
   # values and use them to sample to determine plausible total fire size matches
   dists <- c(1e3, 1e4, 1.5e4)
-  n <- c(8, 24, 48)
+  samps <- c(8, 24, 48)
   
   # do this through every single ignition point. 
   # lapply   ##
-  ringPts <- Map(ringPts, rep(pt_planar, times = 3),  dists, n) |>
-    dplyr::bind_rows()
+  igL <- split(ignition, f = 1:nrow(ignition))
+  
+  boyo <- lapply(
+    igL, function(x){
+      
+        ringPts2 <- Map(ringPts, rep(igL, times = length(dists)),  dists, samps) |>
+          dplyr::bind_rows() |>
+          sf::st_transform(terra::crs(ras))
 
-  terra::extract(ras, ignit_surroundings, fun = mean, na.rm = TRUE)
+        ob <- mean(terra::extract(ras, ringPts2, na.rm = TRUE, ID = F)[[1]])
+          
+    }) |> as.numeric()
+  
+  return(boyo)
   
   # assign a total fire size to the points based on their surroundings. 
   
@@ -55,15 +76,18 @@ SimFireGrowth <- function(x){
   
 }
 
-pt <- data.frame(x = 42.179, y = -88.720) |>
+pt <- data.frame(x = -88.720, y = 42.179) |>
   sf::st_as_sf(coords = c('x', 'y'), crs = 4326)
-
 pt_planar <- sf::st_transform(pt, 5070)
+
+ob <- SimFireGrowth(n = 10)
+
 
 # the max distance we will search is for a fire which grows as a rectangle with 
 # dimensions 1:5
 totalArea = 100
 hyp <- sqrt(((2.5^2) + ((totalArea/5)/2)^2))
+
 
 ```
 
@@ -73,32 +97,23 @@ hyp <- sqrt(((2.5^2) + ((totalArea/5)/2)^2))
 #' sample points at ring distances for calculating wildfire environment. 
 #' @param x the center point
 #' @param d the distance to work out from this point
-#' @param n the number of points to return from the ring. Going above 50 drastically increase compute time. 
-ringPts <- function(x, d, n){
+#' @param samps the number of points to return from the ring. Going above 50 drastically increase compute time. 
+ringPts <- function(x, d, samps){
   
   r <- sf::st_cast(
     sf::st_cast(
       sf::st_buffer(x, d),
-      'LINESTRING'),
-    'POINT'
+      'LINESTRING', warn = FALSE),
+    'POINT', warn = FALSE
     )
   r <- sf::st_coordinates(r)
-  indx <- euclidr:: farthest_points(r, n)
+  indx <- euclidr:: farthest_points(r, samps)
   
   r <- r[indx,] |>
     data.frame() |>
     sf::st_as_sf(coords = c('X', 'Y'), crs = 5070)
-  return(r)
   
 }
-
-# 2. Create vectors for the different arguments
-dists <- c(1e3, 1e4, 1.5e4)
-n <- c(8, 24, 48)
-
-# 3. Use Map to apply the function to corresponding elements of x_values and y_values
-results <- Map(ringPts, rep(pt_planar, times = 3),  dists, n) |>
-  dplyr::bind_rows()
 
 
 ```
