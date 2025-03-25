@@ -1,0 +1,105 @@
+---
+title: "Simulate Fire Growth"
+author: "Reed Benkendorf"
+date: "2025-03-25"
+output: html_document
+---
+
+A main goal of the simulations is to determine not only how much area may burn, but also *which* areas may burn.
+In particular, the NLCD classes of the aresa which may burn, which can be used to crosswalk the total burned area back to seed mixes. 
+By combining the total areas to burn, with wildfire probability burn surfaces from the US Forest Services Missoula Fire Lab, we can come up with some decent scenarios. 
+
+Here we develop a function which reflects a process for combining these data. 
+
+The original design of the function follows just a couple simple steps, and iterates on a subset of them. 
+
+1) Using the Pr. Wildfire surface, performs a weighted sample **X** points. 
+2) Extracts points in three equidistant rings around the focal point. 
+3) Using the mean Pr. wildfire surface score for all points, assigns a possible fire size to this ignition source. 
+4) Assigns the raster cells bordering the ignition source to 'burned' (NA), if the total fire area will be 1000 acres (and raster cells are 1 acre each), the closest 200 cells are considered the initial burn. 
+5) **Iteration begins here.** Identify all cells adjacent to the current burn, and using weighted sampling, sample 50% of them and assign them as burned. 
+6) To 50% of these newly marked cells, assign all of their queen neighbors to burned. 
+
+
+```{r}
+
+# devtools::install_github("jolars/euclidr")
+
+SimFireGrowth <- function(x){
+  
+  # mask raster to DOI region under analysis. 
+  
+  
+  # Sample cells from raster using Pr. wildfire weights 
+  # this is our method for putting fires in areas where fires mostly make sense. 
+  ignition <- terra::spatSample(ras, method = 'weights', xy = TRUE)
+  
+  # now add the equidistant rings to each ignition point, we will extract these
+  # values and use them to sample to determine plausible total fire size matches
+  dists <- c(1e3, 1e4, 1.5e4)
+  n <- c(8, 24, 48)
+  
+  # do this through every single ignition point. 
+  # lapply   ##
+  ringPts <- Map(ringPts, rep(pt_planar, times = 3),  dists, n) |>
+    dplyr::bind_rows()
+
+  terra::extract(ras, ignit_surroundings, fun = mean, na.rm = TRUE)
+  
+  # assign a total fire size to the points based on their surroundings. 
+  
+  # 'burn in' an initial 20% of the total fire size around the ignition point. 
+  
+  # this will require calculating distances, we will restrict calculations to a distance
+  # which is equal to 
+  
+}
+
+pt <- data.frame(x = 42.179, y = -88.720) |>
+  sf::st_as_sf(coords = c('x', 'y'), crs = 4326)
+
+pt_planar <- sf::st_transform(pt, 5070)
+
+# the max distance we will search is for a fire which grows as a rectangle with 
+# dimensions 1:5
+totalArea = 100
+hyp <- sqrt(((2.5^2) + ((totalArea/5)/2)^2))
+
+```
+
+
+
+```{r}
+#' sample points at ring distances for calculating wildfire environment. 
+#' @param x the center point
+#' @param d the distance to work out from this point
+#' @param n the number of points to return from the ring. Going above 50 drastically increase compute time. 
+ringPts <- function(x, d, n){
+  
+  r <- sf::st_cast(
+    sf::st_cast(
+      sf::st_buffer(x, d),
+      'LINESTRING'),
+    'POINT'
+    )
+  r <- sf::st_coordinates(r)
+  indx <- euclidr:: farthest_points(r, n)
+  
+  r <- r[indx,] |>
+    data.frame() |>
+    sf::st_as_sf(coords = c('X', 'Y'), crs = 5070)
+  return(r)
+  
+}
+
+# 2. Create vectors for the different arguments
+dists <- c(1e3, 1e4, 1.5e4)
+n <- c(8, 24, 48)
+
+# 3. Use Map to apply the function to corresponding elements of x_values and y_values
+results <- Map(ringPts, rep(pt_planar, times = 3),  dists, n) |>
+  dplyr::bind_rows()
+
+
+```
+
