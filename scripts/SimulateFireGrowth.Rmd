@@ -27,11 +27,12 @@ ras <- terra::rast( file.path(bp, 'I_FSim_CONUS_LF2020_270m', 'CONUS_BP.tif'))
 
 # devtools::install_github("jolars/euclidr")
 
-SimFireGrowth <- function(n){
+SimFireGrowth <- function(n, dists, samps){
   
   
   ### prep work. all simulations will use these base products 
 
+  
   # load relevant raster for the area of interest
   
   # mask raster to DOI region under analysis (for CONUS only)
@@ -47,11 +48,8 @@ SimFireGrowth <- function(n){
   
   # now add the equidistant rings to each ignition point, we will extract these
   # values and use them to sample to determine plausible total fire size matches
-  dists <- c(1e3, 1e4, 1.5e4)
-  samps <- c(8, 24, 48)
-  
+
   # do this through every single ignition point. 
-  # lapply   ##
   igL <- split(ignition, f = 1:nrow(ignition))
   
   boyo <- lapply(
@@ -64,8 +62,6 @@ SimFireGrowth <- function(n){
         ob <- mean(terra::extract(ras, ringPts2, na.rm = TRUE, ID = F)[[1]])
           
     }) |> as.numeric()
-  
-  return(boyo)
   
   # assign a total fire size to the points based on their surroundings. 
   
@@ -80,14 +76,18 @@ pt <- data.frame(x = -88.720, y = 42.179) |>
   sf::st_as_sf(coords = c('x', 'y'), crs = 4326)
 pt_planar <- sf::st_transform(pt, 5070)
 
-ob <- SimFireGrowth(n = 10)
+ob <- SimFireGrowth(n = 10, dists = c(1e3, 5e3, 1e4), samps = c(8, 24, 48))
 
+
+
+order(ob)
 
 # the max distance we will search is for a fire which grows as a rectangle with 
 # dimensions 1:5
 totalArea = 100
 hyp <- sqrt(((2.5^2) + ((totalArea/5)/2)^2))
 
+plot(density(ob))
 
 ```
 
@@ -96,9 +96,9 @@ hyp <- sqrt(((2.5^2) + ((totalArea/5)/2)^2))
 ```{r}
 #' sample points at ring distances for calculating wildfire environment. 
 #' @param x the center point
-#' @param d the distance to work out from this point
+#' @param dists the distance to work out from this point
 #' @param samps the number of points to return from the ring. Going above 50 drastically increase compute time. 
-ringPts <- function(x, d, samps){
+ringPts <- function(x, dists, samps){
   
   r <- sf::st_cast(
     sf::st_cast(
@@ -112,7 +112,7 @@ ringPts <- function(x, d, samps){
   r <- r[indx,] |>
     data.frame() |>
     sf::st_as_sf(coords = c('X', 'Y'), crs = 5070)
-  
+  return(r)
 }
 
 
