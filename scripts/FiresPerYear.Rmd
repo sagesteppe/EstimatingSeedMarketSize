@@ -1,0 +1,65 @@
+---
+title: "Fires Per year"
+author: "Reed Benkendorf"
+date: "2025-03-25"
+output: html_document
+---
+
+For simulations we want to better understand the relationship between the number of fires per year, and the total area burned. 
+
+
+```{r}
+library(tidyverse)
+```
+
+
+How strong is the correlation between the total number of fires per region per year, and the total area burned in that region? 
+Keep in mind both are dependent on current and historic climate, and that to back calculate a plausible number of total fires per area burned (per simulation values), we will end up flipping the axes. 
+However, for now it makes the most sense that the relationship should be that more fires started per year, more area burned, especially as this will split finite wildfire fighting resources to help deal with early detection. 
+
+```{r}
+fire_sum <- read.csv(
+  file.path('..', 'data', 'processed', 'NoFires-TotalArea_byDOIRegion.csv')) %>% 
+  rename(Region = REG_NAME)
+
+ggplot(fire_sum, aes(NoFire, sqrt(TotalArea_Acre))) + 
+  geom_point() + 
+  facet_wrap(~ Region, scales = 'free')
+```
+
+In some areas we can see technological improvements shining through.
+In the Columbia-Pacific Northwest region, we can see the 2022 and 2023 years where many fires started, but they were extinguished early (rightmost 2 points). 
+This can be due to: better early detection and hence extinguishing, better mapping all around (i.e. small fires may be missed historically), better funding and awareness, and many other things. 
+This same feature is repeated in Alaska, 
+
+```{r}
+ggplot(fire_sum, aes(NoFire, log(TotalArea_Acre), color = FIRE_YEAR)) + 
+  geom_point() + 
+  facet_wrap(~ Region, scales = 'free')
+```
+
+Fit some simple models and see what happens. 
+
+```{r}
+
+fire_sum %>%
+  group_by(Region) %>%
+  group_map(~ broom::tidy(lm(NoFire ~ sqrt(TotalArea_Acre), data = .x)))
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+ak <- filter(fire_sum, Region == 'Columbia-Pacific Northwest')
+
+plot_ly(ak, y = ~ NoFire, x = ~log(TotalArea_Acre), z = ~FIRE_YEAR, color = ~FIRE_YEAR)
+```
+
+
